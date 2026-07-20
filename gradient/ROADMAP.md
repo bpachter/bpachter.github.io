@@ -223,6 +223,8 @@ depth requested.
 
 > **Status:** Part VI (the graph, ch 21-26) shipped 2026-07-20 with the
 > two-book landing and `book II ▾` nav rollup. Part VII (the business,
-> ch 27-31) shipped 2026-07-20 — **both books complete: 31 chapters.**
-> Remaining: the trim pass (multimodal 08b, engine-room 10i/10j,
-> field-note refresh, portfolio card update, cross-link sweep).
+> ch 27-31) shipped 2026-07-20. **Epilogue (ch 32 — one question traced
+> through the whole machine, plus the complete atlas) shipped 2026-07-20:
+> the library is closed at 32 chapters.** Remaining: the trim pass
+> (multimodal 08b, engine-room 10i/10j, field-note refresh, portfolio
+> card update, cross-link sweep).
