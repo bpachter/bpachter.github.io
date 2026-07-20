@@ -36,9 +36,8 @@ graph-theory chops from thessa without exposing anything proprietary.
 
 **Status: IN PROGRESS (this build) → `/gradient/`**
 
-The cert-flexer: IBM AI Engineering (13 courses) + DeepLearning.AI/Stanford ML,
-rebuilt from my own course notes as a warm, light-mode, sketch-styled scrolly explainer
-with live widgets — Entropy's sibling, but cream instead of dark.
+A warm, light-mode, sketch-styled scrolly explainer of how machines learn,
+rebuilt from my own notes with live widgets — Entropy's sibling, but cream instead of dark.
 
 - Chapters: perceptron playground → gradient-descent ball → live in-browser XOR
   training (real backprop, activation picker shows vanishing gradients) → tokens &
