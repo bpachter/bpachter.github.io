@@ -1,7 +1,8 @@
 name: Deploy GitHub Pages Site
 
 # Single source of truth for the bpachter.github.io portfolio.
-# Publishes ONLY what's in this repo — index.html (+ optional assets/) —
+# Publishes ONLY what's in this repo — index.html (+ optional assets/)
+# plus self-contained project subpaths like gradient/ —
 # via the official GitHub Pages Actions deploy.
 # Requires Settings → Pages → Source = "GitHub Actions".
 
@@ -11,6 +12,7 @@ on:
     paths:
       - 'index.html'
       - 'assets/**'
+      - 'gradient/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -36,6 +38,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/index.html
           if [ -d assets ]; then cp -r assets _site/assets; fi
+          if [ -d gradient ]; then cp -r gradient _site/gradient; fi
           touch _site/.nojekyll
 
       - name: Upload artifact
