@@ -59,10 +59,35 @@ nav {
 .nav-in { max-width: 940px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
 .nav-brand { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; color: var(--ink); border: none; }
 .nav-brand span { color: var(--leaf); }
-.nav-links { display: flex; gap: 20px; font-size: 14.5px; }
+.nav-links { display: flex; gap: 20px; font-size: 14.5px; align-items: center; }
 .nav-links a { color: var(--ink-faint); border: none; }
 .nav-links a:hover { color: var(--leaf-deep); }
 @media (max-width: 640px) { .nav-links .hide-sm { display: none; } }
+
+/* hover dropdowns: every chapter one hover away */
+.nav-item { position: relative; }
+.nav-item > a { display: inline-block; padding: 10px 0; }
+.nav-drop {
+  position: absolute; top: 100%; left: 50%; transform: translate(-50%, 6px);
+  min-width: 250px; padding: 8px 0;
+  background: #faf7f0; border: 2px solid var(--ink);
+  border-radius: 12px 16px 12px 18px / 16px 12px 18px 12px;
+  box-shadow: 4px 5px 0 rgba(45, 42, 36, 0.15);
+  opacity: 0; visibility: hidden; z-index: 60;
+  transition: opacity .18s var(--ease), transform .18s var(--ease), visibility .18s;
+}
+.nav-item:hover .nav-drop, .nav-item:focus-within .nav-drop {
+  opacity: 1; visibility: visible; transform: translate(-50%, 0);
+}
+.nav-drop a { display: block; padding: 6px 18px; font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
+.nav-drop a:hover, .nav-drop a:focus { background: var(--leaf-soft); color: var(--ink); }
+.nav-drop a .n { font-family: 'Caveat', cursive; font-size: 15px; color: var(--leaf-deep); margin-right: 9px; display: inline-block; min-width: 26px; }
+.nav-drop a.sub { padding-left: 34px; font-size: 13.5px; }
+.nav-drop .drop-rule { height: 1.5px; background: var(--paper-3); margin: 6px 12px; }
+@media (max-width: 760px) { .nav-drop { display: none; } }
+
+/* anchored jumps land clear of the sticky nav */
+.chapter, .concept { scroll-margin-top: 64px; }
 
 /* ---------- hero ---------- */
 header.hero { padding: 84px 0 60px; text-align: center; position: relative; }
