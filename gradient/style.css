@@ -319,6 +319,9 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .lane .lab { width: 118px; flex-shrink: 0; font-size: 12.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ink-faint); }
 .dchip { font-family: 'Fraunces', serif; font-size: 15px; padding: 2px 10px; border: 2px solid var(--ink); border-radius: 8px 11px 9px 12px; background: #fff; color: var(--ink); animation: tok-pop .3s var(--ease) both; }
 .dchip.draft { background: var(--paper-2); color: var(--ink-faint); }
+.dchip.t0 { background: var(--leaf-soft); }
+.dchip.t1 { background: var(--paper-2); }
+.dchip.t2 { background: #f8edd2; }
 .dchip.ok { background: var(--leaf-soft); border-color: var(--good); }
 .dchip.no { background: #f3ded9; border-color: var(--bad); text-decoration: line-through; opacity: 0.75; }
 .dchip.fix { background: var(--gold); }

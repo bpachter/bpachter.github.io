@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The business — Gradient, book II part VII</title>
+<meta name="description" content="Running a company on graphs + AI: the knowledge-graph flywheel, GraphRAG vs chunk retrieval, the right-sized model fleet, graded delegation with audit ledgers, and the modern data department end to end." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <div class="nav-item">
+        <a href="../">book I ▾</a>
+        <div class="nav-drop">
+          <a href="../foundations/"><span class="n">I</span>Foundations</a>
+          <a href="../language/"><span class="n">II</span>Language</a>
+          <a href="../frontier/"><span class="n">III</span>The engine room</a>
+          <a href="../agents/"><span class="n">IV</span>Agents</a>
+          <a href="../thinking/"><span class="n">V</span>Thinking</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../graph/">graph</a>
+        <div class="nav-drop">
+          <a href="../graph/#ch21"><span class="n">21</span>Everything is a record</a>
+          <a href="../graph/#ch22"><span class="n">22</span>The join tax</a>
+          <a href="../graph/#ch23"><span class="n">23</span>Nodes &amp; edges, done right</a>
+          <a href="../graph/#ch24"><span class="n">24</span>The ontology</a>
+          <a href="../graph/#ch25"><span class="n">25</span>Provenance, or receipts</a>
+          <a href="../graph/#ch26"><span class="n">26</span>The hall of shame</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="./" class="active">business</a>
+        <div class="nav-drop">
+          <a href="#ch27"><span class="n">27</span>The flywheel</a>
+          <a href="#ch28"><span class="n">28</span>GraphRAG</a>
+          <a href="#ch29"><span class="n">29</span>The model fleet</a>
+          <a href="#ch30"><span class="n">30</span>Humans in the org chart</a>
+          <a href="#ch31"><span class="n">31</span>The modern data department</a>
+        </div>
+      </div>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Book II · Part VII — the finale</div>
+    <h1>The business</h1>
+    <p class="part-sub">Everything converges here: Book I's agents, gates, and fleets running on Book II's graph. This is what an AI-native company actually looks like from the inside — and how to build one without burning it down.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 27 · THE FLYWHEEL ─────────────── -->
+<section class="chapter" id="ch27">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">27 ·</span><h2>The flywheel</h2></div>
+    <p>Put the pieces together and something new happens: the graph starts <b>growing itself</b>. Every night, <b>extractor agents</b> (<a href="../agents/#ch11">the ch-11 loop</a>, pointed at documents) read filings and propose candidate edges. <b>Verifier agents</b> — skeptics by prompt, like the <a href="../agents/#ch15">ch-15 crew</a> — check each proposal against sources and stamp it. And the <a href="../agents/#ch14">ch-14 blast-radius gate</a> decides what applies on its own: a normal night's trickle flows through; a suspicious burst freezes and pages a human.</p>
+    <p>The compounding is the point. Each verified edge makes tomorrow's extraction smarter (more context to anchor against), each rejection tunes the verifiers, and the graph gets richer while you sleep — <em>with receipts on every edge</em> (<a href="../graph/#ch25">ch 25</a>), because an unverified flywheel is just a misinformation compounder. Watch a few nights run:</p>
+
+    <div class="widget" id="w-fly">
+      <span class="widget-label">a few nights on the flywheel</span>
+      <canvas class="viz" id="cv-fly" width="880" height="360"></canvas>
+      <div class="controls">
+        <button class="btn primary" id="btn-fly-go" disabled>GO — release the batch</button>
+      </div>
+      <div class="readout"><span class="stat">nights <b id="fly-nights">0</b></span><span class="stat">edges verified <b id="fly-ok">0</b></span><span class="stat">rejected <b id="fly-rej">0</b></span></div>
+      <p class="widget-hint"><span class="hand">watch →</span> dashed = proposed, green = verified, faded = rejected. when the extractor has a weird night and floods the queue, the gate freezes the whole batch — and <b>you</b> hold the release.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 28 · GRAPHRAG ─────────────── -->
+<section class="chapter" id="ch28">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">28 ·</span><h2>GraphRAG</h2></div>
+    <p>Remember <a href="../frontier/#rag">chapter 10h</a>: RAG fetches text chunks that <em>sound like</em> the question. That works until the answer doesn't live in any single document. "Fab-9 flooded — which of our customers are exposed?" is a <b>two-hop question</b>: the flood memo mentions Fab-9, a supplier contract links Fab-9 to Chipco, a sales record links Chipco to your customers. No chunk contains the chain. Similarity search retrieves three documents about flooding and answers with confident irrelevance.</p>
+    <p><b>GraphRAG</b> retrieves <em>structure</em> instead: land the question on a node, walk the typed edges (the ch-22 walk), and hand the model the <b>subgraph</b> — the actual dependency chain, with provenance attached. The answer arrives with an edge trail for a citation. Same question, both retrievers:</p>
+
+    <div class="widget alt" id="w-grag">
+      <span class="widget-label">"Fab-9 flooded — who's exposed?"</span>
+      <canvas class="viz" id="cv-grag" width="880" height="360"></canvas>
+      <div class="controls">
+        <button class="btn" id="btn-grag-chunk">ask with chunk-RAG</button>
+        <button class="btn primary" id="btn-grag-graph">ask with GraphRAG</button>
+      </div>
+      <p class="widget-hint"><span class="hand">notice →</span> chunk-RAG finds documents that <em>mention</em> flooding. GraphRAG finds the <b>blast radius</b> — and its citation is the path itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 29 · THE MODEL FLEET ─────────────── -->
+<section class="chapter" id="ch29">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">29 ·</span><h2>The model fleet</h2></div>
+    <p>Running everything through a frontier model is like commuting by helicopter. A real operation runs a <b>fleet</b>: small local models (<a href="../frontier/#quant">quantized, ch 10g</a>, effectively $0 per token) grind the bulk work — extraction, embedding, tagging; mid-size verifiers check what the extractors propose; and the frontier model is reserved for what actually needs judgment — adjudicating conflicts, writing the brief a human will read. A <b>router</b> assigns each task to the cheapest tier that can do it well.</p>
+    <p>The economics are not subtle. Watch a night's task list route through the fleet, and what the same list would have cost helicopter-style:</p>
+
+    <div class="widget" id="w-fleet">
+      <span class="widget-label">one night's work, routed</span>
+      <div class="lane"><span class="lab">incoming</span><span id="fleet-in"></span></div>
+      <div class="lane"><span class="lab">local · ~$0</span><span id="fleet-t0"></span></div>
+      <div class="lane"><span class="lab">verifier · $</span><span id="fleet-t1"></span></div>
+      <div class="lane"><span class="lab">frontier · $$$</span><span id="fleet-t2"></span></div>
+      <div class="controls" style="margin-top:14px">
+        <button class="btn primary" id="btn-fleet-run">run the night again</button>
+      </div>
+      <div class="readout"><span class="stat">fleet cost <b id="fleet-cost">$0.00</b></span><span class="stat">all-frontier would be <b id="fleet-alt">$0.00</b></span><span class="stat" id="fleet-save"></span></div>
+      <p class="widget-hint"><span class="hand">the rule →</span> volume goes local, checking goes cheap, <b>judgment goes frontier</b>. the router is why the whole flywheel runs for pocket change.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 30 · HUMANS IN THE ORG CHART ─────────────── -->
+<section class="chapter" id="ch30">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">30 ·</span><h2>Humans in the org chart</h2></div>
+    <p>The last design question isn't technical — it's organizational: <b>where do the people go?</b> The answer from <a href="../agents/#ch14">ch 14</a>, scaled up: humans move from doing the work to <em>holding the gates</em> — setting the bounds, taking the escalations, auditing the ledger. Every action an agent takes is logged with its reasoning and its receipts; every escalation lands on a person with full context; and the delegation level is a <b>dial you turn deliberately</b>, one notch at a time, as trust is earned.</p>
+    <p>Turn the dial yourself. Watch what each level costs in interruptions — and what full autonomy quietly gives up:</p>
+
+    <div class="widget alt" id="w-org">
+      <span class="widget-label">how much do you delegate?</span>
+      <canvas class="viz" id="cv-org" width="880" height="320"></canvas>
+      <div class="controls">
+        <div class="ctl" style="max-width:340px"><label>delegation level <output id="o-del">L3 — gate decides</output></label><input type="range" id="in-del" min="1" max="4" step="1" value="3"></div>
+      </div>
+      <div class="log-box" id="org-ledger" style="min-height:120px"></div>
+      <div class="readout"><span class="stat">applied <b id="org-ok">0</b></span><span class="stat">interruptions to you <b id="org-int">0</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> at L1 you approve everything and nothing moves. at L4 nothing asks — note the caution in the ledger. L3 is where real systems live: <b>bounded autonomy, receipts for everything</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 31 · THE MODERN DATA DEPARTMENT ─────────────── -->
+<section class="chapter" id="ch31">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">31 ·</span><h2>The modern data department</h2></div>
+    <p>Put the whole book on one screen. Sources flow through one governed pipeline into a typed, receipted <b>graph</b>. An agent flywheel orbits it — extracting, verifying, curating — behind gates a human holds. And decisions come off the far side: screeners, briefs, alerts, every one traceable back through the graph to a source. No spreadsheet empires, no data swamps, no dashboard over quicksand — the <a href="../graph/#ch26">hall of shame</a>, retired.</p>
+
+    <div class="widget" id="w-dept">
+      <span class="widget-label">the whole machine, on one screen</span>
+      <canvas class="viz" id="cv-dept" width="880" height="340"></canvas>
+      <p class="widget-hint"><span class="hand">read it left to right →</span> sources → one pipeline → the graph, with the agent flywheel orbiting it → decisions with receipts. every chapter of both books is somewhere on this screen.</p>
+    </div>
+
+    <p>And if this is Monday morning and you're starting from a hall-of-shame stack, the path is shorter than it looks:</p>
+    <ul class="ladder">
+      <li class="here">1 · pick the system of record for each fact — and kill the copies</li>
+      <li class="here">2 · write the ontology: the 12 nouns and 8 verbs your business runs on</li>
+      <li class="here">3 · one pipeline in, with lineage and freshness alarms</li>
+      <li class="here">4 · agents propose, verifiers check, a gate applies — never raw writes</li>
+      <li class="here">5 · dashboards and briefs read the graph. nothing else. ever.</li>
+    </ul>
+
+    <div class="pager">
+      <a class="pcard" href="../graph/"><span class="plabel">back — part VI</span><div class="ptitle">← The graph</div></a>
+      <a class="pcard next" href="../"><span class="plabel">the end of book II</span><div class="ptitle">Back to base camp →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks and from building <a href="https://thessa.space">thessa.space</a> — a production knowledge graph of ~11,000 organizations and ~22,000 typed relationship edges, grown nightly by exactly the flywheel in chapter 27. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://thessa.space">thessa.space</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/business.js"></script>
+</body>
+</html>
