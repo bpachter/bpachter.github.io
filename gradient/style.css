@@ -286,7 +286,8 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .pcard.spacer { visibility: hidden; }
 
 /* ---------- landing: route map ---------- */
-.parts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; }
+.parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 26px; }
+.parts-teaser { text-align: center; font-family: 'Caveat', cursive; font-size: 20px; color: var(--ink-faint); margin-top: 20px; }
 .part-card {
   background: #faf7f0; border: 2px solid var(--ink);
   border-radius: 255px 12px 225px 12px / 12px 225px 12px 255px;
@@ -331,6 +332,108 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .rag-ans { font-family: 'Fraunces', serif; font-size: 16.5px; color: var(--ink); margin-top: 10px; min-height: 28px; }
 .rag-ans sup { color: var(--leaf-deep); font-weight: 700; }
 
+/* ---------- agents: the loop ---------- */
+.term {
+  font-family: 'Karla', monospace; font-size: 14px; line-height: 1.6;
+  background: #2f2c26; color: #e8e2d4; border-radius: 12px;
+  padding: 12px 16px; margin-top: 12px; min-height: 44px;
+}
+.term .bad { color: #e8a091; } .term .good { color: #b5d19b; }
+.loop-log { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+.think {
+  align-self: flex-start; max-width: 88%;
+  font-family: 'Caveat', cursive; font-size: 19px; color: var(--ink);
+  background: var(--leaf-soft); border: 2px solid var(--ink);
+  border-radius: 16px 18px 16px 4px; padding: 4px 14px 6px;
+  animation: tok-pop .3s var(--ease) both;
+}
+.act-line { align-self: flex-end; display: flex; align-items: center; gap: 8px; animation: tok-pop .3s var(--ease) both; }
+.act-line .dchip { background: #fff; }
+.obs-line { font-family: 'Karla', monospace; font-size: 13.5px; color: var(--ink-soft); animation: tok-pop .3s var(--ease) both; }
+.obs-line.bad { color: var(--bad); } .obs-line.good { color: var(--good); font-weight: 700; }
+
+/* ---------- agents: tools & MCP ---------- */
+.tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+.tool-card {
+  background: #fff; border: 2px solid var(--ink); border-radius: 12px 16px 12px 18px;
+  padding: 10px 12px; font-size: 13px; transition: all .3s var(--ease);
+}
+.tool-card.on { background: var(--leaf-soft); box-shadow: 3px 4px 0 rgba(94, 141, 90, 0.4); transform: translateY(-3px); }
+.tool-card h5 { font-family: 'Karla', monospace; font-size: 13.5px; color: var(--ink); margin-bottom: 3px; }
+.tool-card .sig { color: var(--ink-faint); font-family: 'Karla', monospace; font-size: 12px; }
+.tool-call { font-family: 'Karla', monospace; font-size: 13.5px; background: #fff; border: 2px dashed var(--ink-faint); border-radius: 10px; padding: 9px 13px; margin-top: 12px; min-height: 40px; color: var(--ink); white-space: pre-wrap; }
+.mcp-strip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.mcp-srv { font-size: 13px; font-weight: 700; border: 2px solid var(--ink); border-radius: 9px 12px 9px 13px; padding: 3px 11px; background: var(--paper-2); }
+.mcp-port { font-family: 'Caveat', cursive; font-size: 18px; color: var(--leaf-deep); }
+
+/* ---------- agents: context shelf ---------- */
+.ctx-bar {
+  display: flex; gap: 3px; align-items: stretch; height: 46px;
+  border: 2px solid var(--ink); border-radius: 10px; padding: 3px;
+  margin-top: 14px; overflow: hidden; position: relative;
+}
+.ctx-block {
+  border-radius: 6px; border: 1.5px solid rgba(45, 42, 36, 0.5);
+  font-size: 10.5px; font-weight: 700; color: var(--ink);
+  display: grid; place-items: center; text-align: center; overflow: hidden;
+  white-space: nowrap; transition: width .6s var(--ease), opacity .6s;
+  background: var(--paper-2); flex-shrink: 0;
+}
+.ctx-block.sys { background: #dbe2ee; } .ctx-block.mem { background: #e8dcef; }
+.ctx-block.tool { background: #f3e6c3; } .ctx-block.user { background: #fff; }
+.ctx-block.sum { background: var(--leaf-soft); border-color: var(--good); }
+.ctx-block.sub { background: #e8dcef; border-color: var(--plum); }
+.ctx-meter { font-size: 13.5px; margin-top: 8px; color: var(--ink-soft); }
+.ctx-meter b.warn { color: var(--bad); }
+.sub-bubble {
+  position: absolute; right: 18px; top: -74px; width: 240px;
+  background: #faf7f0; border: 2px solid var(--plum); border-radius: 14px 16px 14px 4px;
+  padding: 8px 12px; font-size: 12.5px; box-shadow: 3px 4px 0 rgba(154, 111, 160, 0.3);
+  animation: tok-pop .35s var(--ease) both; z-index: 5;
+}
+.sub-bubble .mini { height: 7px; background: var(--paper-3); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.sub-bubble .mini i { display: block; height: 100%; width: 0; background: var(--plum); transition: width 1.4s linear; }
+
+/* ---------- agents: the gate ---------- */
+.gate-lane { position: relative; height: 118px; margin-top: 16px; border-bottom: 2px dashed var(--paper-3); overflow: hidden; }
+.gate-posts {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 86px; transform: translateX(-50%);
+  border-left: 3px solid var(--ink); border-right: 3px solid var(--ink);
+  background: rgba(138, 174, 104, 0.07);
+}
+.gate-posts span { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-family: 'Caveat', cursive; font-size: 15px; color: var(--ink-faint); white-space: nowrap; }
+.gate-card {
+  position: absolute; top: 34px; left: -240px; width: 218px;
+  background: #fff; border: 2px solid var(--ink); border-radius: 10px 13px 10px 14px;
+  padding: 6px 11px; font-size: 12.5px; line-height: 1.45;
+  transition: left 1.1s var(--ease), background .3s, border-color .3s, opacity .5s;
+}
+.gate-card b { font-size: 14px; }
+.gate-card.ok { background: var(--leaf-soft); border-color: var(--good); }
+.gate-card.held { background: #f8edd2; border-color: var(--gold); }
+.gate-card .verdict { font-family: 'Caveat', cursive; font-size: 15px; color: var(--ink-soft); }
+.ladder { list-style: none; margin-top: 14px; font-size: 14px; }
+.ladder li { padding: 5px 0 5px 30px; position: relative; color: var(--ink-faint); }
+.ladder li::before { content: "◦"; position: absolute; left: 8px; color: var(--paper-3); }
+.ladder li.here { color: var(--ink); font-weight: 700; }
+.ladder li.here::before { content: "→"; color: var(--leaf-deep); }
+
+/* ---------- agents: injection ---------- */
+.inj-email {
+  background: #fff; border: 2px solid var(--ink); border-radius: 4px 14px 6px 16px;
+  padding: 14px 18px; font-size: 14.5px; margin-top: 12px; line-height: 1.7;
+}
+.inj-email .hdr { font-family: 'Karla', monospace; font-size: 12.5px; color: var(--ink-faint); border-bottom: 1.5px solid var(--paper-3); padding-bottom: 6px; margin-bottom: 8px; }
+.inj-email .inj { transition: background .4s, box-shadow .4s; border-radius: 4px; }
+.inj-email .inj.lit { background: #f8edd2; box-shadow: 0 0 0 3px #f8edd2; outline: 2px dashed var(--gold); }
+.log-box { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; min-height: 96px; }
+.log-line { font-family: 'Karla', monospace; font-size: 13.5px; color: var(--ink-soft); animation: tok-pop .3s var(--ease) both; }
+.log-line.bad { color: var(--bad); font-weight: 700; }
+.log-line.good { color: var(--good); font-weight: 700; }
+.trifecta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.trifecta .leg { font-size: 12.5px; font-weight: 700; border: 2px solid var(--ink); border-radius: 9px; padding: 3px 10px; background: var(--paper-2); opacity: 0.45; transition: all .4s; }
+.trifecta .leg.on { opacity: 1; background: #f3ded9; border-color: var(--bad); }
+
 /* footer */
 footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0 60px; text-align: center; }
 .foot-hand { font-family: 'Caveat', cursive; font-size: 26px; color: var(--ink-soft); transform: rotate(-1deg); margin-bottom: 14px; }
@@ -358,6 +461,9 @@ footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0
   .mem-bar .lbl { width: auto; text-align: left; }
   .mem-bar .bar { grid-column: 1 / -1; }
   .lane .lab { width: 100%; }
+  .nav-links { gap: 12px; font-size: 13.5px; }
+  .tool-grid { grid-template-columns: 1fr; }
+  .gate-card { width: 172px; }
 }
 @media (max-width: 800px) {
   .parts-grid { grid-template-columns: 1fr; }

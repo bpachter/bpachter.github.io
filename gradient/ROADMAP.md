@@ -47,7 +47,12 @@ five tabs; landing route map grows to five cards.
 - **Field-note deck refresh**: MLA (latent KV compression), Mamba/SSM hybrids,
   multi-token prediction, world models, the small-model renaissance.
 
-### Part IV — thinking *(new: reasoning & test-time compute)*
+> **Numbering update (build session ①):** agents ships first as **Part IV
+> (ch 11-16)** so the book stays contiguous; thinking follows as **Part V
+> (ch 17-20)**, closing the book with "Inside the mind." Sections below keep
+> their content; read "Part IV — thinking" as Part V and vice versa.
+
+### Part V — thinking *(new: reasoning & test-time compute)*
 - **11 · Thinking out loud** — chain of thought → reasoning tokens → extended
   thinking; why models that "show work" are right more often. *Widget: the
   same arithmetic-word puzzle answered instantly vs with a visible scratchpad,
@@ -66,7 +71,7 @@ five tabs; landing route map grows to five cards.
   drawn); an SAE lens un-mixes them; a steering slider dials one feature up
   and the toy model's outputs change character.*
 
-### Part V — agents *(new: the loop and everything around it)*
+### Part IV — agents *(new: the loop and everything around it — ch 11-16)*
 - **15 · The loop** — an agent is just a model + tools + a while-loop:
   observe → think → act → observe. Why feedback beats one-shot. *Widget: an
   animated agent fixes a failing "test": reads the error, edits, re-runs,

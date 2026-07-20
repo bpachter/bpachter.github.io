@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p js
-for page in landing foundations language frontier; do
+for page in landing foundations language frontier agents; do
   tsc --target es2019 --lib es2019,dom --module none --strict \
       --noUnusedLocals --skipLibCheck \
       --outFile "js/$page.js" src/core.ts "src/$page.ts"
