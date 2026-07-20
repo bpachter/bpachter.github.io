@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thinking — Gradient, part V</title>
+<meta name="description" content="Why models that show their work are right more often: chain of thought, training reasoners with verifiable rewards (GRPO), the thinking budget, and a look inside the mind — superposition, SAE features, and steering." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <div class="nav-item">
+        <a href="../foundations/">foundations</a>
+        <div class="nav-drop">
+          <a href="../foundations/#ch1"><span class="n">01</span>Hello, neuron</a>
+          <a href="../foundations/#ch2"><span class="n">02</span>Learning is descending</a>
+          <a href="../foundations/#ch3"><span class="n">03</span>The landscape, in 3-D</a>
+          <a href="../foundations/#ch4"><span class="n">04</span>Going deep</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../language/">language</a>
+        <div class="nav-drop">
+          <a href="../language/#ch5"><span class="n">05</span>Words become numbers</a>
+          <a href="../language/#ch6"><span class="n">06</span>Attention is all you need</a>
+          <a href="../language/#ch7"><span class="n">07</span>Inside the tower, in 3-D</a>
+          <a href="../language/#ch8"><span class="n">08</span>The autocomplete machine</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../frontier/">engine room</a>
+        <div class="nav-drop">
+          <a href="../frontier/#ch9"><span class="n">09</span>Sculpting the mind</a>
+          <a href="../frontier/#ch10"><span class="n">10</span>The engine room</a>
+          <div class="drop-rule"></div>
+          <a class="sub" href="../frontier/#moe"><span class="n">10a</span>Mixture of Experts</a>
+          <a class="sub" href="../frontier/#kv"><span class="n">10b</span>The KV cache</a>
+          <a class="sub" href="../frontier/#rope"><span class="n">10c</span>RoPE</a>
+          <a class="sub" href="../frontier/#gqa"><span class="n">10d</span>GQA</a>
+          <a class="sub" href="../frontier/#flash"><span class="n">10e</span>FlashAttention</a>
+          <a class="sub" href="../frontier/#spec"><span class="n">10f</span>Speculative decoding</a>
+          <a class="sub" href="../frontier/#quant"><span class="n">10g</span>Quantization</a>
+          <a class="sub" href="../frontier/#rag"><span class="n">10h</span>RAG</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../agents/">agents</a>
+        <div class="nav-drop">
+          <a href="../agents/#ch11"><span class="n">11</span>The loop</a>
+          <a href="../agents/#ch12"><span class="n">12</span>Hands: tools &amp; MCP</a>
+          <a href="../agents/#ch13"><span class="n">13</span>The context engineer</a>
+          <a href="../agents/#ch14"><span class="n">14</span>Guardrails &amp; harnesses</a>
+          <a href="../agents/#ch15"><span class="n">15</span>Many hands</a>
+          <a href="../agents/#ch16"><span class="n">16</span>Teaching it to behave</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="./" class="active">thinking</a>
+        <div class="nav-drop">
+          <a href="#ch17"><span class="n">17</span>Thinking out loud</a>
+          <a href="#ch18"><span class="n">18</span>Training a reasoner</a>
+          <a href="#ch19"><span class="n">19</span>The thinking budget</a>
+          <a href="#ch20"><span class="n">20</span>Inside the mind</a>
+        </div>
+      </div>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part V — the finale</div>
+    <h1>Thinking</h1>
+    <p class="part-sub">The newest chapter of the story: models that pause, reason, and check themselves — how that skill is trained, what it costs, and what we find when we finally look inside.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 17 · THINKING OUT LOUD ─────────────── -->
+<section class="chapter" id="ch17">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">17 ·</span><h2>Thinking out loud</h2></div>
+    <p>Here's a question with a trap in it: <em>a bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much is the ball?</em> Your gut says ten cents — quickly, confidently, wrongly. Language models inherited the same failure, because next-token prediction (<a href="../language/#ch8">chapter 08</a>) is a gut: one forward pass, one blurted answer.</p>
+    <p>The fix turned out to be almost embarrassing: <b>let the model talk to itself first</b>. Ask it to reason step by step — <b>chain of thought</b> — and every intermediate line it writes becomes context that constrains the next one. The scratchpad isn't decoration; it's <em>computation happening in text</em>. Modern reasoning models take this further with dedicated <b>thinking tokens</b> — sometimes thousands of them, hidden or shown — before a single word of answer. Same network, radically better arithmetic, logic, and planning.</p>
+    <p>Below, one model, two habits. Blurt mode answers the bat-and-ball instantly, twenty times. Scratchpad mode writes out the algebra first, twenty times. Watch the tallies diverge.</p>
+
+    <div class="widget" id="w-cot">
+      <span class="widget-label">the same brain, with and without a scratchpad</span>
+      <p style="font-size:15px;margin-bottom:4px"><b>Q:</b> a bat and a ball cost $1.10. the bat costs $1.00 more than the ball. the ball costs…?</p>
+      <div class="duo">
+        <div class="pane">
+          <h5>blurt it out</h5>
+          <div class="blurt" id="cot-blurt">"easy — <b>10¢</b>"</div>
+          <div class="ticks" id="cot-ticks-a"></div>
+          <div class="tally">accuracy <b id="cot-acc-a">—</b></div>
+        </div>
+        <div class="pane">
+          <h5>think it through</h5>
+          <div class="scratch" id="cot-scratch"></div>
+          <div class="ticks" id="cot-ticks-b"></div>
+          <div class="tally">accuracy <b id="cot-acc-b">—</b></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="btn-cot-run">run 20 trials each</button>
+      </div>
+      <p class="widget-hint"><span class="hand">notice →</span> the scratchpad's lines aren't for you — each written step becomes context that pins down the next. <b>reasoning is generation, aimed at itself.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 18 · TRAINING A REASONER ─────────────── -->
+<section class="chapter" id="ch18">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">18 ·</span><h2>Training a reasoner</h2></div>
+    <p>You can't teach good reasoning the <a href="../frontier/#ch9">chapter-09 way</a> alone — humans voting on vibes can't tell a lucky answer from a sound one. But math and code have a superpower: <b>the answer is checkable</b>. So the modern recipe is <b>RLVR — reinforcement learning from verifiable rewards</b>: let the model try problems, pay it only when a verifier confirms the result, and let it discover for itself that careful habits earn more than confident guessing.</p>
+    <p>The algorithm that made this cheap is <b>GRPO</b> — group relative policy optimization. Sample a <em>group</em> of, say, eight attempts at the same problem. Score them all. The group's average becomes the baseline: attempts above it get reinforced, attempts below it get suppressed. No separate value network to train (the heavyweight machinery classic PPO drags around) — <em>the group grades itself on a curve</em>. Run the rounds below and watch the strategy distribution migrate toward "work it out, then check it."</p>
+
+    <div class="widget alt" id="w-rlvr">
+      <span class="widget-label">eight attempts, graded on a curve</span>
+      <div class="strat" id="rlvr-strat"></div>
+      <div class="rolls" id="rlvr-rolls"></div>
+      <div class="controls">
+        <button class="btn" id="btn-rlvr-round">run one round</button>
+        <button class="btn primary" id="btn-rlvr-auto">auto-train</button>
+        <button class="btn" id="btn-rlvr-reset">reset</button>
+      </div>
+      <div class="readout"><span class="stat">round <b id="rlvr-round">0</b></span><span class="stat">group average reward <b id="rlvr-mean">—</b></span></div>
+      <p class="widget-hint"><span class="hand">notice →</span> nobody told the model which habit is best. the verifier only says ✓ or ✗ — and "steps + check" quietly takes over the policy. that's R1-style reasoning training in one picture.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 19 · THE THINKING BUDGET ─────────────── -->
+<section class="chapter" id="ch19">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">19 ·</span><h2>The thinking budget</h2></div>
+    <p>Training compute used to be the whole story. Reasoning models opened a second dial: <b>compute at answer time</b>. Given a hard question, you can spend tokens three ways — think <em>longer</em> (one deeper chain), think <em>wider</em> (many independent chains, then <b>majority vote</b> — self-consistency), or think wider <em>with a judge</em> (generate N candidates, let a verifier pick — best-of-N). Accuracy climbs with spend on all three curves… until it doesn't. Every curve flattens; the skill is knowing where yours bends.</p>
+    <p>This is why the model you talk to sometimes answers instantly and sometimes visibly deliberates: a router is deciding, per question, how much thinking your question deserves. Drag the budget below and watch the three strategies trade places.</p>
+
+    <div class="widget" id="w-budget">
+      <span class="widget-label">spend it deep, or spend it wide?</span>
+      <canvas class="viz" id="cv-budget" width="880" height="340"></canvas>
+      <div class="controls">
+        <div class="ctl" style="max-width:320px"><label>token budget <output id="o-budget">2,048</output></label><input type="range" id="in-budget" min="0" max="6" step="1" value="3"></div>
+      </div>
+      <div class="readout"><span class="stat">one long chain <b id="bud-serial">—</b></span><span class="stat">majority vote <b id="bud-vote">—</b></span><span class="stat">best-of-N + verifier <b id="bud-best">—</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> at small budgets one deep chain wins. push the budget and voting overtakes it — independent mistakes cancel. a verifier squeezes out the last few points, at the price of trusting the judge.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 20 · INSIDE THE MIND ─────────────── -->
+<section class="chapter" id="ch20">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">20 ·</span><h2>Inside the mind</h2></div>
+    <p>One mystery is left: what's actually <em>in there</em>? The naive hope — one neuron, one concept — dies immediately. A model has vastly more ideas than neurons, so it does the only thing it can: <b>superposition</b>, packing many concepts into shared neurons at odd angles, like six voices sharing two microphones. Peer at a single neuron and you see gibberish — a little dog, a little bridge, a little arithmetic.</p>
+    <p>The tool that un-mixes the voices is the <b>sparse autoencoder</b> — a lens trained to re-describe the tangled activations in a much larger dictionary of <b>features</b>, only a few active at a time. Through the SAE lens, the mush resolves into legible ideas. And features aren't just visible — they're <em>handles</em>: dial one up and the model's behavior follows it, famously demonstrated when researchers cranked a "Golden Gate Bridge" feature and the model couldn't stop bringing it up. Interpretability is young, but this is the path: not reading minds, but finding the dials inside one.</p>
+
+    <div class="widget alt" id="w-mind">
+      <span class="widget-label">two neurons, six ideas, one lens</span>
+      <div class="rag-btns">
+        <button class="btn small mind-btn" data-t="0">"a dog on the beach at sunset"</button>
+        <button class="btn small mind-btn" data-t="1">"homework with music on"</button>
+        <button class="btn small mind-btn" data-t="2">"the golden bridge in fog"</button>
+      </div>
+      <canvas class="viz" id="cv-sae" width="880" height="300"></canvas>
+      <div class="controls">
+        <div class="ctl" style="max-width:320px"><label>steer the bridge feature <output id="o-steer">0%</output></label><input type="range" id="in-steer" min="0" max="100" step="5" value="0"></div>
+      </div>
+      <div class="steer-out" id="steer-out"></div>
+      <p class="widget-hint"><span class="hand">try it →</span> pick a thought: the raw neurons show mush, the SAE lens shows clean features. then crank the bridge dial and watch an innocent sentence develop a fixation.</p>
+    </div>
+
+    <div class="pager">
+      <a class="pcard" href="../agents/"><span class="plabel">back — part IV</span><div class="ptitle">← Agents</div></a>
+      <a class="pcard next" href="../"><span class="plabel">the end of book I</span><div class="ptitle">Back to base camp →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization — plus field notes from running local LLMs and agent harnesses on my own GPU. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://bpachter.github.io/entropy/">entropy</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/thinking.js"></script>
+</body>
+</html>

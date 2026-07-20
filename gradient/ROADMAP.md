@@ -128,3 +128,95 @@ five tabs; landing route map grows to five cards.
 
 Est. new material: ~2,300 lines of TS + ~1,400 lines of HTML/prose — roughly
 2× today's app, which is the brief.
+
+> **Status:** Part IV (agents, ch 11-16) shipped 2026-07-20. Part V
+> (thinking, ch 17-20) shipped 2026-07-20. Book I is complete.
+
+---
+
+# Book II — running a business on graphs + AI *(scoped 2026-07-20)*
+
+The next doubling. Book I taught how the machine works; Book II teaches how
+to run an enterprise on top of it — with **graph theory as the chosen data
+architecture** (nodes, edges, typed relationships, ontology — the
+thessa.space approach), other architectures shown honestly, anti-patterns
+showcased by name, and then every Book-I concept (agents, harnesses, fleets,
+RAG, verification) applied to the business itself.
+
+Sourcing rule: thessa.space is the worked example — only its *public* face
+(knowledge graph of ~11k orgs, typed supply/program edges, provenance-first
+verification, hybrid local/cloud model fleet). No internal codenames or
+private architecture ever appear in this repo.
+
+### Part VI — the graph *(ch 21-26: data architecture fundamentals)*
+- **21 · Everything is a record** — how businesses store truth: relational
+  tables, documents, key-value, columns, graphs — same tiny supply-chain
+  business rendered five ways. *Widget: one dataset, five shapes; toggle
+  through them and watch the same fact change costume.*
+- **22 · The join tax** — the relationship question that breaks SQL: "who
+  supplies the supplier of my supplier?" *Widget: query race — a hop-count
+  slider; join cost explodes combinatorially while the graph walk stays
+  linear. First anti-pattern showcased: relationship data forced into rows.*
+- **23 · Nodes & edges, done right** — entities vs relationships, typed +
+  directed edges, properties on both. *Widget: build-a-graph sandbox with a
+  live linter that flags the classics: stringly-typed edges, orphan nodes,
+  the god-node, edges-as-nodes.*
+- **24 · The ontology** — the vocabulary contract: classes, hierarchies,
+  constraints; identity resolution — why "Northrop Grumman Systems Corp"
+  must not become a second Northrop node. *Widget: entity-resolution game —
+  merge or veto? ticker/LEI conflicts and single-token names are traps.*
+- **25 · Provenance, or receipts** — every edge cites a source; confidence
+  tiers; contradictions quarantined, never silently deleted; time-travel.
+  *Widget: an edge's evidence stack — add a contradicting source and watch
+  status shift; drag a bitemporal slider to see the graph as-of a date.*
+- **26 · The hall of shame** — the spreadsheet empire, the copy-paste
+  warehouse, the data swamp, the god table, the untyped JSON blob store.
+  *Widget: spot-the-failure — click the rot in a mini architecture diagram;
+  each click reveals the failure mode and its graph-shaped fix.*
+
+### Part VII — the business *(ch 27-31: Book I applied at company scale)*
+- **27 · The flywheel** — ch 11 + ch 14, industrialized: extractor agents
+  propose edges from documents, verifier agents adjudicate against sources,
+  the blast-radius gate applies or escalates, the graph compounds nightly.
+  *Widget: a live mini-flywheel growing a graph with confidence-colored
+  edges; a bad batch trips the gate.*
+- **28 · GraphRAG** — retrieval over structure, not chunks: multi-hop
+  questions ("which customers depend on the fab that just flooded?") need
+  traversal + synthesis; vanilla RAG visibly fails them. *Widget: same
+  question, two retrievers — chunk-RAG grabs near-text and misses; GraphRAG
+  walks the edges and lights up the blast-radius subgraph.*
+- **29 · The model fleet** — right-size the model to the job: $0 local
+  extractors, cheap verifiers, frontier judgment — routing, batching, and
+  the cost meter that justifies it. *Widget: a task stream hitting a router;
+  cost + quality meters vs the all-frontier baseline.*
+- **30 · Humans in the org chart** — graded autonomy at company scale:
+  approval lanes, audit ledgers, escalation paths, incident replay — ch 14's
+  gate as an operating model, not a demo. *Widget: an org chart where agent
+  lanes flow and one gold escalation climbs to the human row.*
+- **31 · The modern data department** — the whole stack, end to end:
+  sources → pipelines → graph → agents → decisions; build-vs-buy; what to
+  do first on Monday. *Widget: the landing pipeline's enterprise sibling —
+  an animated end-to-end flow you can poke.*
+
+### Navigation at 7 parts
+- Landing becomes two route maps: **Book I — how machines learn** (I-V) and
+  **Book II — running a business on it** (VI-VII), each with its own cards.
+- Tab bar: keep five Book-I tabs on Book-I pages; Book-II pages carry
+  `graph · business` plus a compact `book I ▾` rollup tab (one dropdown
+  listing parts I-V). Symmetric rollup (`book II ▾`) appears on Book-I pages
+  once VI ships. Dropdown pattern already scales; global chapter numbering
+  (01-31) keeps it reading as one library.
+- Pager chain continues V → VI → VII.
+
+### Build order
+1. **Session ③ (done):** Part V — thinking.
+2. **Session ④:** Part VI ch 21-24 (records → join tax → nodes & edges →
+   ontology) + Book-II landing section + nav rollup.
+3. **Session ⑤:** Part VI ch 25-26 + Part VII ch 27-28 (provenance, hall of
+   shame, flywheel, GraphRAG).
+4. **Session ⑥:** Part VII ch 29-31 + trim pass (multimodal 08b, engine-room
+   10i/10j, field-note refresh, portfolio card, cross-link sweep, full
+   re-verification).
+
+Est. Book II: ~2,600 lines TS + ~1,700 lines HTML/prose — the equivalent
+depth requested.
