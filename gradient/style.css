@@ -459,6 +459,57 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 /* ---------- thinking: steering ---------- */
 .steer-out { font-family: 'Fraunces', serif; font-size: 17px; line-height: 1.7; color: var(--ink); background: #fff; border: 2px dashed var(--ink-faint); border-radius: 12px; padding: 10px 14px; min-height: 56px; margin-top: 10px; }
 
+/* ---------- graph: model linter ---------- */
+.lint { list-style: none; margin-top: 12px; font-size: 14px; }
+.lint li { padding: 4px 0 4px 28px; position: relative; color: var(--ink-soft); }
+.lint li::before { content: "✗"; position: absolute; left: 6px; color: var(--bad); font-weight: 700; }
+.lint li.ok { color: var(--ink-faint); }
+.lint li.ok::before { content: "✓"; color: var(--good); }
+
+/* ---------- graph: entity resolution ---------- */
+.er-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.er-ent { background: #fff; border: 2px solid var(--ink); border-radius: 12px 16px 12px 18px; padding: 10px 14px; }
+.er-ent h5 { font-family: 'Fraunces', serif; font-size: 16.5px; color: var(--ink); margin-bottom: 6px; }
+.er-ent .ev { font-family: 'Karla', monospace; font-size: 12.5px; color: var(--ink-soft); padding: 1.5px 0; }
+.er-ent .ev b { color: var(--ink); }
+.er-verdict { margin-top: 12px; min-height: 54px; font-size: 15px; }
+.er-verdict .yes { color: var(--good); font-weight: 700; }
+.er-verdict .no { color: var(--bad); font-weight: 700; }
+
+/* ---------- graph: provenance ---------- */
+.prov-edge {
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+  font-family: 'Fraunces', serif; font-size: 17px; margin-top: 14px;
+}
+.prov-node { border: 2px solid var(--ink); border-radius: 11px; padding: 4px 14px; background: #fff; }
+.prov-rel { font-family: 'Karla', monospace; font-size: 13px; font-weight: 700; padding: 3px 12px; border: 2px solid var(--ink); border-radius: 999px; transition: all .4s; }
+.prov-rel.verified { background: var(--leaf-soft); border-color: var(--good); }
+.prov-rel.reported { background: var(--paper-2); }
+.prov-rel.disputed { background: #f8edd2; border-color: var(--gold); }
+.prov-stack { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+.prov-src { font-size: 13.5px; padding: 6px 12px; border: 1.8px solid var(--ink); border-radius: 9px 12px 9px 13px; background: #fff; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; animation: tok-pop .3s var(--ease) both; }
+.prov-src .tier { font-family: 'Karla', monospace; font-size: 12px; font-weight: 700; }
+.prov-src.gov .tier { color: var(--good); } .prov-src.rep .tier { color: var(--ink-faint); } .prov-src.con .tier { color: var(--bad); }
+
+/* ---------- graph: hall of shame ---------- */
+.shame-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+.shame-card {
+  background: #fdfaf2; border: 2px solid var(--ink); border-radius: 4px 14px 6px 16px;
+  padding: 12px 14px; font-size: 13.5px; line-height: 1.5; cursor: pointer; min-height: 118px;
+  box-shadow: 3px 3px 0 rgba(45, 42, 36, 0.12); transition: transform .2s var(--ease), background .3s;
+}
+.shame-card:hover { transform: translateY(-3px); }
+.shame-card h4 { font-family: 'Karla', monospace; font-size: 13.5px; color: var(--ink); margin-bottom: 5px; }
+.shame-card .reveal-txt { display: none; }
+.shame-card.revealed { cursor: default; }
+.shame-card.revealed.rot { background: #f8e9e4; }
+.shame-card.revealed.fine { background: var(--leaf-soft); }
+.shame-card.revealed .tease { display: none; }
+.shame-card.revealed .reveal-txt { display: block; }
+.shame-card .vn { font-family: 'Caveat', cursive; font-size: 17px; }
+.shame-card.rot .vn { color: var(--bad); } .shame-card.fine .vn { color: var(--good); }
+@media (max-width: 700px) { .shame-grid { grid-template-columns: 1fr; } .er-pair { grid-template-columns: 1fr; } }
+
 /* footer */
 footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0 60px; text-align: center; }
 .foot-hand { font-family: 'Caveat', cursive; font-size: 26px; color: var(--ink-soft); transform: rotate(-1deg); margin-bottom: 14px; }

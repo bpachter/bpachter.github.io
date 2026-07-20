@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The graph — Gradient, book II part VI</title>
+<meta name="description" content="Enterprise data architecture, hands-on: five storage shapes for the same facts, the join tax, graph modeling done right, entity resolution, provenance with receipts, and the anti-pattern hall of shame." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <div class="nav-item">
+        <a href="../">book I ▾</a>
+        <div class="nav-drop">
+          <a href="../foundations/"><span class="n">I</span>Foundations</a>
+          <a href="../language/"><span class="n">II</span>Language</a>
+          <a href="../frontier/"><span class="n">III</span>The engine room</a>
+          <a href="../agents/"><span class="n">IV</span>Agents</a>
+          <a href="../thinking/"><span class="n">V</span>Thinking</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="./" class="active">graph</a>
+        <div class="nav-drop">
+          <a href="#ch21"><span class="n">21</span>Everything is a record</a>
+          <a href="#ch22"><span class="n">22</span>The join tax</a>
+          <a href="#ch23"><span class="n">23</span>Nodes &amp; edges, done right</a>
+          <a href="#ch24"><span class="n">24</span>The ontology</a>
+          <a href="#ch25"><span class="n">25</span>Provenance, or receipts</a>
+          <a href="#ch26"><span class="n">26</span>The hall of shame</a>
+        </div>
+      </div>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Book II · Part VI</div>
+    <h1>The graph</h1>
+    <p class="part-sub">Book I taught how the machine thinks. Book II is about the other half of running a business on AI: how you store what your company <em>knows</em> — and why nodes and edges beat rows and columns the moment relationships matter.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 21 · EVERYTHING IS A RECORD ─────────────── -->
+<section class="chapter" id="ch21">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">21 ·</span><h2>Everything is a record</h2></div>
+    <p>Strip any company to the studs and you find the same thing: <b>facts about things and the relationships between them</b>. Acme buys from Beta. Beta makes alloy frames. The contract renews in March. Every architecture ever invented is just a different costume for those facts — and each costume makes some questions easy and others miserable.</p>
+    <p>The five costumes worth knowing: <b>relational</b> tables (facts as rows, relationships exiled into join tables), <b>documents</b> (facts nested inside each other, duplicated wherever needed), <b>key-value</b> (facts behind opaque locker doors, blazing fast if you know the key), <b>columnar</b> (facts sliced vertically, built for adding up a billion numbers), and the <b>graph</b> (things as nodes, relationships as first-class, typed edges). Below, one tiny supply chain wearing all five. Watch the gold fact — <em>Beta supplies Acme</em> — change costume.</p>
+
+    <div class="widget" id="w-shapes">
+      <span class="widget-label">one business, five costumes</span>
+      <div class="controls" style="margin-top:0">
+        <div class="seg" id="seg-shapes" role="group" aria-label="storage shape">
+          <button data-m="0" aria-pressed="true">relational</button>
+          <button data-m="1" aria-pressed="false">document</button>
+          <button data-m="2" aria-pressed="false">key-value</button>
+          <button data-m="3" aria-pressed="false">columnar</button>
+          <button data-m="4" aria-pressed="false">graph</button>
+        </div>
+      </div>
+      <canvas class="viz" id="cv-shapes" width="880" height="360"></canvas>
+      <div class="readout"><span class="stat" id="shapes-cap">—</span></div>
+      <p class="widget-hint"><span class="hand">notice →</span> none of these is wrong. columnar crushes "sum all invoices"; key-value crushes "fetch cart #4512". the question is what your <b>hardest questions</b> look like — and a business's hardest questions are almost always about relationships.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 22 · THE JOIN TAX ─────────────── -->
+<section class="chapter" id="ch22">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">22 ·</span><h2>The join tax</h2></div>
+    <p>Here's the question that finds the crack in the relational world: <em>"who supplies the suppliers of my suppliers?"</em> One hop is a JOIN. Two hops is a JOIN of a JOIN. Every extra hop multiplies the rows the database must examine, because <b>relational storage doesn't store relationships — it re-derives them</b>, at query time, every time, by matching keys across tables.</p>
+    <p>A graph database makes the opposite bet: pay for the relationship <em>once, at write time</em>, storing each edge as a physical pointer. Then a three-hop question is just three pointer-walks from the starting node — the cost grows with the size of the <em>answer</em>, not the size of the database. That single design decision is why supply chains, fraud rings, org charts, and knowledge graphs — anything where the question is "what's connected to what" — live on graphs.</p>
+
+    <div class="widget alt" id="w-join">
+      <span class="widget-label">the same question, two bills</span>
+      <canvas class="viz" id="cv-join" width="880" height="340"></canvas>
+      <div class="controls">
+        <div class="ctl" style="max-width:280px"><label>hops upstream <output id="o-hops">2</output></label><input type="range" id="in-hops" min="1" max="4" step="1" value="2"></div>
+      </div>
+      <div class="readout"><span class="stat">SQL rows examined <b id="join-sql">—</b></span><span class="stat">graph nodes visited <b id="join-graph">—</b></span></div>
+      <p class="widget-hint"><span class="hand">honesty →</span> indexes tame the worst of this, and relational is still the right home for plenty of data. the point is the <b>shape</b>: joins recompute relationships; graphs simply keep them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 23 · NODES & EDGES, DONE RIGHT ─────────────── -->
+<section class="chapter" id="ch23">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">23 ·</span><h2>Nodes &amp; edges, done right</h2></div>
+    <p>A graph won't save you from bad modeling — it just makes bad modeling more visible. The craft has a few iron rules. <b>Things become nodes; relationships become edges; both get types.</b> An edge labeled <em>supplies</em> with a quantity and a start date is knowledge; an edge labeled <em>related_to</em> is a shrug in database form. Direction matters — <em>Beta supplies Acme</em> is not <em>Acme supplies Beta</em>. And not every fact deserves a node: an address is a property; a Vietnam-war-surplus warehouse full of one-off nodes is clutter wearing a graph costume.</p>
+    <p>Below is a small model with four classic diseases in it. Cure them one at a time and watch the linter — the same kind of ruleset a real knowledge graph runs nightly — go green.</p>
+
+    <div class="widget" id="w-model">
+      <span class="widget-label">cure the model</span>
+      <canvas class="viz" id="cv-model" width="880" height="330"></canvas>
+      <div class="controls">
+        <button class="btn small" id="fix-0" aria-pressed="false">type the vague edge</button>
+        <button class="btn small" id="fix-1" aria-pressed="false">adopt the orphan</button>
+        <button class="btn small" id="fix-2" aria-pressed="false">split the god node</button>
+        <button class="btn small" id="fix-3" aria-pressed="false">demote address to property</button>
+      </div>
+      <ul class="lint" id="lint">
+        <li id="lint-0">vague edge type: <b>related_to</b> carries no meaning a query can use</li>
+        <li id="lint-1">orphan node: <b>Notes-2024</b> connects to nothing</li>
+        <li id="lint-2">god node: <b>MISC</b> carries 9 unrelated edges — a junk drawer with a halo</li>
+        <li id="lint-3">over-normalized: 3 nodes to say one address — properties exist for a reason</li>
+      </ul>
+      <div class="readout"><span class="stat">model health <b id="model-score">0 / 4</b></span></div>
+      <p class="widget-hint"><span class="hand">rule of thumb →</span> if a node type could be a column, it probably should be. if an edge label could mean five things, it means nothing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 24 · THE ONTOLOGY ─────────────── -->
+<section class="chapter" id="ch24">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">24 ·</span><h2>The ontology</h2></div>
+    <p>Types alone aren't enough — you need a <b>vocabulary contract</b>: which node classes exist (Organization, Program, Part), how they nest (a Subsidiary <em>is an</em> Organization), and what's forbidden (a Part can't <em>employ</em> a Person). That contract is the <b>ontology</b>, and it's what turns a pile of edges into something agents and queries can reason over without guessing what words mean.</p>
+    <p>The hardest clause in the contract is <b>identity</b>. The wild world will hand you "Northrop Grumman Corp," "NORTHROP GRUMMAN SYSTEMS CORPORATION," and "Northrop Grumman Space Systems" — and if each becomes its own node, your graph quietly shatters into fragments that know nothing about each other. <b>Entity resolution</b> is the discipline of merging what's truly the same and — just as important — <em>refusing</em> to merge what merely looks the same. Ticker collisions, shared surnames, single-token names: the traps are everywhere. Your turn on the merge desk:</p>
+
+    <div class="widget alt" id="w-onto">
+      <span class="widget-label">you're on the merge desk today</span>
+      <div class="er-pair">
+        <div class="er-ent"><h5 id="er-a-name">—</h5><div id="er-a-ev"></div></div>
+        <div class="er-ent"><h5 id="er-b-name">—</h5><div id="er-b-ev"></div></div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="btn-er-merge">merge them</button>
+        <button class="btn" id="btn-er-sep">keep separate</button>
+        <button class="btn" id="btn-er-link">link, don't merge</button>
+      </div>
+      <div class="er-verdict" id="er-verdict"></div>
+      <div class="readout"><span class="stat">case <b id="er-case">1 / 5</b></span><span class="stat">score <b id="er-score">0</b></span></div>
+      <p class="widget-hint"><span class="hand">the traps →</span> same industry ≠ same company. same word ≠ same family. and sometimes the right answer is neither merge nor separate — it's <b>an edge</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 25 · PROVENANCE ─────────────── -->
+<section class="chapter" id="ch25">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">25 ·</span><h2>Provenance, or receipts</h2></div>
+    <p>An enterprise graph that agents write into (that's <a href="../agents/#ch11">part IV</a>'s whole premise) has one non-negotiable rule: <b>no edge without a receipt</b>. Every relationship carries its sources, each source carries a trust tier — a government contract filing outranks a press release, which outranks a model's inference — and the edge's confidence is <em>computed from its evidence</em>, never typed in by hand.</p>
+    <p>Receipts change how truth dies, too. When a new filing contradicts an edge, you don't delete history — you mark the edge <b>disputed</b> and keep both records, because next quarter's question might be "what did we believe in March, and why?" That's <b>bitemporal</b> thinking: the graph remembers not just what's true, but <em>when it was known</em>. Try it on one edge:</p>
+
+    <div class="widget" id="w-prov">
+      <span class="widget-label">one edge, its receipts, and time</span>
+      <div class="prov-edge">
+        <span class="prov-node">Beta Alloys</span>
+        <span class="prov-rel reported" id="prov-rel">supplies · reported</span>
+        <span class="prov-node">Acme Rockets</span>
+      </div>
+      <div class="prov-stack" id="prov-stack"></div>
+      <div class="controls">
+        <button class="btn primary" id="btn-prov-gov">a gov contract record arrives</button>
+        <button class="btn" id="btn-prov-con">a contradicting filing arrives</button>
+        <div class="ctl" style="max-width:260px"><label>the graph, as known in <output id="o-time">2026</output></label><input type="range" id="in-time" min="2023" max="2026" step="1" value="2026"></div>
+      </div>
+      <div class="readout"><span class="stat">status <b id="prov-status">reported</b></span><span class="stat">confidence <b id="prov-conf">0.60</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> corroborate it, then contradict it — the edge survives both, with its whole story attached. drag the year back and watch the graph remember what it used to believe.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 26 · THE HALL OF SHAME ─────────────── -->
+<section class="chapter" id="ch26">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">26 ·</span><h2>The hall of shame</h2></div>
+    <p>Before Book II builds the dream stack, a tour of how enterprises actually store truth today — the architectures nobody designed, that everybody has. Each one below is real, common, and quietly expensive. One of them is actually fine. <b>Click what you think is rotten.</b></p>
+
+    <div class="widget alt" id="w-shame">
+      <span class="widget-label">click the rot — one of these is innocent</span>
+      <div class="shame-grid" id="shame-grid">
+        <div class="shame-card" data-k="0"><h4>Q3_Sales_v7_FINAL(2).xlsx</h4><span class="tease">lives in email attachments. 14 people have 14 versions.</span><span class="reveal-txt"><span class="vn">the spreadsheet empire</span> — the real system of record is a file name. fix: one governed store; spreadsheets become <em>views</em>, never sources.</span></div>
+        <div class="shame-card" data-k="1"><h4>CRM (Salesforce)</h4><span class="tease">the sales team's actual working system.</span><span class="reveal-txt"><span class="vn">actually fine!</span> — systems of record are good. the crime is never the source system; it's the seventeen stale copies of it.</span></div>
+        <div class="shame-card" data-k="2"><h4>warehouse.crm_copy_v2</h4><span class="tease">a nightly dump of the CRM. last successful run: 3 weeks ago.</span><span class="reveal-txt"><span class="vn">the copy-paste warehouse</span> — every copy is a fork of the truth with its own decay clock. fix: one pipeline with lineage + freshness alarms, not ad-hoc dumps.</span></div>
+        <div class="shame-card" data-k="3"><h4>s3://data-lake/raw/*</h4><span class="tease">40,000 JSON files. no schema. "we'll structure it later."</span><span class="reveal-txt"><span class="vn">the data swamp</span> — storage without meaning is a liability with a monthly bill. fix: schema-on-write for what matters; an ontology before an ocean.</span></div>
+        <div class="shame-card" data-k="4"><h4>THE_MASTER_TABLE</h4><span class="tease">480 columns. every team added theirs. nobody may delete.</span><span class="reveal-txt"><span class="vn">the god table</span> — ch 23's god node, wearing SQL. fix: real entities with real types — this is precisely what nodes and edges are for.</span></div>
+        <div class="shame-card" data-k="5"><h4>metrics_dashboard_final</h4><span class="tease">beautiful KPIs. built directly on the raw swamp. numbers disagree with finance's.</span><span class="reveal-txt"><span class="vn">dashboard over quicksand</span> — polish on top of untyped truth just makes wrong numbers persuasive. fix: dashboards read the graph, not the swamp.</span></div>
+      </div>
+      <div class="readout"><span class="stat">rot found <b id="shame-found">0 / 5</b></span><span class="stat hand" id="shame-done" style="font-size:18px;color:var(--leaf-deep)"></span></div>
+      <p class="widget-hint"><span class="hand">the pattern →</span> every disease here is the same disease: <b>relationships and meaning living in filenames, column names, and people's heads</b> instead of in the data itself. part VII builds the cure.</p>
+    </div>
+
+    <div class="pager">
+      <a class="pcard" href="../thinking/"><span class="plabel">book I — part V</span><div class="ptitle">← Thinking</div></a>
+      <a class="pcard next" href="../"><span class="plabel">next — part VII</span><div class="ptitle">The business (in the works) →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks and from building <a href="https://thessa.space">thessa.space</a> — a production knowledge graph of ~11,000 organizations and ~22,000 typed relationship edges with provenance-first verification. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://thessa.space">thessa.space</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/graph.js"></script>
+</body>
+</html>

@@ -220,3 +220,6 @@ private architecture ever appear in this repo.
 
 Est. Book II: ~2,600 lines TS + ~1,700 lines HTML/prose — the equivalent
 depth requested.
+
+> **Status:** Part VI (the graph, ch 21-26) shipped 2026-07-20 with the
+> two-book landing and `book II ▾` nav rollup. Next: Part VII (ch 27-31).
