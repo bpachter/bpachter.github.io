@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Language — Gradient, part II</title>
+<meta name="description" content="Tokens, embeddings, attention you can poke, a 3-D transformer tower with four attention heads you can spin, and a tiny language model born from the page's own prose." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <a href="../foundations/">foundations</a>
+      <a href="./" class="active">language</a>
+      <a href="../frontier/">frontier</a>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part II of III</div>
+    <h1>Language</h1>
+    <p class="part-sub">How words become numbers, how attention lets every word watch every other word, and the one-skill loop that writes whole essays.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 05 · WORDS BECOME NUMBERS ─────────────── -->
+<section class="chapter" id="ch5">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">05 ·</span><h2>Words become numbers</h2></div>
+    <p>Networks eat numbers, not words. So language models first chop text into <b>tokens</b> — not quite letters, not quite words. Common words survive whole; rare ones get split into reusable pieces, so <em>unbelievable</em> becomes <em>un + believ + able</em> and the model can handle words it has never seen. Every model has a fixed menu of these pieces, learned by merging the most frequent pairs — the reason models sometimes struggle to count the letters in a word: they never see letters, only chunks.</p>
+
+    <div class="widget alt" id="w-tok">
+      <span class="widget-label">the token chopper</span>
+      <input class="texty" id="in-tok" type="text" value="The unbelievable transformer is rethinking learning" autocomplete="off" spellcheck="false" />
+      <div class="chips-out" id="tok-out"></div>
+      <div class="readout"><span class="stat">characters <b id="tok-chars">0</b></span><span class="stat">tokens <b id="tok-count">0</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> type your own words. try something long and made-up, like <b>hyperlearnification</b>.</p>
+    </div>
+
+    <p>Then each token gets a meaning. Not a definition — a <b>location</b>. Every token becomes an <b>embedding</b>: a list of hundreds of coordinates placing it in a vast space where similar meanings sit near each other. The astonishing part, discovered with word2vec in 2013, is that directions in this space mean things. The path from <em>man</em> to <em>woman</em> is roughly the same arrow as the path from <em>king</em> to <em>queen</em>. Meaning becomes geometry, and arithmetic on meaning becomes possible.</p>
+
+    <div class="widget" id="w-emb">
+      <span class="widget-label">a 2-D cartoon of a 1,000-D space</span>
+      <canvas class="viz" id="cv-emb" width="880" height="420"></canvas>
+      <div class="controls">
+        <button class="btn primary" id="btn-emb-analogy">king − man + woman = ?</button>
+        <button class="btn" id="btn-emb-analogy2">puppy − dog + cat = ?</button>
+        <button class="btn" id="btn-emb-clear">clear</button>
+      </div>
+      <p class="widget-hint"><span class="hand">try it →</span> run the analogy and watch the arrows walk the space. real embeddings do this across a thousand dimensions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 06 · ATTENTION ─────────────── -->
+<section class="chapter" id="ch6">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">06 ·</span><h2>Attention is all you need</h2></div>
+    <p>For years, models read sentences one word at a time, dragging a fading memory behind them — and long sentences dissolved into fog. The 2017 transformer threw that out with one move: let <b>every word look at every other word at once</b>, and let the model learn where to look. That mechanism is <b>attention</b>, and it is the single idea behind the entire modern AI boom.</p>
+    <p>Each word plays three roles at once. Its <b>query</b> asks a question — <em>what am I looking for?</em> Its <b>key</b> advertises what it offers. Its <b>value</b> is the actual information it hands over. Every query is compared against every key; strong matches earn strong weights; and each word rebuilds itself as a weighted blend of everyone's values. When you read <em>the robot picked up the ball because it was heavy</em>, something in you resolves what <em>it</em> means. Attention is that reflex, made mechanical.</p>
+
+    <div class="widget" id="w-attn">
+      <span class="widget-label">who is looking at whom?</span>
+      <div class="sentence" id="attn-sent"></div>
+      <canvas class="viz" id="cv-attn" width="880" height="200"></canvas>
+      <div class="controls">
+        <button class="btn" id="btn-attn-causal" aria-pressed="false">causal mask: off</button>
+      </div>
+      <p class="widget-hint"><span class="hand">try it →</span> tap any word to see where its attention flows. then switch on the <b>causal mask</b> — in a generator, no word may peek at the future, so everything after the chosen word goes dark.</p>
+    </div>
+
+    <p>Because all words are seen at once, the model needs a sense of order — so each position gets a rhythmic stamp built from sine and cosine waves (newer models rotate the query and key vectors instead, a scheme called <b>RoPE</b> — it gets its own chapter in part III).</p>
+  </div>
+</section>
+
+<!-- ─────────────── 07 · INSIDE THE TOWER (3D) ─────────────── -->
+<section class="chapter" id="ch7">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">07 ·</span><h2>Inside the tower, in 3-D</h2></div>
+    <p>One attention pass is a committee meeting. A transformer is dozens of them, stacked. Each layer runs several <b>heads</b> in parallel — small independent spotlights, each free to learn its own kind of relationship: one watches the previous word, one binds verbs to their objects, one hunts for the far-away noun a pronoun leans on, one keeps an eye on everything at once.</p>
+    <p>Layer by layer, every word's vector is rebuilt as a blend of what it attended to — meaning refined in passes, the way a drawing goes sketch → inks → color. By the top of the tower, the vector over <em>ball</em> doesn't just mean "ball"; it means <em>this particular ball, the one the robot picked up</em>. Below is a toy tower you can hold: six words wide, four layers tall, four heads per layer.</p>
+
+    <div class="widget alt" id="w-heads">
+      <span class="widget-label">four heads, four layers — drag to orbit</span>
+      <canvas class="viz" id="cv-heads" width="880" height="480"></canvas>
+      <div class="legend" id="heads-legend">
+        <label><input type="checkbox" data-h="0" checked><span class="swatch" style="background:#8aae68"></span>previous-word head</label>
+        <label><input type="checkbox" data-h="1" checked><span class="swatch" style="background:#6b7fa3"></span>verb→object head</label>
+        <label><input type="checkbox" data-h="2" checked><span class="swatch" style="background:#c9a227"></span>long-range head</label>
+        <label><input type="checkbox" data-h="3" checked><span class="swatch" style="background:#9a6fa0"></span>broad-context head</label>
+      </div>
+      <p class="widget-hint"><span class="hand">try it →</span> drag to spin the tower. untick heads to see what each one alone contributes — then imagine 96 layers and dozens of heads. that's the machine you talk to.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 08 · THE AUTOCOMPLETE MACHINE ─────────────── -->
+<section class="chapter" id="ch8">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">08 ·</span><h2>The autocomplete machine</h2></div>
+    <p>Here is the secret that still surprises people: a language model has exactly one skill. Given everything so far, it predicts a <b>probability for every possible next token</b>. That's it. Generation is just prediction on a loop — predict, pick one, append it, predict again — each new word feeding the next prediction. The loop is why answers stream out word by word, and why a model never quite knows how its own sentence will end.</p>
+    <p><b>How you pick from those probabilities is a personality dial.</b> Always take the single most likely token — <b>greedy</b> decoding — and the text turns repetitive and dull. Instead we sample. <b>Temperature</b> reshapes the whole distribution: cold makes the favorite dominate, hot flattens the field toward chaos. <b>Top-k</b> only lets the k best candidates into the draw. <b>Top-p</b> keeps the smallest set of words whose probabilities add up to p. Every chatbot you've used is these three sliders wearing a trench coat.</p>
+    <p>The model below is real and it learned from <em>this very page</em> — every probability you see comes from counting patterns in the words you just read. It is a humble n-gram model, not a transformer, but the sampling machinery is exactly what the big models use. Watch the outlined bars (raw probabilities) get reshaped into the filled bars (after your dials) at every single step.</p>
+
+    <div class="widget alt" id="w-gen">
+      <span class="widget-label">a tiny language model, born on this page</span>
+      <canvas class="viz" id="cv-gen" width="880" height="300"></canvas>
+      <div class="controls">
+        <div class="ctl"><label>temperature <output id="o-temp">0.9</output></label><input type="range" id="in-temp" min="0.1" max="2.5" step="0.05" value="0.9"></div>
+        <div class="ctl"><label>top-k <output id="o-topk">off</output></label><input type="range" id="in-topk" min="0" max="20" step="1" value="0"></div>
+        <div class="ctl"><label>top-p <output id="o-topp">1.00</output></label><input type="range" id="in-topp" min="0.1" max="1" step="0.05" value="1"></div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="btn-gen-go">generate</button>
+        <button class="btn" id="btn-gen-step">one step</button>
+        <button class="btn" id="btn-gen-reseed">new seed</button>
+      </div>
+      <div class="gen-out" id="gen-out"></div>
+      <div class="kv-row" id="kv-row"><span class="kv-label">KV cache:</span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> generate at temperature 0.2, then again at 2.0. same model, different soul. the little green cells are the <b>KV cache</b> — it gets its own chapter next.</p>
+    </div>
+
+    <div class="pager">
+      <a class="pcard" href="../foundations/"><span class="plabel">back — part I</span><div class="ptitle">← Foundations</div></a>
+      <a class="pcard next" href="../frontier/"><span class="plabel">next — part III</span><div class="ptitle">Frontier →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://bpachter.github.io/entropy/">entropy</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/language.js"></script>
+</body>
+</html>

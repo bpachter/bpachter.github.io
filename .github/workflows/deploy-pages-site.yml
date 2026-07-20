@@ -32,13 +32,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build Gradient (TypeScript → per-page bundles)
+        run: |
+          npm install -g typescript@5.6.3
+          bash gradient/build.sh
+
       - name: Assemble Pages artifact
         run: |
           rm -rf _site
           mkdir -p _site
           cp index.html _site/index.html
           if [ -d assets ]; then cp -r assets _site/assets; fi
-          if [ -d gradient ]; then cp -r gradient _site/gradient; fi
+          if [ -d gradient ]; then
+            cp -r gradient _site/gradient
+            rm -rf _site/gradient/src _site/gradient/build.sh _site/gradient/.gitignore
+          fi
           touch _site/.nojekyll
 
       - name: Upload artifact

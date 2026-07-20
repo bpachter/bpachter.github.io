@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Foundations — Gradient, part I</title>
+<meta name="description" content="A perceptron you can steer, gradient descent you can feel, a 3-D loss landscape you can spin, and a real neural network training live in your browser." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <a href="./" class="active">foundations</a>
+      <a href="../language/">language</a>
+      <a href="../frontier/">frontier</a>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part I of III</div>
+    <h1>Foundations</h1>
+    <p class="part-sub">One artificial neuron, the downhill trick that trains it, the landscape it lives on — in 3-D — and the moment networks went deep.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 01 · THE NEURON ─────────────── -->
+<section class="chapter" id="ch1">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">01 ·</span><h2>Hello, neuron</h2></div>
+    <p>Your brain runs on about eighty six billion tiny cells. Each one listens to signals arriving on its dendrites, adds them up in the cell body, and — if the total crosses a threshold — fires a pulse down its axon to thousands of neighbors. Learning, in the brain, is just certain connections getting stronger with use.</p>
+    <p>In 1958 Frank Rosenblatt asked a beautiful question: what if we build that in math? His <b>perceptron</b> takes numbers in, multiplies each by a <b>weight</b>, adds a <b>bias</b>, and fires if the weighted sum crosses zero. That single multiply-and-add is still the atom of every neural network today. A weight is just a dial that says <em>how much should I care about this input?</em></p>
+    <p class="margin-note">← the whole of deep learning is billions of these dials.</p>
+    <p>Below is a live perceptron looking at two clouds of points. Its weights draw a straight <b>decision boundary</b> between them. Drag the dials and try to separate the clouds yourself — then let the machine take over. (It will demonstrate on its own in a moment — touching anything makes it yours.)</p>
+
+    <div class="widget" id="w-perceptron">
+      <span class="widget-label">a perceptron you can steer</span>
+      <canvas class="viz" id="cv-perc" width="880" height="440"></canvas>
+      <div class="controls">
+        <div class="ctl"><label>weight w₁ <output id="o-w1">1.0</output></label><input type="range" id="in-w1" min="-3" max="3" step="0.05" value="1"></div>
+        <div class="ctl"><label>weight w₂ <output id="o-w2">-1.0</output></label><input type="range" id="in-w2" min="-3" max="3" step="0.05" value="-1"></div>
+        <div class="ctl"><label>bias b <output id="o-b">0.0</output></label><input type="range" id="in-b" min="-3" max="3" step="0.05" value="0"></div>
+        <button class="btn primary" id="btn-perc-learn">let it learn</button>
+        <button class="btn" id="btn-perc-reset">reset</button>
+      </div>
+      <div class="readout"><span class="stat">accuracy <b id="perc-acc">—</b></span><span class="stat">rule: fire if <b>w₁x + w₂y + b &gt; 0</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> press <b>let it learn</b>: the perceptron nudges its own weights after every mistake — the 1958 learning rule, live.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 02 · LEARNING IS DESCENDING ─────────────── -->
+<section class="chapter" id="ch2">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">02 ·</span><h2>Learning is descending</h2></div>
+    <p>How does a machine find good weights on its own? First we give it a score to hate: a <b>loss function</b> that measures how wrong the current weights are. Wrong predictions mean high loss. Perfect predictions mean zero. Now learning has a shape — a landscape of hills and valleys where <em>altitude is error</em> — and training becomes a search for the lowest valley.</p>
+    <p>The search trick is called <b>gradient descent</b>, and it is almost embarrassingly simple. Stand anywhere on the landscape. Feel the slope under your feet — that slope is the <b>gradient</b>. Take a small step downhill. Repeat. The size of the step is the <b>learning rate</b>, and it is the most temperamental dial in machine learning: too small and training takes forever, too large and you leap clean over the valley and ricochet up the far wall.</p>
+    <p>Ball below. Loss curve below it. See for yourself — and notice the local valley that isn't the deepest one. Real networks dodge such traps partly by taking noisy steps, a trick called <b>stochastic</b> gradient descent: cheaper, jitterier, and strangely better at finding the deep valleys.</p>
+
+    <div class="widget alt" id="w-gd">
+      <span class="widget-label">roll downhill, carefully</span>
+      <canvas class="viz" id="cv-gd" width="880" height="380"></canvas>
+      <div class="controls">
+        <div class="ctl"><label>learning rate <output id="o-lr">0.10</output></label><input type="range" id="in-lr" min="0.02" max="1.60" step="0.02" value="0.10"></div>
+        <button class="btn" id="btn-gd-step">step</button>
+        <button class="btn primary" id="btn-gd-auto">descend</button>
+        <button class="btn" id="btn-gd-noise" aria-pressed="false">noise: off</button>
+        <button class="btn" id="btn-gd-reset">reset</button>
+      </div>
+      <div class="readout"><span class="stat">loss <b id="gd-loss">—</b></span><span class="stat">slope <b id="gd-slope">—</b></span><span id="gd-msg" class="hand" style="font-size:19px;color:var(--leaf-deep)"></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> crank the learning rate past 1.2 and press descend. then try a tiny rate from the shallow valley — and turn noise on to escape it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 03 · THE LANDSCAPE IN 3D ─────────────── -->
+<section class="chapter" id="ch3">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">03 ·</span><h2>The landscape, in 3-D</h2></div>
+    <p>Two dials gave us a curve. Real models have <b>billions</b> of dials, so the real loss landscape lives in billions of dimensions — a thing no one can picture. But we can draw two dimensions honestly, and the rule doesn't change at all: feel the slope under your feet, step downhill, repeat.</p>
+    <p>This is the app's namesake, so meet it properly: the <b>gradient</b> is nothing more than the arrow pointing steepest-uphill, and training just walks the other way. Watch the ball feel its way across terrain it cannot see. Then give it <b>momentum</b> — a rolling memory of recent steps — and watch it coast straight through the shallow dips that trap a timid learner. Almost every modern optimizer (SGD-with-momentum, Adam) is this ball with better bookkeeping.</p>
+
+    <div class="widget" id="w-gd3d">
+      <span class="widget-label">spin the mountains — drag me</span>
+      <canvas class="viz" id="cv-gd3d" width="880" height="460"></canvas>
+      <div class="controls">
+        <div class="ctl"><label>learning rate <output id="o-lr3d">0.06</output></label><input type="range" id="in-lr3d" min="0.01" max="0.30" step="0.01" value="0.06"></div>
+        <button class="btn primary" id="btn-gd3d-drop">drop a new ball</button>
+        <button class="btn" id="btn-gd3d-mom" aria-pressed="true">momentum: on</button>
+      </div>
+      <div class="readout"><span class="stat">loss <b id="gd3d-loss">—</b></span><span class="stat">steps <b id="gd3d-steps">0</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> drag to orbit the landscape. drop balls in different spots — some valleys are deeper than others. now toggle momentum off and drop a ball in the same place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 04 · GOING DEEP ─────────────── -->
+<section class="chapter" id="ch4">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">04 ·</span><h2>Going deep</h2></div>
+    <p>One neuron draws one straight line — and straight lines have limits. In 1969 Minsky and Papert pointed at a toddler-simple puzzle the perceptron provably cannot solve: <b>XOR</b>, where the answer is yes for <em>one</em> of two inputs but not both. The pattern is diagonal. No single line separates it. Funding dried up, and the field entered its first winter.</p>
+    <p>The thaw came from stacking. Put neurons in <b>layers</b>, feed the outputs of one layer into the next, and squeeze each neuron through a curved <b>activation function</b> so the whole thing stops being one big linear equation. Then train every dial at once with <b>backpropagation</b> — the chain rule from calculus, walking the error backward through the network, handing each weight its own personal share of the blame.</p>
+    <p>The curve you choose matters more than it looks. The classic <b>sigmoid</b> squashes everything between zero and one — but its slopes are shallow, and multiplying many small slopes together makes the error signal <b>vanish</b> before it reaches the early layers. Deep networks stalled for years on exactly this. The modern fix is almost comically blunt: <b>ReLU</b>, which keeps positive numbers and zeroes the rest. Cheap, crude, and it trains beautifully.</p>
+    <p>This one is fully live: a real two-layer network, trained by real backpropagation, in your browser, on the very problem that started the winter. Watch the painted decision region bend around the diagonal — something no single neuron could ever do. Then switch activations and feel the difference in training speed.</p>
+
+    <div class="widget" id="w-xor">
+      <span class="widget-label">a neural network, training live</span>
+      <canvas class="viz" id="cv-xor" width="880" height="440"></canvas>
+      <div class="controls">
+        <div class="seg" id="seg-act" role="group" aria-label="activation">
+          <button data-act="sigmoid" aria-pressed="false">sigmoid</button>
+          <button data-act="tanh" aria-pressed="true">tanh</button>
+          <button data-act="relu" aria-pressed="false">ReLU</button>
+        </div>
+        <button class="btn primary" id="btn-xor-train">train</button>
+        <button class="btn" id="btn-xor-reset">reset</button>
+      </div>
+      <div class="readout"><span class="stat">loss <b id="xor-loss">—</b></span><span class="stat">steps <b id="xor-steps">0</b></span><span class="stat">accuracy <b id="xor-acc">—</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> train with <b>sigmoid</b>, note how many steps it needs — then reset and try <b>ReLU</b>. that gap is the vanishing gradient, felt.</p>
+    </div>
+
+    <div class="pager">
+      <a class="pcard spacer" href="../" aria-hidden="true"><span class="plabel">·</span><div class="ptitle">·</div></a>
+      <a class="pcard next" href="../language/"><span class="plabel">next — part II</span><div class="ptitle">Language →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://bpachter.github.io/entropy/">entropy</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/foundations.js"></script>
+</body>
+</html>

@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gradient — an interactive journey into how machines learn</title>
-<meta name="description" content="From a single neuron to the transformer — a warm, hands-on explainer of how machines learn. Play with live neural networks, attention, and sampling, right in your browser." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%23d97757' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<meta name="description" content="How machines learn — and how Claude and ChatGPT actually work — told in ten touchable chapters. Live neural networks, 3D loss landscapes, attention you can spin, all in your browser." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
@@ -16,242 +16,75 @@
 
 <nav>
   <div class="nav-in">
-    <a class="nav-brand" href="#top">gradient<span>.</span></a>
+    <a class="nav-brand" href="./">gradient<span>.</span></a>
     <div class="nav-links">
-      <a href="#ch1" class="hide-sm">neuron</a>
-      <a href="#ch3" class="hide-sm">learning</a>
-      <a href="#ch5" class="hide-sm">attention</a>
-      <a href="#ch6">generation</a>
-      <a href="https://bpachter.github.io/">← portfolio</a>
+      <a href="foundations/">foundations</a>
+      <a href="language/">language</a>
+      <a href="frontier/">frontier</a>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
     </div>
   </div>
 </nav>
 
-<a id="top"></a>
 <header class="hero">
   <div class="wrap">
     <div class="hero-kicker">A field guide, with working parts</div>
     <h1><span class="underline-wrap">Gradient<svg viewBox="0 0 200 14" preserveAspectRatio="none"><path class="sketch draw-me" style="--len:220" d="M4 9 C 40 12, 70 5, 105 8 S 170 11, 196 6" /></svg></span></h1>
-    <p class="hero-sub">An interactive journey into <em>how machines learn</em> — from a single neuron all the way up to the transformer behind every modern AI.</p>
-    <p class="hero-note hand">no math degree required. every chapter has something you can touch. ↓</p>
-    <svg class="hero-doodle" viewBox="0 0 340 90">
-      <path class="sketch slate draw-me" style="--len:520" d="M12 74 C 60 74, 70 18, 120 22 C 168 26, 160 66, 208 58 C 250 51, 258 30, 328 24" />
-      <circle cx="120" cy="22" r="5" fill="#d97757"/>
-      <circle cx="208" cy="58" r="5" fill="#7d9070"/>
-      <text x="98" y="12" class="hand" font-size="17" fill="#8a8171">loss going down!</text>
-    </svg>
+    <p class="hero-sub">How machines learn — and how tools like <em>Claude and ChatGPT</em> actually work — told in ten chapters you can touch.</p>
+    <p class="hero-note hand">written for curious humans. no math degree required. ↓</p>
   </div>
 </header>
 
-<!-- ─────────────── 01 · THE NEURON ─────────────── -->
-<section class="chapter" id="ch1">
+<!-- ─────────────── THE WHOLE SECRET, ANIMATED ─────────────── -->
+<section class="chapter" style="padding-top:8px">
   <div class="wrap">
-    <div class="ch-head"><span class="ch-num">01 ·</span><h2>Hello, neuron</h2></div>
-    <p>Your brain runs on about eighty six billion tiny cells. Each one listens to signals arriving on its dendrites, adds them up in the cell body, and — if the total crosses a threshold — fires a pulse down its axon to thousands of neighbors. Learning, in the brain, is just certain connections getting stronger with use.</p>
-    <p>In 1958 Frank Rosenblatt asked a beautiful question: what if we build that in math? His <b>perceptron</b> takes numbers in, multiplies each by a <b>weight</b>, adds a <b>bias</b>, and fires if the weighted sum crosses zero. That single multiply-and-add is still the atom of every neural network today. A weight is just a dial that says <em>how much should I care about this input?</em></p>
-    <p class="margin-note">← the whole of deep learning is billions of these dials.</p>
-    <p>Below is a live perceptron looking at two clouds of points. Its weights draw a straight <b>decision boundary</b> between them. Drag the dials and try to separate the clouds yourself — then let the machine take over.</p>
-
-    <div class="widget" id="w-perceptron">
-      <span class="widget-label">a perceptron you can steer</span>
-      <canvas class="viz" id="cv-perc" width="880" height="440"></canvas>
-      <div class="controls">
-        <div class="ctl"><label>weight w₁ <output id="o-w1">1.0</output></label><input type="range" id="in-w1" min="-3" max="3" step="0.05" value="1"></div>
-        <div class="ctl"><label>weight w₂ <output id="o-w2">-1.0</output></label><input type="range" id="in-w2" min="-3" max="3" step="0.05" value="-1"></div>
-        <div class="ctl"><label>bias b <output id="o-b">0.0</output></label><input type="range" id="in-b" min="-3" max="3" step="0.05" value="0"></div>
-        <button class="btn primary" id="btn-perc-learn">let it learn</button>
-        <button class="btn" id="btn-perc-reset">reset</button>
-      </div>
-      <div class="readout"><span class="stat">accuracy <b id="perc-acc">—</b></span><span class="stat">rule: fire if <b>w₁x + w₂y + b &gt; 0</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> press <b>let it learn</b>: the perceptron nudges its own weights after every mistake — the 1958 learning rule, live.</p>
+    <div class="widget" id="w-pipe">
+      <span class="widget-label">eight seconds inside a chatbot</span>
+      <canvas class="viz" id="cv-pipe" width="880" height="330"></canvas>
+      <p class="widget-hint"><span class="hand">watch →</span> a chatbot has exactly one skill: <b>guess the next word, append it, repeat</b>. everything else on this site is what happens inside the tower.</p>
     </div>
+    <p class="pipe-caption">← this loop runs every time Claude answers you. really. that's the whole trick.</p>
   </div>
 </section>
 
-<!-- ─────────────── 02 · LEARNING IS DESCENDING ─────────────── -->
-<section class="chapter" id="ch2">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">02 ·</span><h2>Learning is descending</h2></div>
-    <p>How does a machine find good weights on its own? First we give it a score to hate: a <b>loss function</b> that measures how wrong the current weights are. Wrong predictions mean high loss. Perfect predictions mean zero. Now learning has a shape — a landscape of hills and valleys where <em>altitude is error</em> — and training becomes a search for the lowest valley.</p>
-    <p>The search trick is called <b>gradient descent</b>, and it is almost embarrassingly simple. Stand anywhere on the landscape. Feel the slope under your feet — that slope is the <b>gradient</b>. Take a small step downhill. Repeat. The size of the step is the <b>learning rate</b>, and it is the most temperamental dial in machine learning: too small and training takes forever, too large and you leap clean over the valley and ricochet up the far wall.</p>
-    <p>Ball below. Loss curve below it. See for yourself — and notice the local valley that isn't the deepest one. Real networks dodge such traps partly by taking noisy steps, a trick called <b>stochastic</b> gradient descent: cheaper, jitterier, and strangely better at finding the deep valleys.</p>
-
-    <div class="widget alt" id="w-gd">
-      <span class="widget-label">roll downhill, carefully</span>
-      <canvas class="viz" id="cv-gd" width="880" height="380"></canvas>
-      <div class="controls">
-        <div class="ctl"><label>learning rate <output id="o-lr">0.10</output></label><input type="range" id="in-lr" min="0.02" max="1.60" step="0.02" value="0.10"></div>
-        <button class="btn" id="btn-gd-step">step</button>
-        <button class="btn primary" id="btn-gd-auto">descend</button>
-        <button class="btn" id="btn-gd-noise" aria-pressed="false">noise: off</button>
-        <button class="btn" id="btn-gd-reset">reset</button>
-      </div>
-      <div class="readout"><span class="stat">loss <b id="gd-loss">—</b></span><span class="stat">slope <b id="gd-slope">—</b></span><span id="gd-msg" class="hand" style="font-size:19px;color:var(--coral-deep)"></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> crank the learning rate past 1.2 and press descend. then try a tiny rate from the shallow valley — and turn noise on to escape it.</p>
+<!-- ─────────────── THE ROUTE ─────────────── -->
+<section class="chapter" id="route" style="padding-top:26px">
+  <div class="wrap-wide">
+    <div class="wrap" style="padding:0">
+      <div class="ch-head"><span class="ch-num">the route ·</span><h2>Three short hikes</h2></div>
+      <p>Each part is its own page, and every chapter has a live machine in it — real training, real sampling, real 3-D landscapes, all simulated right in your browser. Start at the bottom of the hill:</p>
     </div>
-  </div>
-</section>
-
-<!-- ─────────────── 03 · GOING DEEP ─────────────── -->
-<section class="chapter" id="ch3">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">03 ·</span><h2>Going deep</h2></div>
-    <p>One neuron draws one straight line — and straight lines have limits. In 1969 Minsky and Papert pointed at a toddler-simple puzzle the perceptron provably cannot solve: <b>XOR</b>, where the answer is yes for <em>one</em> of two inputs but not both. The pattern is diagonal. No single line separates it. Funding dried up, and the field entered its first winter.</p>
-    <p>The thaw came from stacking. Put neurons in <b>layers</b>, feed the outputs of one layer into the next, and squeeze each neuron through a curved <b>activation function</b> so the whole thing stops being one big linear equation. Then train every dial at once with <b>backpropagation</b> — the chain rule from calculus, walking the error backward through the network, handing each weight its own personal share of the blame.</p>
-    <p>The curve you choose matters more than it looks. The classic <b>sigmoid</b> squashes everything between zero and one — but its slopes are shallow, and multiplying many small slopes together makes the error signal <b>vanish</b> before it reaches the early layers. Deep networks stalled for years on exactly this. The modern fix is almost comically blunt: <b>ReLU</b>, which keeps positive numbers and zeroes the rest. Cheap, crude, and it trains beautifully.</p>
-    <p>This one is fully live: a real two-layer network, trained by real backpropagation, in your browser, on the very problem that started the winter. Watch the painted decision region bend around the diagonal — something no single neuron could ever do. Then switch activations and feel the difference in training speed.</p>
-
-    <div class="widget" id="w-xor">
-      <span class="widget-label">a neural network, training live</span>
-      <canvas class="viz" id="cv-xor" width="880" height="440"></canvas>
-      <div class="controls">
-        <div class="seg" id="seg-act" role="group" aria-label="activation">
-          <button data-act="sigmoid" aria-pressed="false">sigmoid</button>
-          <button data-act="tanh" aria-pressed="true">tanh</button>
-          <button data-act="relu" aria-pressed="false">ReLU</button>
-        </div>
-        <button class="btn primary" id="btn-xor-train">train</button>
-        <button class="btn" id="btn-xor-reset">reset</button>
+    <div class="parts-grid">
+      <div class="part-card">
+        <span class="pnum">part I</span>
+        <h3>Foundations</h3>
+        <ul>
+          <li>01 · Hello, neuron</li>
+          <li>02 · Learning is descending</li>
+          <li>03 · The landscape, in 3-D</li>
+          <li>04 · Going deep</li>
+        </ul>
+        <a class="go" href="foundations/">start here →</a>
       </div>
-      <div class="readout"><span class="stat">loss <b id="xor-loss">—</b></span><span class="stat">steps <b id="xor-steps">0</b></span><span class="stat">accuracy <b id="xor-acc">—</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> train with <b>sigmoid</b>, note how many steps it needs — then reset and try <b>ReLU</b>. that gap is the vanishing gradient, felt.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────── 04 · WORDS BECOME NUMBERS ─────────────── -->
-<section class="chapter" id="ch4">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">04 ·</span><h2>Words become numbers</h2></div>
-    <p>Networks eat numbers, not words. So language models first chop text into <b>tokens</b> — not quite letters, not quite words. Common words survive whole; rare ones get split into reusable pieces, so <em>unbelievable</em> becomes <em>un + believ + able</em> and the model can handle words it has never seen. Every model has a fixed menu of these pieces, learned by merging the most frequent pairs — the reason models sometimes struggle to count the letters in a word: they never see letters, only chunks.</p>
-
-    <div class="widget alt" id="w-tok">
-      <span class="widget-label">the token chopper</span>
-      <input class="texty" id="in-tok" type="text" value="The unbelievable transformer is rethinking learning" autocomplete="off" spellcheck="false" />
-      <div class="chips-out" id="tok-out"></div>
-      <div class="readout"><span class="stat">characters <b id="tok-chars">0</b></span><span class="stat">tokens <b id="tok-count">0</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> type your own words. try something long and made-up, like <b>hyperlearnification</b>.</p>
-    </div>
-
-    <p>Then each token gets a meaning. Not a definition — a <b>location</b>. Every token becomes an <b>embedding</b>: a list of hundreds of coordinates placing it in a vast space where similar meanings sit near each other. The astonishing part, discovered with word2vec in 2013, is that directions in this space mean things. The path from <em>man</em> to <em>woman</em> is roughly the same arrow as the path from <em>king</em> to <em>queen</em>. Meaning becomes geometry, and arithmetic on meaning becomes possible.</p>
-
-    <div class="widget" id="w-emb">
-      <span class="widget-label">a 2-D cartoon of a 1,000-D space</span>
-      <canvas class="viz" id="cv-emb" width="880" height="420"></canvas>
-      <div class="controls">
-        <button class="btn primary" id="btn-emb-analogy">king − man + woman = ?</button>
-        <button class="btn" id="btn-emb-analogy2">puppy − dog + cat = ?</button>
-        <button class="btn" id="btn-emb-clear">clear</button>
+      <div class="part-card">
+        <span class="pnum">part II</span>
+        <h3>Language</h3>
+        <ul>
+          <li>05 · Words become numbers</li>
+          <li>06 · Attention is all you need</li>
+          <li>07 · Inside the tower, in 3-D</li>
+          <li>08 · The autocomplete machine</li>
+        </ul>
+        <a class="go" href="language/">the transformer →</a>
       </div>
-      <p class="widget-hint"><span class="hand">try it →</span> run the analogy and watch the arrows walk the space. real embeddings do this across a thousand dimensions.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────── 05 · ATTENTION ─────────────── -->
-<section class="chapter" id="ch5">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">05 ·</span><h2>Attention is all you need</h2></div>
-    <p>For years, models read sentences one word at a time, dragging a fading memory behind them — and long sentences dissolved into fog. The 2017 transformer threw that out with one move: let <b>every word look at every other word at once</b>, and let the model learn where to look. That mechanism is <b>attention</b>, and it is the single idea behind the entire modern AI boom.</p>
-    <p>Each word plays three roles at once. Its <b>query</b> asks a question — <em>what am I looking for?</em> Its <b>key</b> advertises what it offers. Its <b>value</b> is the actual information it hands over. Every query is compared against every key; strong matches earn strong weights; and each word rebuilds itself as a weighted blend of everyone's values. When you read <em>the robot picked up the ball because it was heavy</em>, something in you resolves what <em>it</em> means. Attention is that reflex, made mechanical.</p>
-
-    <div class="widget" id="w-attn">
-      <span class="widget-label">who is looking at whom?</span>
-      <div class="sentence" id="attn-sent"></div>
-      <canvas class="viz" id="cv-attn" width="880" height="200"></canvas>
-      <div class="controls">
-        <button class="btn" id="btn-attn-causal" aria-pressed="false">causal mask: off</button>
-      </div>
-      <p class="widget-hint"><span class="hand">try it →</span> tap any word to see where its attention flows. then switch on the <b>causal mask</b> — in a generator, no word may peek at the future, so everything after the chosen word goes dark.</p>
-    </div>
-
-    <p>Two footnotes make the machine whole. Because all words are seen at once, the model needs a sense of order — so each position gets a rhythmic stamp built from sine and cosine waves (newer models rotate the query and key vectors instead, a scheme called <b>RoPE</b>). And attention runs many times in parallel — <b>multi-head</b> — each head free to learn its own kind of relationship: one tracks grammar, another tracks pronouns, another tracks rhyme. Stack attention and small feed-forward networks a few dozen layers high, and you have a transformer.</p>
-  </div>
-</section>
-
-<!-- ─────────────── 06 · THE AUTOCOMPLETE MACHINE ─────────────── -->
-<section class="chapter" id="ch6">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">06 ·</span><h2>The autocomplete machine</h2></div>
-    <p>Here is the secret that still surprises people: a language model has exactly one skill. Given everything so far, it predicts a <b>probability for every possible next token</b>. That's it. Generation is just prediction on a loop — predict, pick one, append it, predict again — each new word feeding the next prediction. The loop is why answers stream out word by word, and why a model never quite knows how its own sentence will end.</p>
-    <p><b>How you pick from those probabilities is a personality dial.</b> Always take the single most likely token — <b>greedy</b> decoding — and the text turns repetitive and dull. Instead we sample. <b>Temperature</b> reshapes the whole distribution: cold makes the favorite dominate, hot flattens the field toward chaos. <b>Top-k</b> only lets the k best candidates into the draw. <b>Top-p</b> keeps the smallest set of words whose probabilities add up to p. Every chatbot you've used is these three sliders wearing a trench coat.</p>
-    <p>The model below is real and it learned from <em>this very essay</em> — every probability you see comes from counting patterns in the words you just read. It is a humble n-gram model, not a transformer, but the sampling machinery is exactly what the big models use. Watch the outlined bars (raw probabilities) get reshaped into the filled bars (after your dials) at every single step.</p>
-
-    <div class="widget alt" id="w-gen">
-      <span class="widget-label">a tiny language model, born on this page</span>
-      <canvas class="viz" id="cv-gen" width="880" height="300"></canvas>
-      <div class="controls">
-        <div class="ctl"><label>temperature <output id="o-temp">0.9</output></label><input type="range" id="in-temp" min="0.1" max="2.5" step="0.05" value="0.9"></div>
-        <div class="ctl"><label>top-k <output id="o-topk">off</output></label><input type="range" id="in-topk" min="0" max="20" step="1" value="0"></div>
-        <div class="ctl"><label>top-p <output id="o-topp">1.00</output></label><input type="range" id="in-topp" min="0.1" max="1" step="0.05" value="1"></div>
-      </div>
-      <div class="controls">
-        <button class="btn primary" id="btn-gen-go">generate</button>
-        <button class="btn" id="btn-gen-step">one step</button>
-        <button class="btn" id="btn-gen-reseed">new seed</button>
-      </div>
-      <div class="gen-out" id="gen-out"></div>
-      <div class="kv-row" id="kv-row"><span class="kv-label">KV cache:</span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> generate at temperature 0.2, then again at 2.0. same model, different soul. the little green cells are the <b>KV cache</b> — the model re-uses its work on old tokens instead of re-reading everything each step.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ─────────────── 07 · SCULPTING THE MIND ─────────────── -->
-<section class="chapter" id="ch7">
-  <div class="wrap">
-    <div class="ch-head"><span class="ch-num">07 ·</span><h2>Sculpting the mind</h2></div>
-    <p>Pre-training on the internet produces a brilliant autocomplete with no manners. Turning it into an assistant takes two more acts. First, <b>fine-tuning</b> on curated instruction-and-answer examples. But retraining billions of weights for every new task is absurd — so we cheat, elegantly. <b>LoRA</b> freezes the giant weight matrices and learns only two skinny side-matrices whose product nudges the original. Same behavior change, a fraction of a percent of the parameters — a lightweight plug-in for a mind.</p>
-
-    <div class="widget" id="w-lora">
-      <span class="widget-label">the LoRA trick, to scale</span>
-      <div class="lora-flex" id="lora-viz"></div>
-      <div class="controls">
-        <div class="ctl" style="max-width:280px"><label>adapter rank r <output id="o-rank">8</output></label><input type="range" id="in-rank" min="1" max="64" step="1" value="8"></div>
-      </div>
-      <div class="readout">
-        <span class="stat">full fine-tune <b id="lora-full">16.8M</b> params</span>
-        <span class="stat">LoRA <b id="lora-lite">65.5K</b> params</span>
-        <span class="stat">that's <b id="lora-pct">0.39%</b></span>
-      </div>
-      <div class="mem-bars">
-        <div class="mem-bar"><span class="lbl">7B model, FP16</span><div class="bar" style="width:100%"></div><span class="val">≈ 98 GB to train</span></div>
-        <div class="mem-bar"><span class="lbl">7B with QLoRA</span><div class="bar sage" style="width:25%"></div><span class="val">≈ 24.5 GB — one gaming GPU</span></div>
-      </div>
-      <p class="widget-hint"><span class="hand">and →</span> <b>QLoRA</b> shrinks the frozen weights to 4-bit — like reducing a photo from 256 shades of gray to 16: smaller, still recognizable.</p>
-    </div>
-
-    <p>Second act: <b>alignment</b>. Show the model two of its own answers and tell it which one a human preferred. Classic <b>RLHF</b> trains a separate reward model and optimizes against it with reinforcement learning (PPO). The newer, cleaner <b>DPO</b> skips the middleman — a bit of algebra on the Bradley-Terry preference model turns "A beats B" directly into a training loss. Thousands of tiny votes like yours, below, are what taught chatbots to be helpful instead of merely fluent.</p>
-
-    <div class="widget alt" id="w-dpo">
-      <span class="widget-label">you are the reward signal</span>
-      <p style="font-size:15px; margin-bottom:4px;"><b>Prompt:</b> "Explain gradient descent to a ten-year-old."</p>
-      <div class="dpo-pair">
-        <div class="dpo-card" data-pick="a"><span class="tag">response A</span><br>Gradient descent is an iterative first-order optimization algorithm for minimizing a differentiable multivariate objective function.</div>
-        <div class="dpo-card" data-pick="b"><span class="tag">response B</span><br>Imagine you're on a hill in thick fog, trying to find the bottom. You feel which way the ground slopes and take a small step downhill. Keep doing that — that's how a computer learns!</div>
-      </div>
-      <div class="readout" id="dpo-read" style="min-height:28px"></div>
-    </div>
-
-    <p>My course notes end in early 2025 — but the field didn't. A last page of field notes, for what the frontier looks like now:</p>
-
-    <div class="notes-grid" id="notes-grid">
-      <div class="note-card"><h4>Mixture of Experts</h4>Instead of one giant brain, dozens of specialist sub-networks. A router sends each token to just <em>2 of 8+</em> experts — huge capacity, small compute bill. Mixtral, Qwen3-MoE, and most frontier models now.</div>
-      <div class="note-card"><h4>KV cache</h4>During generation the model stores every past token's keys and values so each new token only pays for itself. The memory hog of inference — and the thing your context window is really made of.</div>
-      <div class="note-card"><h4>RoPE</h4>Rotary position embeddings replace sine-wave stamps by <em>rotating</em> query &amp; key vectors by an angle per position. Relative distances fall out naturally; long contexts extrapolate better.</div>
-      <div class="note-card"><h4>GQA / MQA</h4>Grouped-query attention: many query heads share a few key/value heads. Nearly the same quality, a fraction of the KV-cache memory — how models afford 128K contexts.</div>
-      <div class="note-card"><h4>FlashAttention</h4>The same attention math, reorganized to live in fast GPU memory tiles instead of thrashing slow memory. Not an approximation — just better bookkeeping. 2-4× faster training.</div>
-      <div class="note-card"><h4>Speculative decoding</h4>A small draft model races ahead writing cheap tokens; the big model verifies them in one parallel pass, keeping the correct prefix. Same output, much faster.</div>
-      <div class="note-card"><h4>Quantization</h4>Weights stored in 4-8 bits instead of 16 (GGUF, AWQ). How a 30B-parameter model runs on a single RTX 4090 — the trick behind every local LLM.</div>
-      <div class="note-card"><h4>RAG</h4>Retrieval-augmented generation: embed your documents, fetch the relevant chunks, staple them into the prompt. The model stays frozen; the knowledge stays fresh.</div>
-    </div>
-
-    <div class="widget" id="w-moe" style="margin-top:34px">
-      <span class="widget-label">watch the router work</span>
-      <div class="moe-box">
-        <div class="moe-token" id="moe-token">"gradient"</div>
-        <div class="moe-router">↓ router picks 2 of 8 experts ↓</div>
-        <div class="moe-experts" id="moe-experts"></div>
+      <div class="part-card">
+        <span class="pnum">part III</span>
+        <h3>Frontier</h3>
+        <ul>
+          <li>09 · Sculpting the mind</li>
+          <li>10 · The engine room — MoE, KV&nbsp;cache, RoPE, GQA, FlashAttention, speculative decoding, quantization, RAG</li>
+        </ul>
+        <a class="go" href="frontier/">the 2026 stuff →</a>
       </div>
     </div>
   </div>
@@ -259,8 +92,8 @@
 
 <footer>
   <div class="wrap">
-    <p class="foot-hand">every dial you touched today is a real dial.</p>
-    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization — plus field notes from running local LLMs on my own GPU. Zero libraries: every simulation on this page is hand-written JavaScript.</p>
+    <p class="foot-hand">every dial you'll touch is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization — plus field notes from running local LLMs on my own GPU. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
     <div class="foot-links">
       <a href="https://bpachter.github.io/">portfolio</a>
       <a href="https://bpachter.github.io/entropy/">entropy — the physics sibling</a>
@@ -270,6 +103,6 @@
   </div>
 </footer>
 
-<script src="app.js"></script>
+<script src="js/landing.js"></script>
 </body>
 </html>

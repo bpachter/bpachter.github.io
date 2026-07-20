@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Frontier — Gradient, part III</title>
+<meta name="description" content="LoRA, DPO, and the engine room of modern AI — MoE routing, KV cache, RoPE, GQA, FlashAttention, speculative decoding, quantization, and RAG — each one animated and touchable." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <a href="../foundations/">foundations</a>
+      <a href="../language/">language</a>
+      <a href="./" class="active">frontier</a>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part III of III</div>
+    <h1>Frontier</h1>
+    <p class="part-sub">How a raw autocomplete becomes an assistant — and the engine-room tricks that make modern AI fast enough, and cheap enough, to feel instant.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 09 · SCULPTING THE MIND ─────────────── -->
+<section class="chapter" id="ch9">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">09 ·</span><h2>Sculpting the mind</h2></div>
+    <p>Pre-training on the internet produces a brilliant autocomplete with no manners. Turning it into an assistant takes two more acts. First, <b>fine-tuning</b> on curated instruction-and-answer examples. But retraining billions of weights for every new task is absurd — so we cheat, elegantly. <b>LoRA</b> freezes the giant weight matrices and learns only two skinny side-matrices whose product nudges the original. Same behavior change, a fraction of a percent of the parameters — a lightweight plug-in for a mind.</p>
+
+    <div class="widget" id="w-lora">
+      <span class="widget-label">the LoRA trick, to scale</span>
+      <div class="lora-flex" id="lora-viz"></div>
+      <div class="controls">
+        <div class="ctl" style="max-width:280px"><label>adapter rank r <output id="o-rank">8</output></label><input type="range" id="in-rank" min="1" max="64" step="1" value="8"></div>
+      </div>
+      <div class="readout">
+        <span class="stat">full fine-tune <b id="lora-full">16.8M</b> params</span>
+        <span class="stat">LoRA <b id="lora-lite">65.5K</b> params</span>
+        <span class="stat">that's <b id="lora-pct">0.39%</b></span>
+      </div>
+      <div class="mem-bars">
+        <div class="mem-bar"><span class="lbl">7B model, FP16</span><div class="bar" style="width:100%"></div><span class="val">≈ 98 GB to train</span></div>
+        <div class="mem-bar"><span class="lbl">7B with QLoRA</span><div class="bar sage" style="width:25%"></div><span class="val">≈ 24.5 GB — one gaming GPU</span></div>
+      </div>
+      <p class="widget-hint"><span class="hand">and →</span> <b>QLoRA</b> shrinks the frozen weights to 4-bit — like reducing a photo from 256 shades of gray to 16: smaller, still recognizable.</p>
+    </div>
+
+    <p>Second act: <b>alignment</b>. Show the model two of its own answers and tell it which one a human preferred. Classic <b>RLHF</b> trains a separate reward model and optimizes against it with reinforcement learning (PPO). The newer, cleaner <b>DPO</b> skips the middleman — a bit of algebra on the Bradley-Terry preference model turns "A beats B" directly into a training loss. Thousands of tiny votes like yours, below, are what taught chatbots to be helpful instead of merely fluent.</p>
+
+    <div class="widget alt" id="w-dpo">
+      <span class="widget-label">you are the reward signal</span>
+      <p style="font-size:15px; margin-bottom:4px;"><b>Prompt:</b> "Explain gradient descent to a ten-year-old."</p>
+      <div class="dpo-pair">
+        <div class="dpo-card" data-pick="a"><span class="tag">response A</span><br>Gradient descent is an iterative first-order optimization algorithm for minimizing a differentiable multivariate objective function.</div>
+        <div class="dpo-card" data-pick="b"><span class="tag">response B</span><br>Imagine you're on a hill in thick fog, trying to find the bottom. You feel which way the ground slopes and take a small step downhill. Keep doing that — that's how a computer learns!</div>
+      </div>
+      <div class="readout" id="dpo-read" style="min-height:28px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 10 · THE ENGINE ROOM ─────────────── -->
+<section class="chapter" id="ch10">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">10 ·</span><h2>The engine room</h2></div>
+    <p>Everything above explains what a model <em>knows</em>. This chapter is about why talking to one feels instant instead of glacial. Eight ideas run the show — every one of them working, animated, below. This is the machinery humming under Claude, ChatGPT, and the local model on my own GPU.</p>
+
+    <!-- ── 10a · MoE ── -->
+    <div class="concept" id="moe">
+      <h3><span class="cnum">10a ·</span>Mixture of Experts — don't wake the whole brain</h3>
+      <p>A dense model spends every neuron on every token, which is like convening the entire company to answer one email. A <b>Mixture of Experts</b> model keeps a stable of specialist sub-networks and a tiny learned <b>router</b> that picks just two of them per token. You get a brain with enormous capacity where only a sliver does work at any moment — Mixtral, Qwen3-MoE, and most frontier models are built this way.</p>
+      <div class="widget" id="w-moe">
+        <span class="widget-label">watch the router work</span>
+        <div class="moe-box">
+          <div class="moe-token" id="moe-token">"gradient"</div>
+          <div class="moe-router">↓ router picks 2 of 8 experts ↓</div>
+          <div class="moe-experts" id="moe-experts"></div>
+        </div>
+        <div class="readout"><span class="stat">total params <b>47B</b></span><span class="stat">active per token <b id="moe-active">~13B</b></span><span class="stat">tokens routed <b id="moe-count">0</b></span></div>
+        <p class="widget-hint"><span class="hand">watch →</span> different tokens light different specialists. the tally under each expert shows who's been busy — the router learns to balance the load.</p>
+      </div>
+    </div>
+
+    <!-- ── 10b · KV CACHE ── -->
+    <div class="concept" id="kv">
+      <h3><span class="cnum">10b ·</span>The KV cache — never re-read the conversation</h3>
+      <p>Attention compares every new token against every token before it. Done naively, the model would re-derive keys and values for the <em>whole conversation</em> on every single word — quadratic pain, forever. The <b>KV cache</b> is the fix: compute each token's keys and values once, keep them, and let each new token pay only for itself.</p>
+      <p>It is also the memory hog of inference. Your "context window" is, physically, this cache sitting in GPU memory — which is why long chats are expensive and why so much of part III is about shrinking it.</p>
+      <div class="widget alt" id="w-kv">
+        <span class="widget-label">the attention bill, per new word</span>
+        <canvas class="viz" id="cv-kv" width="880" height="300"></canvas>
+        <div class="controls">
+          <button class="btn" id="btn-kv-toggle" aria-pressed="true">cache: on</button>
+        </div>
+        <div class="readout"><span class="stat">work this step <b id="kv-work">—</b></span><span class="stat">cache held <b id="kv-mem">—</b></span></div>
+        <p class="widget-hint"><span class="hand">try it →</span> switch the cache off and watch every step recompute the whole triangle. the green column is the only work a cached model does.</p>
+      </div>
+    </div>
+
+    <!-- ── 10c · RoPE ── -->
+    <div class="concept" id="rope">
+      <h3><span class="cnum">10c ·</span>RoPE — position as a clock hand</h3>
+      <p>Attention is order-blind, so position has to be smuggled in. The old way stamped each slot with sine waves. The modern way — <b>rotary position embeddings</b> — <em>rotates</em> each query and key vector by an angle proportional to its position, like giving every word a clock hand.</p>
+      <p>The payoff is subtle and huge: when two rotated vectors meet in attention, their dot product depends only on the <em>angle between them</em> — the relative distance — not on where the pair sits in the essay. Slide the pair below and watch both hands turn while the angle between them refuses to change.</p>
+      <div class="widget" id="w-rope">
+        <span class="widget-label">slide a pair of words along the context</span>
+        <canvas class="viz" id="cv-rope" width="880" height="260"></canvas>
+        <div class="controls">
+          <div class="ctl" style="max-width:320px"><label>position in context <output id="o-rope">0</output></label><input type="range" id="in-rope" min="0" max="16" step="1" value="0"></div>
+        </div>
+        <div class="readout"><span class="stat">angle between <b id="rope-delta">—</b></span><span class="stat">their match score <b id="rope-dot">—</b></span></div>
+        <p class="widget-hint"><span class="hand">notice →</span> absolute positions change, the relationship doesn't. that's why RoPE models stretch to long contexts more gracefully.</p>
+      </div>
+    </div>
+
+    <!-- ── 10d · GQA ── -->
+    <div class="concept" id="gqa">
+      <h3><span class="cnum">10d ·</span>GQA — eight questioners, two filing cabinets</h3>
+      <p>Every attention head keeping its own private keys and values multiplies the KV cache by the head count — a memory tax that decides how long your context can be. <b>Grouped-query attention</b> lets many query heads share a few key/value heads: eight question-askers consulting two shared filing cabinets. Nearly the same quality, a fraction of the cache — a big part of how models afford 128K-token contexts.</p>
+      <div class="widget alt" id="w-gqa">
+        <span class="widget-label">regroup the heads yourself</span>
+        <canvas class="viz" id="cv-gqa" width="880" height="300"></canvas>
+        <div class="controls">
+          <div class="seg" id="seg-gqa" role="group" aria-label="attention sharing">
+            <button data-kv="8" aria-pressed="false">MHA · 8 kv</button>
+            <button data-kv="2" aria-pressed="true">GQA · 2 kv</button>
+            <button data-kv="1" aria-pressed="false">MQA · 1 kv</button>
+          </div>
+        </div>
+        <div class="readout"><span class="stat">KV cache size <b id="gqa-mem">—</b></span></div>
+        <p class="widget-hint"><span class="hand">try it →</span> flip between modes and watch the wiring re-route. MQA is cheapest and slightly dumber; GQA is the industry's happy medium.</p>
+      </div>
+    </div>
+
+    <!-- ── 10e · FLASHATTENTION ── -->
+    <div class="concept" id="flash">
+      <h3><span class="cnum">10e ·</span>FlashAttention — the same math, arranged politely</h3>
+      <p>The attention score matrix between every pair of words is enormous, and the slow part isn't computing it — it's <em>writing it to memory</em>. GPUs have a tiny, blazing-fast scratchpad (SRAM) and a huge, slow warehouse (HBM). Naive attention builds the whole matrix in the warehouse. <b>FlashAttention</b> computes it in small tiles that never leave the scratchpad, streaming a running answer out and materializing nothing.</p>
+      <p>It is not an approximation. Same numbers, exact to the bit — just better bookkeeping, worth 2-4× in training speed. Watch both strategies process the same matrix:</p>
+      <div class="widget" id="w-flash">
+        <span class="widget-label">warehouse vs. scratchpad</span>
+        <canvas class="viz" id="cv-flash" width="880" height="330"></canvas>
+        <div class="readout"><span class="stat">memory written <b id="flash-mem">—</b></span></div>
+        <p class="widget-hint"><span class="hand">watch →</span> naive fills the whole square in slow memory. flash chews tiles in the scratchpad and writes only the skinny answer column.</p>
+      </div>
+    </div>
+
+    <!-- ── 10f · SPECULATIVE DECODING ── -->
+    <div class="concept" id="spec">
+      <h3><span class="cnum">10f ·</span>Speculative decoding — a fast intern, a careful editor</h3>
+      <p>Big models write slowly because each token is one full pass through the tower. So pair them: a tiny <b>draft model</b> sprints ahead and types a few cheap tokens; the big model then checks all of them <em>in a single parallel pass</em>, keeps the correct prefix, and fixes the first mistake with its own word. Provably the same output distribution as the big model alone — just two to three times faster. Free speed.</p>
+      <div class="widget alt" id="w-spec">
+        <span class="widget-label">the drafting race</span>
+        <div class="lane"><span class="lab">draft model</span><span id="lane-draft"></span></div>
+        <div class="lane"><span class="lab">big model verdict</span><span id="lane-verd"></span></div>
+        <div class="lane"><span class="lab">final text</span><span id="lane-final"></span></div>
+        <div class="controls" style="margin-top:14px">
+          <button class="btn primary" id="btn-spec-run">run the race</button>
+        </div>
+        <div class="readout"><span class="stat">big model alone <b>12 tok/s</b></span><span class="stat">with a drafter <b id="spec-speed">—</b></span></div>
+        <p class="widget-hint"><span class="hand">watch →</span> gray = cheap draft guesses. green = accepted by the big model. crossed out = rejected — the editor overrides with the gold word and the intern sprints again.</p>
+      </div>
+    </div>
+
+    <!-- ── 10g · QUANTIZATION ── -->
+    <div class="concept" id="quant">
+      <h3><span class="cnum">10g ·</span>Quantization — fewer shades of gray</h3>
+      <p>Every weight is just a stored number — and you choose how many bits to spend on it. 16-bit is studio quality. Squeeze to 4 bits and each weight must snap to one of sixteen shelves: the model gets slightly gritty and <em>four times smaller</em>. This is GGUF and AWQ, the trick behind every local LLM — how a 30-billion-parameter model fits on a single RTX 4090.</p>
+      <div class="widget" id="w-quant">
+        <span class="widget-label">squeeze the weights</span>
+        <canvas class="viz" id="cv-quant" width="880" height="300"></canvas>
+        <div class="controls">
+          <div class="ctl" style="max-width:280px"><label>bits per weight <output id="o-bits">16</output></label><input type="range" id="in-bits" min="0" max="3" step="1" value="0"></div>
+        </div>
+        <div class="readout"><span class="stat">shelves available <b id="quant-levels">—</b></span><span class="stat">7B model on disk <b id="quant-mem">—</b></span></div>
+        <p class="widget-hint"><span class="hand">try it →</span> slide to 4 bits: the histogram snaps to a few shelves and the wave goes chunky — audibly compressed, still recognizably the song.</p>
+      </div>
+    </div>
+
+    <!-- ── 10h · RAG ── -->
+    <div class="concept" id="rag">
+      <h3><span class="cnum">10h ·</span>RAG — a frozen mind with a fresh library</h3>
+      <p>A model's knowledge ends at its training day, and retraining is expensive. <b>Retrieval-augmented generation</b> bolts on a library instead: chop your documents into chunks, embed each one into the meaning-space from chapter 05, and when a question arrives, fish out the nearest chunks and staple them into the prompt. The model stays frozen; the knowledge stays fresh; the answer comes with receipts.</p>
+      <div class="widget alt" id="w-rag">
+        <span class="widget-label">ask the library</span>
+        <div class="rag-btns">
+          <button class="btn small rag-qbtn" data-q="0">when was the perceptron born?</button>
+          <button class="btn small rag-qbtn" data-q="1">why do chats eat GPU memory?</button>
+          <button class="btn small rag-qbtn" data-q="2">how do models fit on one GPU?</button>
+        </div>
+        <canvas class="viz" id="cv-rag" width="880" height="280"></canvas>
+        <div class="rag-prompt" id="rag-prompt"><span class="rag-slot">system: answer from the sources</span></div>
+        <div class="rag-ans" id="rag-ans"></div>
+        <p class="widget-hint"><span class="hand">try it →</span> ask a question: it lands in the embedding space, the nearest chunks light up, get stapled into the prompt, and the answer cites them.</p>
+      </div>
+    </div>
+
+    <div class="pager">
+      <a class="pcard" href="../language/"><span class="plabel">back — part II</span><div class="ptitle">← Language</div></a>
+      <a class="pcard next" href="../"><span class="plabel">the end</span><div class="ptitle">Back to base camp →</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">every dial you touched today is a real dial.</p>
+    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own course notebooks — the IBM AI Engineering Professional Certificate (13 courses) and the DeepLearning.AI / Stanford Machine Learning Specialization — plus field notes from running local LLMs on my own GPU. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <div class="foot-links">
+      <a href="../">gradient home</a>
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://bpachter.github.io/entropy/">entropy</a>
+      <a href="https://github.com/bpachter">github</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/frontier.js"></script>
+</body>
+</html>
