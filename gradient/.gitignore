@@ -1,1 +1,4 @@
-js/
+# NOTE: gradient/js/*.js is COMPILED from src/*.ts but intentionally committed,
+# so the site works under GitHub Pages "Deploy from a branch" too — not only the
+# Actions build. If it were ignored, a branch-served deploy would 404 every
+# <script> and blank every canvas. Regenerate after editing src/:  ./build.sh
