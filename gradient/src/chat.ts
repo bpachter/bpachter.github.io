@@ -5,7 +5,7 @@
 
 (function () {
   /* ↓↓↓ paste the deployed Worker URL here to switch the chat on ↓↓↓ */
-  const WORKER_URL = '';
+  const WORKER_URL = 'https://gradient-chat.bpachter.workers.dev';
   if (!WORKER_URL) return;                              /* invisible until configured */
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
