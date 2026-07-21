@@ -577,3 +577,68 @@ footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0
   .pager { grid-template-columns: 1fr; }
   .pcard.spacer { display: none; }
 }
+
+/* ─────────────── ask-about-Ben chat widget ─────────────── */
+.gc-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 60;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border: 2px solid var(--ink); border-radius: 30px;
+  background: var(--leaf); color: var(--ink); cursor: pointer;
+  font-family: 'Karla', sans-serif; font-weight: 700; font-size: 15px;
+  box-shadow: 3px 3px 0 rgba(45, 42, 36, 0.18); transition: transform .18s var(--ease), opacity .18s, box-shadow .18s;
+}
+.gc-fab:hover { transform: translateY(-2px); box-shadow: 4px 5px 0 rgba(45, 42, 36, 0.22); }
+.gc-fab-ico { font-size: 17px; color: var(--leaf-deep); }
+.gc-fab.gc-hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+.gc-panel {
+  position: fixed; right: 20px; bottom: 20px; z-index: 61;
+  width: 370px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 40px);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #faf7f0; border: 2px solid var(--ink); border-radius: 16px;
+  box-shadow: 5px 6px 0 rgba(45, 42, 36, 0.16);
+  opacity: 0; transform: translateY(14px) scale(0.98); transform-origin: bottom right;
+  transition: opacity .2s var(--ease), transform .2s var(--ease);
+}
+.gc-panel[hidden] { display: none; }   /* beat the low-specificity UA [hidden] rule so the invisible panel can't eat clicks */
+.gc-panel.gc-show { opacity: 1; transform: none; }
+.gc-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 2px solid var(--paper-3); background: var(--leaf-soft);
+}
+.gc-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; color: var(--ink); }
+.gc-title span { color: var(--leaf); }
+.gc-x { border: none; background: none; font-size: 24px; line-height: 1; color: var(--ink-faint); cursor: pointer; padding: 0 4px; }
+.gc-x:hover { color: var(--ink); }
+.gc-log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.gc-msg {
+  max-width: 84%; padding: 9px 13px; border-radius: 14px; font-size: 14.5px; line-height: 1.5;
+  font-family: 'Karla', sans-serif; white-space: pre-wrap; word-wrap: break-word;
+}
+.gc-user { align-self: flex-end; background: var(--leaf); color: var(--ink); border-bottom-right-radius: 4px; }
+.gc-bot { align-self: flex-start; background: var(--paper-2); color: var(--ink-soft); border: 1.5px solid var(--paper-3); border-bottom-left-radius: 4px; }
+.gc-typing { display: inline-flex; gap: 4px; align-items: center; }
+.gc-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: gc-blink 1s infinite; }
+.gc-typing i:nth-child(2) { animation-delay: .2s; } .gc-typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes gc-blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+.gc-form { display: flex; gap: 8px; padding: 12px; border-top: 2px solid var(--paper-3); }
+.gc-in {
+  flex: 1; min-width: 0; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 10px;
+  font: inherit; font-size: 14px; background: #fff; color: var(--ink);
+}
+.gc-in:focus { outline: none; border-color: var(--leaf-deep); }
+.gc-send {
+  flex: 0 0 auto; width: 42px; border: 2px solid var(--ink); border-radius: 10px;
+  background: var(--leaf); color: var(--ink); font-size: 18px; font-weight: 700; cursor: pointer;
+}
+.gc-send:hover { background: var(--leaf-deep); color: #fff; }
+.gc-send:disabled { opacity: .5; cursor: default; }
+.gc-foot { padding: 8px 12px 11px; font-family: 'Karla', sans-serif; font-size: 11px; color: var(--ink-faint); text-align: center; }
+@media (max-width: 480px) {
+  .gc-panel { right: 12px; left: 12px; bottom: 12px; width: auto; max-width: none; height: 78vh; }
+  .gc-fab { right: 14px; bottom: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-fab, .gc-panel { transition: none; }
+  .gc-typing i { animation: none; }
+}
