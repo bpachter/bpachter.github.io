@@ -42,6 +42,29 @@ body {
 
 ::selection { background: var(--leaf); color: var(--ink); }
 
+/* ---------- themed chrome: soft leaf scrollbars, focus, controls ---------- */
+:root { accent-color: var(--leaf); }
+html { -webkit-tap-highlight-color: rgba(138, 174, 104, 0.22); }
+/* soft light-green scrollbars — Firefox */
+html { scrollbar-width: thin; scrollbar-color: rgba(138, 174, 104, 0.55) transparent; }
+.sidebar, .gc-log, .term { scrollbar-color: rgba(138, 174, 104, 0.62) transparent; }
+/* soft light-green scrollbars — WebKit / Blink */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(138, 174, 104, 0.6);
+  border: 3px solid transparent; background-clip: content-box; border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(138, 174, 104, 0.85); background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+/* slimmer thumbs inside compact panes (kept ~6px visible) */
+.sidebar::-webkit-scrollbar, .gc-log::-webkit-scrollbar, .term::-webkit-scrollbar { width: 10px; height: 10px; }
+.sidebar::-webkit-scrollbar-thumb, .gc-log::-webkit-scrollbar-thumb, .term::-webkit-scrollbar-thumb { border-width: 2px; }
+/* keyboard focus: a soft leaf ring, consistent across interactive elements */
+:focus-visible { outline: 2px solid var(--leaf-deep); outline-offset: 2px; }
+/* text carets in the brand green */
+input, textarea { caret-color: var(--leaf-deep); }
+
 h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; color: var(--ink); }
 .hand { font-style: italic; }
 
