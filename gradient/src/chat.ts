@@ -16,16 +16,15 @@
   /* ── build the DOM (all injected, no markup needed on the page) ── */
   const fab = document.createElement('button');
   fab.className = 'gc-fab'; fab.type = 'button';
-  fab.setAttribute('aria-label', 'Ask AI about Benjamin');
+  fab.setAttribute('aria-label', 'Ask AI about Benjamin\'s work');
   fab.innerHTML = '<span class="gc-fab-ico" aria-hidden="true">✦</span>' +
-    '<span class="gc-fab-txt gc-fab-l">Ask AI about Benjamin</span>' +
-    '<span class="gc-fab-txt gc-fab-s">Ask AI about Ben</span>';
+    '<span class="gc-fab-txt">Ask AI</span>';
 
   const panel = document.createElement('div');
   panel.className = 'gc-panel'; panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-label', 'Ask AI about Benjamin'); panel.hidden = true;
+  panel.setAttribute('aria-label', 'Ask AI about Benjamin\'s work'); panel.hidden = true;
   panel.innerHTML =
-    '<div class="gc-head"><span class="gc-title">Ask AI about Benjamin</span>' +
+    '<div class="gc-head"><span class="gc-title">Ask AI</span>' +
     '<button class="gc-x" type="button" aria-label="Close chat">×</button></div>' +
     '<div class="gc-log" aria-live="polite"></div>' +
     '<form class="gc-form"><input class="gc-in" type="text" autocomplete="off" ' +
