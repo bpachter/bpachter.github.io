@@ -397,7 +397,7 @@ const sleepB = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
   function showDetail(i: number): void {
     const el = $('#dept-detail');
     el.innerHTML = i < 0
-      ? '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">hover (or tap) any box to inspect its job</span>'
+      ? '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">Hover (or tap) any box to inspect its job</span>'
       : '<span class="stat"><b>' + REGIONS[i].title + '</b> — ' + REGIONS[i].body + '</span>';
   }
   function hitTest(e: MouseEvent): number {

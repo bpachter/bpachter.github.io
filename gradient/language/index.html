@@ -114,7 +114,7 @@
       <input class="texty" id="in-tok" type="text" value="The unbelievable transformer is rethinking learning" autocomplete="off" spellcheck="false" />
       <div class="chips-out" id="tok-out"></div>
       <div class="readout"><span class="stat">characters <b id="tok-chars">0</b></span><span class="stat">tokens <b id="tok-count">0</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> type your own words. try something long and made-up, like <b>hyperlearnification</b>.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Type your own words. Try something long and made-up, like <b>hyperlearnification</b>.</p>
     </div>
 
     <p>Then each token gets a meaning. Not a definition — a <b>location</b>. Every token becomes an <b>embedding</b>: a list of hundreds of coordinates placing it in a vast space where similar meanings sit near each other. The astonishing part, discovered with word2vec in 2013, is that directions in this space mean things. The path from <em>man</em> to <em>woman</em> is roughly the same arrow as the path from <em>king</em> to <em>queen</em>. Meaning becomes geometry, and arithmetic on meaning becomes possible.</p>
@@ -128,7 +128,7 @@
         <button class="btn" id="btn-emb-clear">clear</button>
       </div>
       <div class="readout" id="emb-read"><span class="stat hand" style="font-size:16px;color:var(--ink-faint)">↑ or click any word to see its nearest neighbours</span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> run an analogy and watch the arrows walk the space — or <b>click any word</b> and the model's true nearest neighbours light up, ranked by distance. that "who sits nearby" is the entire notion of meaning here; real embeddings do it across a thousand dimensions.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Run an analogy and watch the arrows walk the space — or <b>click any word</b> and the model's true nearest neighbours light up, ranked by distance. That "who sits nearby" is the entire notion of meaning here; real embeddings do it across a thousand dimensions.</p>
     </div>
   </div>
 </section>
@@ -147,7 +147,7 @@
       <div class="controls">
         <button class="btn" id="btn-attn-causal" aria-pressed="false">causal mask: off</button>
       </div>
-      <p class="widget-hint"><span class="hand">try it →</span> tap any word to see where its attention flows. then switch on the <b>causal mask</b> — in a generator, no word may peek at the future, so everything after the chosen word goes dark.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Tap any word to see where its attention flows. Then switch on the <b>causal mask</b> — in a generator, no word may peek at the future, so everything after the chosen word goes dark.</p>
     </div>
 
     <p>Because all words are seen at once, the model needs a sense of order — so each position gets a rhythmic stamp built from sine and cosine waves (newer models rotate the query and key vectors instead, a scheme called <b>RoPE</b> — it gets its own chapter in part III).</p>
@@ -170,7 +170,7 @@
         <label><input type="checkbox" data-h="2" checked><span class="swatch" style="background:#c9a227"></span>long-range head</label>
         <label><input type="checkbox" data-h="3" checked><span class="swatch" style="background:#9a6fa0"></span>broad-context head</label>
       </div>
-      <p class="widget-hint"><span class="hand">try it →</span> drag to spin the tower. untick heads to see what each one alone contributes — then imagine 96 layers and dozens of heads. that's the machine you talk to.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Drag to spin the tower. Untick heads to see what each one alone contributes — then imagine 96 layers and dozens of heads. That's the machine you talk to.</p>
     </div>
   </div>
 </section>
@@ -198,7 +198,7 @@
       </div>
       <div class="gen-out" id="gen-out"></div>
       <div class="kv-row" id="kv-row"><span class="kv-label">KV cache:</span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> generate at temperature 0.2, then again at 2.0. same model, different soul. the little green cells are the <b>KV cache</b> — it gets its own chapter next.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Generate at temperature 0.2, then again at 2.0. Same model, different soul. The little green cells are the <b>KV cache</b> — it gets its own chapter next.</p>
     </div>
 
     <div class="pager">
@@ -211,7 +211,7 @@
 <footer>
   <div class="wrap">
     <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
-    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience building AI systems. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience architecting and orchestrating enterprise data ecosystems across a wide range of industries. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
     <div class="foot-links">
       <a href="../">gradient home</a>
       <a href="https://bpachter.github.io/">portfolio</a>

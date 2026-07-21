@@ -108,8 +108,8 @@
   <div class="wrap">
     <div class="ch-head"><span class="ch-num">01 ·</span><h2>Hello, neuron</h2></div>
     <p>Your brain runs on about eighty six billion tiny cells. Each one listens to signals arriving on its dendrites, adds them up in the cell body, and — if the total crosses a threshold — fires a pulse down its axon to thousands of neighbors. Learning, in the brain, is just certain connections getting stronger with use.</p>
-    <p>In 1958 Frank Rosenblatt asked a beautiful question: what if we build that in math? His <b>perceptron</b> takes numbers in, multiplies each by a <b>weight</b>, adds a <b>bias</b>, and fires if the weighted sum crosses zero. That single multiply-and-add is still the atom of every neural network today. A weight is just a dial that says <em>how much should I care about this input?</em></p>
-    <p class="margin-note">← the whole of deep learning is billions of these dials.</p>
+    <p>In 1958 Frank Rosenblatt asked a beautiful question: what if we build that in math? His <b>perceptron</b> takes numbers in, multiplies each by a <b>weight</b>, adds a <b>bias</b> — a fixed nudge up or down — and fires if the weighted sum crosses zero. That single multiply-and-add is still the atom of every neural network today. A weight is just a dial that says <em>how much should I care about this input?</em></p>
+    <p class="margin-note">← The whole of deep learning is billions of these dials.</p>
     <p>Below is a live perceptron looking at two clouds of points. Its weights draw a straight <b>decision boundary</b> between them. Drag the dials and try to separate the clouds yourself — then let the machine take over. (It will demonstrate on its own in a moment — touching anything makes it yours.)</p>
 
     <div class="widget" id="w-perceptron">
@@ -122,8 +122,8 @@
         <button class="btn primary" id="btn-perc-learn">let it learn</button>
         <button class="btn" id="btn-perc-reset">reset</button>
       </div>
-      <div class="readout"><span class="stat">accuracy <b id="perc-acc">—</b></span><span class="stat">rule: fire if <b>w₁x + w₂y + b &gt; 0</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> press <b>let it learn</b>: the perceptron nudges its own weights after every mistake — the 1958 learning rule, live.</p>
+      <div class="readout"><span class="stat">accuracy <b id="perc-acc">—</b></span><span class="stat">Rule: fire if <b>w₁x + w₂y + b &gt; 0</b></span></div>
+      <p class="widget-hint"><span class="hand">Try it →</span> Press <b>let it learn</b>: the perceptron nudges its own weights after every mistake — the 1958 learning rule, live.</p>
     </div>
   </div>
 </section>
@@ -147,7 +147,7 @@
         <button class="btn" id="btn-gd-reset">reset</button>
       </div>
       <div class="readout"><span class="stat">loss <b id="gd-loss">—</b></span><span class="stat">slope <b id="gd-slope">—</b></span><span id="gd-msg" class="hand" style="font-size:19px;color:var(--leaf-deep)"></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> crank the learning rate past 1.2 and press descend. then try a tiny rate from the shallow valley — and turn noise on to escape it.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Crank the learning rate past 1.2 and press descend. Then try a tiny rate from the shallow valley — and turn noise on to escape it.</p>
     </div>
   </div>
 </section>
@@ -168,7 +168,7 @@
         <button class="btn" id="btn-gd3d-mom" aria-pressed="true">momentum: on</button>
       </div>
       <div class="readout"><span class="stat">loss <b id="gd3d-loss">—</b></span><span class="stat">steps <b id="gd3d-steps">0</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> drag to orbit the landscape. drop balls in different spots — some valleys are deeper than others. now toggle momentum off and drop a ball in the same place.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Drag to orbit the landscape. Drop balls in different spots — some valleys are deeper than others. Now toggle momentum off and drop a ball in the same place.</p>
     </div>
   </div>
 </section>
@@ -195,7 +195,7 @@
         <button class="btn" id="btn-xor-reset">reset</button>
       </div>
       <div class="readout"><span class="stat">loss <b id="xor-loss">—</b></span><span class="stat">steps <b id="xor-steps">0</b></span><span class="stat">accuracy <b id="xor-acc">—</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> train with <b>sigmoid</b>, note how many steps it needs — then reset and try <b>ReLU</b>. that gap is the vanishing gradient, felt.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Train with <b>sigmoid</b>, note how many steps it needs — then reset and try <b>ReLU</b>. That gap is the vanishing gradient, felt.</p>
     </div>
 
     <div class="pager">
@@ -208,7 +208,7 @@
 <footer>
   <div class="wrap">
     <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
-    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience building AI systems. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience architecting and orchestrating enterprise data ecosystems across a wide range of industries. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
     <div class="foot-links">
       <a href="../">gradient home</a>
       <a href="https://bpachter.github.io/">portfolio</a>

@@ -542,7 +542,7 @@ const sleepT = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         if (steerFrac() > 0.03) {
             ctx.font = '15px Caveat, cursive';
             ctx.fillStyle = GOLD;
-            ctx.fillText('↑ the bridge bar is your hand on the dial', sx + 24, 295);
+            ctx.fillText('↑ The bridge bar is your hand on the dial', sx + 24, 295);
         }
     }
     const SENTENCE_STEPS = [

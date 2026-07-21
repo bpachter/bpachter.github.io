@@ -180,7 +180,7 @@ function orbit(cv, cam) {
         const beta = +betaEl.value;
         $('#o-beta').textContent = fmt(beta, 2);
         if (!pick) {
-            $('#dpo-read').innerHTML = '<span class="stat hand" style="font-size:17px;color:var(--ink-faint)">↑ cast a vote, then dial β</span>';
+            $('#dpo-read').innerHTML = '<span class="stat hand" style="font-size:17px;color:var(--ink-faint)">↑ Cast a vote, then dial β</span>';
             return;
         }
         const other = pick === 'A' ? 'B' : 'A';

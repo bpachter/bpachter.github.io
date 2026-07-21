@@ -112,28 +112,28 @@
     <p>Below, one model, two habits. Blurt mode answers the bat-and-ball instantly, twenty times. Scratchpad mode writes out the algebra first, twenty times. Watch the tallies diverge.</p>
 
     <div class="widget" id="w-cot">
-      <span class="widget-label">the same brain, with and without a scratchpad</span>
-      <p style="font-size:15px;margin-bottom:4px"><b>Q:</b> a bat and a ball cost $1.10. the bat costs $1.00 more than the ball. the ball costs…?</p>
+      <span class="widget-label">The same brain, with and without a scratchpad</span>
+      <p style="font-size:15px;margin-bottom:4px"><b>Q:</b> A bat and a ball cost $1.10. The bat costs $1.00 more than the ball. The ball costs…?</p>
       <div class="duo">
         <div class="pane">
-          <h5>blurt it out</h5>
+          <h5>Blurt it out</h5>
           <div class="blurt" id="cot-blurt">"easy — <b>10¢</b>"</div>
           <div class="ticks" id="cot-ticks-a"></div>
-          <div class="tally">accuracy <b id="cot-acc-a">—</b></div>
+          <div class="tally">Accuracy <b id="cot-acc-a">—</b></div>
         </div>
         <div class="pane">
-          <h5>think it through <small style="font-weight:400;color:var(--ink-faint)">· <span id="cot-steps-lbl">3</span> steps</small></h5>
+          <h5>Think it through <small style="font-weight:400;color:var(--ink-faint)">· <span id="cot-steps-lbl">3</span> steps</small></h5>
           <div class="scratch" id="cot-scratch"></div>
           <div class="ticks" id="cot-ticks-b"></div>
-          <div class="tally">accuracy <b id="cot-acc-b">—</b></div>
+          <div class="tally">Accuracy <b id="cot-acc-b">—</b></div>
         </div>
       </div>
       <div class="controls">
-        <div class="ctl" style="max-width:340px"><label>reasoning steps the model writes <output id="o-cot-steps">3</output></label><input type="range" id="in-cot-steps" min="0" max="6" step="1" value="3"></div>
+        <div class="ctl" style="max-width:340px"><label>Reasoning steps the model writes <output id="o-cot-steps">3</output></label><input type="range" id="in-cot-steps" min="0" max="6" step="1" value="3"></div>
         <button class="btn primary" id="btn-cot-run">run 20 trials each</button>
       </div>
-      <div class="readout"><span class="stat">blurt · 0 steps <b>≈ 30%</b></span><span class="stat">scratchpad · expected <b id="cot-expect">—</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> drag <b>reasoning steps</b> from 0 to 6 and re-run. at 0 the scratchpad vanishes and it just blurts — same 30% as the left lane. each real step it writes becomes context that pins down the next, and the accuracy climbs and saturates. <b>reasoning is generation, aimed at itself.</b></p>
+      <div class="readout"><span class="stat">Blurt · 0 steps <b>≈ 30%</b></span><span class="stat">Scratchpad · expected <b id="cot-expect">—</b></span></div>
+      <p class="widget-hint"><span class="hand">Try it →</span> Drag <b>reasoning steps</b> from 0 to 6 and re-run. At 0, the scratchpad vanishes and it just blurts — the same 30% as the left lane. Each real step it writes becomes context that pins down the next, and the accuracy climbs and saturates. <b>Reasoning is generation, aimed at itself.</b></p>
     </div>
   </div>
 </section>
@@ -146,7 +146,7 @@
     <p>The algorithm that made this cheap is <b>GRPO</b> — group relative policy optimization. Sample a <em>group</em> of, say, eight attempts at the same problem. Score them all. The group's average becomes the baseline: attempts above it get reinforced, attempts below it get suppressed. No separate value network to train (the heavyweight machinery classic PPO drags around) — <em>the group grades itself on a curve</em>. Run the rounds below and watch the strategy distribution migrate toward "work it out, then check it."</p>
 
     <div class="widget alt" id="w-rlvr">
-      <span class="widget-label">eight attempts, graded on a curve</span>
+      <span class="widget-label">Eight attempts, graded on a curve</span>
       <div class="strat" id="rlvr-strat"></div>
       <div class="rolls" id="rlvr-rolls"></div>
       <div class="controls">
@@ -154,8 +154,8 @@
         <button class="btn primary" id="btn-rlvr-auto">auto-train</button>
         <button class="btn" id="btn-rlvr-reset">reset</button>
       </div>
-      <div class="readout"><span class="stat">round <b id="rlvr-round">0</b></span><span class="stat">group average reward <b id="rlvr-mean">—</b></span></div>
-      <p class="widget-hint"><span class="hand">notice →</span> nobody told the model which habit is best. the verifier only says ✓ or ✗ — and "steps + check" quietly takes over the policy. that's R1-style reasoning training in one picture.</p>
+      <div class="readout"><span class="stat">Round <b id="rlvr-round">0</b></span><span class="stat">Group average reward <b id="rlvr-mean">—</b></span></div>
+      <p class="widget-hint"><span class="hand">Notice →</span> Nobody told the model which habit is best. The verifier only says ✓ or ✗ — and "steps + check" quietly takes over the policy. That's R1-style reasoning training in one picture.</p>
     </div>
   </div>
 </section>
@@ -168,13 +168,13 @@
     <p>This is why the model you talk to sometimes answers instantly and sometimes visibly deliberates: a router is deciding, per question, how much thinking your question deserves. Drag the budget below and watch the three strategies trade places.</p>
 
     <div class="widget" id="w-budget">
-      <span class="widget-label">spend it deep, or spend it wide?</span>
+      <span class="widget-label">Spend it deep, or spend it wide?</span>
       <canvas class="viz" id="cv-budget" width="880" height="340"></canvas>
       <div class="controls">
-        <div class="ctl" style="max-width:320px"><label>token budget <output id="o-budget">2,048</output></label><input type="range" id="in-budget" min="0" max="6" step="1" value="3"></div>
+        <div class="ctl" style="max-width:320px"><label>Token budget <output id="o-budget">2,048</output></label><input type="range" id="in-budget" min="0" max="6" step="1" value="3"></div>
       </div>
-      <div class="readout"><span class="stat">one long chain <b id="bud-serial">—</b></span><span class="stat">majority vote <b id="bud-vote">—</b></span><span class="stat">best-of-N + verifier <b id="bud-best">—</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> at small budgets one deep chain wins. push the budget and voting overtakes it — independent mistakes cancel. a verifier squeezes out the last few points, at the price of trusting the judge.</p>
+      <div class="readout"><span class="stat">One long chain <b id="bud-serial">—</b></span><span class="stat">Majority vote <b id="bud-vote">—</b></span><span class="stat">Best-of-N + verifier <b id="bud-best">—</b></span></div>
+      <p class="widget-hint"><span class="hand">Try it →</span> At small budgets, one deep chain wins. Push the budget and voting overtakes it — independent mistakes cancel. A verifier squeezes out the last few points, at the price of trusting the judge.</p>
     </div>
   </div>
 </section>
@@ -187,7 +187,7 @@
     <p>The tool that un-mixes the voices is the <b>sparse autoencoder</b> — a lens trained to re-describe the tangled activations in a much larger dictionary of <b>features</b>, only a few active at a time. Through the SAE lens, the mush resolves into legible ideas. And features aren't just visible — they're <em>handles</em>: dial one up and the model's behavior follows it, famously demonstrated when researchers cranked a "Golden Gate Bridge" feature and the model couldn't stop bringing it up. Interpretability is young, but this is the path: not reading minds, but finding the dials inside one.</p>
 
     <div class="widget alt" id="w-mind">
-      <span class="widget-label">two neurons, six ideas, one lens</span>
+      <span class="widget-label">Two neurons, six ideas, one lens</span>
       <div class="rag-btns">
         <button class="btn small mind-btn" data-t="0">"a dog on the beach at sunset"</button>
         <button class="btn small mind-btn" data-t="1">"homework with music on"</button>
@@ -195,10 +195,10 @@
       </div>
       <canvas class="viz" id="cv-sae" width="880" height="300"></canvas>
       <div class="controls">
-        <div class="ctl" style="max-width:320px"><label>steer the bridge feature <output id="o-steer">0%</output></label><input type="range" id="in-steer" min="0" max="100" step="5" value="0"></div>
+        <div class="ctl" style="max-width:320px"><label>Steer the bridge feature <output id="o-steer">0%</output></label><input type="range" id="in-steer" min="0" max="100" step="5" value="0"></div>
       </div>
       <div class="steer-out" id="steer-out"></div>
-      <p class="widget-hint"><span class="hand">try it →</span> pick a thought: the raw neurons show mush, the SAE lens shows clean features. then crank the bridge dial and watch an innocent sentence develop a fixation.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Pick a thought: the raw neurons show mush, the SAE lens shows clean features. Then crank the bridge dial and watch an innocent sentence develop a fixation.</p>
     </div>
 
     <div class="pager">
@@ -211,7 +211,7 @@
 <footer>
   <div class="wrap">
     <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
-    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience building AI systems — plus field notes from running local LLMs and agent harnesses on my own GPU. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience architecting and orchestrating enterprise data ecosystems across a wide range of industries. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
     <div class="foot-links">
       <a href="../">gradient home</a>
       <a href="https://bpachter.github.io/">portfolio</a>

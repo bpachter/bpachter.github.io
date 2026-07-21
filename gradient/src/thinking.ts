@@ -326,7 +326,7 @@ const sleepT = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
     /* the steering wire */
     if (steerFrac() > 0.03) {
       ctx.font = '15px Caveat, cursive'; ctx.fillStyle = GOLD;
-      ctx.fillText('↑ the bridge bar is your hand on the dial', sx + 24, 295);
+      ctx.fillText('↑ The bridge bar is your hand on the dial', sx + 24, 295);
     }
   }
   const SENTENCE_STEPS: Array<[number, string]> = [

@@ -104,7 +104,7 @@
     }
     anim = requestAnimationFrame(frame);
   }
-  const RESET_MSG = '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">↑ or click any word to see its nearest neighbours</span>';
+  const RESET_MSG = '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">↑ Click any word to see its nearest neighbours</span>';
   /* genuine k-nearest-neighbour by Euclidean distance in the (cartoon 2-D) space */
   function nearest(word: string, k: number): Array<[string, number]> {
     const [wx, wy] = words[word];
@@ -373,7 +373,7 @@
     }
     const [tx, ty] = project(cam, [0, LAYERS * YSP + YOFF + 4, 0]);
     ctx.font = '17px Caveat, cursive'; ctx.fillStyle = FAINT; ctx.textAlign = 'center';
-    ctx.fillText('↑ out the top: each word, now carrying its whole story', tx, ty - 14);
+    ctx.fillText('↑ Out the top: each word now carries its whole story', tx, ty - 14);
     ctx.textAlign = 'left';
   }
 

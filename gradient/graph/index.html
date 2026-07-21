@@ -72,7 +72,7 @@
     <p>The five costumes worth knowing: <b>relational</b> tables (facts as rows, relationships exiled into join tables), <b>documents</b> (facts nested inside each other, duplicated wherever needed), <b>key-value</b> (facts behind opaque locker doors, blazing fast if you know the key), <b>columnar</b> (facts sliced vertically, built for adding up a billion numbers), and the <b>graph</b> (things as nodes, relationships as first-class, typed edges). Below, one tiny supply chain wearing all five. Watch the gold fact — <em>Beta supplies Acme</em> — change costume.</p>
 
     <div class="widget" id="w-shapes">
-      <span class="widget-label">one business, five costumes</span>
+      <span class="widget-label">One business, five costumes</span>
       <div class="controls" style="margin-top:0">
         <div class="seg" id="seg-shapes" role="group" aria-label="storage shape">
           <button data-m="0" aria-pressed="true">relational</button>
@@ -84,7 +84,7 @@
       </div>
       <canvas class="viz" id="cv-shapes" width="880" height="360"></canvas>
       <div class="readout"><span class="stat" id="shapes-cap">—</span></div>
-      <p class="widget-hint"><span class="hand">notice →</span> none of these is wrong. columnar crushes "sum all invoices"; key-value crushes "fetch cart #4512". the question is what your <b>hardest questions</b> look like — and a business's hardest questions are almost always about relationships.</p>
+      <p class="widget-hint"><span class="hand">Notice →</span> None of these is wrong. Columnar crushes "sum all invoices"; key-value crushes "fetch cart #4512". The question is what your <b>hardest questions</b> look like — and a business's hardest questions are almost always about relationships.</p>
     </div>
   </div>
 </section>
@@ -97,13 +97,13 @@
     <p>A graph database makes the opposite bet: pay for the relationship <em>once, at write time</em>, storing each edge as a physical pointer. Then a three-hop question is just three pointer-walks from the starting node — the cost grows with the size of the <em>answer</em>, not the size of the database. That single design decision is why supply chains, fraud rings, org charts, and knowledge graphs — anything where the question is "what's connected to what" — live on graphs.</p>
 
     <div class="widget alt" id="w-join">
-      <span class="widget-label">the same question, two bills</span>
+      <span class="widget-label">The same question, two bills</span>
       <canvas class="viz" id="cv-join" width="880" height="340"></canvas>
       <div class="controls">
         <div class="ctl" style="max-width:280px"><label>hops upstream <output id="o-hops">2</output></label><input type="range" id="in-hops" min="1" max="4" step="1" value="2"></div>
       </div>
       <div class="readout"><span class="stat">SQL rows examined <b id="join-sql">—</b></span><span class="stat">graph nodes visited <b id="join-graph">—</b></span></div>
-      <p class="widget-hint"><span class="hand">honesty →</span> indexes tame the worst of this, and relational is still the right home for plenty of data. the point is the <b>shape</b>: joins recompute relationships; graphs simply keep them.</p>
+      <p class="widget-hint"><span class="hand">Honesty →</span> Indexes tame the worst of this, and relational is still the right home for plenty of data. The point is the <b>shape</b>: joins recompute relationships; graphs simply keep them.</p>
     </div>
   </div>
 </section>
@@ -116,7 +116,7 @@
     <p>Below is a small model with four classic diseases in it. Cure them one at a time and watch the linter — the same kind of ruleset a real knowledge graph runs nightly — go green.</p>
 
     <div class="widget" id="w-model">
-      <span class="widget-label">cure the model</span>
+      <span class="widget-label">Cure the model</span>
       <canvas class="viz" id="cv-model" width="880" height="330"></canvas>
       <div class="controls">
         <button class="btn small" id="fix-0" aria-pressed="false">type the vague edge</button>
@@ -125,13 +125,13 @@
         <button class="btn small" id="fix-3" aria-pressed="false">demote address to property</button>
       </div>
       <ul class="lint" id="lint">
-        <li id="lint-0">vague edge type: <b>related_to</b> carries no meaning a query can use</li>
-        <li id="lint-1">orphan node: <b>Notes-2024</b> connects to nothing</li>
-        <li id="lint-2">god node: <b>MISC</b> carries 9 unrelated edges — a junk drawer with a halo</li>
-        <li id="lint-3">over-normalized: 3 nodes to say one address — properties exist for a reason</li>
+        <li id="lint-0">Vague edge type: <b>related_to</b> carries no meaning a query can use</li>
+        <li id="lint-1">Orphan node: <b>Notes-2024</b> connects to nothing</li>
+        <li id="lint-2">God node: <b>MISC</b> carries 9 unrelated edges — a junk drawer with a halo</li>
+        <li id="lint-3">Over-normalized: 3 nodes to say one address — properties exist for a reason</li>
       </ul>
       <div class="readout"><span class="stat">model health <b id="model-score">0 / 4</b></span></div>
-      <p class="widget-hint"><span class="hand">rule of thumb →</span> if a node type could be a column, it probably should be. if an edge label could mean five things, it means nothing.</p>
+      <p class="widget-hint"><span class="hand">Rule of thumb →</span> If a node type could be a column, it probably should be. If an edge label could mean five things, it means nothing.</p>
     </div>
   </div>
 </section>
@@ -144,7 +144,7 @@
     <p>The hardest clause in the contract is <b>identity</b>. The wild world will hand you "Northrop Grumman Corp," "NORTHROP GRUMMAN SYSTEMS CORPORATION," and "Northrop Grumman Space Systems" — and if each becomes its own node, your graph quietly shatters into fragments that know nothing about each other. <b>Entity resolution</b> is the discipline of merging what's truly the same and — just as important — <em>refusing</em> to merge what merely looks the same. Ticker collisions, shared surnames, single-token names: the traps are everywhere. Your turn on the merge desk:</p>
 
     <div class="widget alt" id="w-onto">
-      <span class="widget-label">you're on the merge desk today</span>
+      <span class="widget-label">You're on the merge desk today</span>
       <div class="er-pair">
         <div class="er-ent"><h5 id="er-a-name">—</h5><div id="er-a-ev"></div></div>
         <div class="er-ent"><h5 id="er-b-name">—</h5><div id="er-b-ev"></div></div>
@@ -156,7 +156,7 @@
       </div>
       <div class="er-verdict" id="er-verdict"></div>
       <div class="readout"><span class="stat">case <b id="er-case">1 / 5</b></span><span class="stat">score <b id="er-score">0</b></span></div>
-      <p class="widget-hint"><span class="hand">the traps →</span> same industry ≠ same company. same word ≠ same family. and sometimes the right answer is neither merge nor separate — it's <b>an edge</b>.</p>
+      <p class="widget-hint"><span class="hand">The traps →</span> Same industry ≠ same company. Same word ≠ same family. And sometimes the right answer is neither merge nor separate — it's <b>an edge</b>.</p>
     </div>
   </div>
 </section>
@@ -165,11 +165,11 @@
 <section class="chapter" id="ch25">
   <div class="wrap">
     <div class="ch-head"><span class="ch-num">25 ·</span><h2>Provenance, or receipts</h2></div>
-    <p>An enterprise graph that agents write into (that's <a href="../agents/#ch11">part IV</a>'s whole premise) has one non-negotiable rule: <b>no edge without a receipt</b>. Every relationship carries its sources, each source carries a trust tier — a government contract filing outranks a press release, which outranks a model's inference — and the edge's confidence is <em>computed from its evidence</em>, never typed in by hand.</p>
+    <p>An enterprise graph that agents write into (that's <a href="../agents/#ch11">part IV</a>'s whole premise) has one non-negotiable rule: <b>no edge without a receipt</b>. That paper trail — where a fact came from, and how much to trust it — is what's called <b>provenance</b>. Every relationship carries its sources, each source carries a trust tier — a government contract filing outranks a press release, which outranks a model's inference — and the edge's confidence is <em>computed from its evidence</em>, never typed in by hand.</p>
     <p>Receipts change how truth dies, too. When a new filing contradicts an edge, you don't delete history — you mark the edge <b>disputed</b> and keep both records, because next quarter's question might be "what did we believe in March, and why?" That's <b>bitemporal</b> thinking: the graph remembers not just what's true, but <em>when it was known</em>. Try it on one edge:</p>
 
     <div class="widget" id="w-prov">
-      <span class="widget-label">one edge, its receipts, and time</span>
+      <span class="widget-label">One edge, its receipts, and time</span>
       <div class="prov-edge">
         <span class="prov-node">Beta Alloys</span>
         <span class="prov-rel reported" id="prov-rel">supplies · reported</span>
@@ -182,7 +182,7 @@
         <div class="ctl" style="max-width:260px"><label>the graph, as known in <output id="o-time">2026</output></label><input type="range" id="in-time" min="2023" max="2026" step="1" value="2026"></div>
       </div>
       <div class="readout"><span class="stat">status <b id="prov-status">reported</b></span><span class="stat">confidence <b id="prov-conf">0.60</b></span></div>
-      <p class="widget-hint"><span class="hand">try it →</span> corroborate it, then contradict it — the edge survives both, with its whole story attached. drag the year back and watch the graph remember what it used to believe.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> Corroborate it, then contradict it — the edge survives both, with its whole story attached. Drag the year back and watch the graph remember what it used to believe.</p>
     </div>
   </div>
 </section>
@@ -194,17 +194,17 @@
     <p>Before Book II builds the dream stack, a tour of how enterprises actually store truth today — the architectures nobody designed, that everybody has. Each one below is real, common, and quietly expensive. One of them is actually fine. <b>Click what you think is rotten.</b></p>
 
     <div class="widget alt" id="w-shame">
-      <span class="widget-label">click the rot — one of these is innocent</span>
+      <span class="widget-label">Click the rot — one of these is innocent</span>
       <div class="shame-grid" id="shame-grid">
-        <div class="shame-card" data-k="0"><h4>Q3_Sales_v7_FINAL(2).xlsx</h4><span class="tease">lives in email attachments. 14 people have 14 versions.</span><span class="reveal-txt"><span class="vn">the spreadsheet empire</span> — the real system of record is a file name. fix: one governed store; spreadsheets become <em>views</em>, never sources.</span></div>
-        <div class="shame-card" data-k="1"><h4>CRM (Salesforce)</h4><span class="tease">the sales team's actual working system.</span><span class="reveal-txt"><span class="vn">actually fine!</span> — systems of record are good. the crime is never the source system; it's the seventeen stale copies of it.</span></div>
-        <div class="shame-card" data-k="2"><h4>warehouse.crm_copy_v2</h4><span class="tease">a nightly dump of the CRM. last successful run: 3 weeks ago.</span><span class="reveal-txt"><span class="vn">the copy-paste warehouse</span> — every copy is a fork of the truth with its own decay clock. fix: one pipeline with lineage + freshness alarms, not ad-hoc dumps.</span></div>
-        <div class="shame-card" data-k="3"><h4>s3://data-lake/raw/*</h4><span class="tease">40,000 JSON files. no schema. "we'll structure it later."</span><span class="reveal-txt"><span class="vn">the data swamp</span> — storage without meaning is a liability with a monthly bill. fix: schema-on-write for what matters; an ontology before an ocean.</span></div>
-        <div class="shame-card" data-k="4"><h4>THE_MASTER_TABLE</h4><span class="tease">480 columns. every team added theirs. nobody may delete.</span><span class="reveal-txt"><span class="vn">the god table</span> — ch 23's god node, wearing SQL. fix: real entities with real types — this is precisely what nodes and edges are for.</span></div>
-        <div class="shame-card" data-k="5"><h4>metrics_dashboard_final</h4><span class="tease">beautiful KPIs. built directly on the raw swamp. numbers disagree with finance's.</span><span class="reveal-txt"><span class="vn">dashboard over quicksand</span> — polish on top of untyped truth just makes wrong numbers persuasive. fix: dashboards read the graph, not the swamp.</span></div>
+        <div class="shame-card" data-k="0"><h4>Q3_Sales_v7_FINAL(2).xlsx</h4><span class="tease">Lives in email attachments. 14 people have 14 versions.</span><span class="reveal-txt"><span class="vn">The spreadsheet empire</span> — the real system of record is a file name. Fix: one governed store; spreadsheets become <em>views</em>, never sources.</span></div>
+        <div class="shame-card" data-k="1"><h4>CRM (Salesforce)</h4><span class="tease">The sales team's actual working system.</span><span class="reveal-txt"><span class="vn">Actually fine!</span> — systems of record are good. The crime is never the source system; it's the seventeen stale copies of it.</span></div>
+        <div class="shame-card" data-k="2"><h4>warehouse.crm_copy_v2</h4><span class="tease">A nightly dump of the CRM. Last successful run: 3 weeks ago.</span><span class="reveal-txt"><span class="vn">The copy-paste warehouse</span> — every copy is a fork of the truth with its own decay clock. Fix: one pipeline with lineage + freshness alarms, not ad-hoc dumps.</span></div>
+        <div class="shame-card" data-k="3"><h4>s3://data-lake/raw/*</h4><span class="tease">40,000 JSON files. No schema. "We'll structure it later."</span><span class="reveal-txt"><span class="vn">The data swamp</span> — storage without meaning is a liability with a monthly bill. Fix: schema-on-write for what matters; an ontology before an ocean.</span></div>
+        <div class="shame-card" data-k="4"><h4>THE_MASTER_TABLE</h4><span class="tease">480 columns. Every team added theirs. Nobody may delete.</span><span class="reveal-txt"><span class="vn">The god table</span> — ch 23's god node, wearing SQL. Fix: real entities with real types — this is precisely what nodes and edges are for.</span></div>
+        <div class="shame-card" data-k="5"><h4>metrics_dashboard_final</h4><span class="tease">Beautiful KPIs. Built directly on the raw swamp. Numbers disagree with finance's.</span><span class="reveal-txt"><span class="vn">Dashboard over quicksand</span> — polish on top of untyped truth just makes wrong numbers persuasive. Fix: dashboards read the graph, not the swamp.</span></div>
       </div>
       <div class="readout"><span class="stat">rot found <b id="shame-found">0 / 5</b></span><span class="stat">false alarms <b id="shame-strikes">0</b></span><span class="stat hand" id="shame-done" style="font-size:18px;color:var(--leaf-deep)"></span></div>
-      <p class="widget-hint"><span class="hand">the pattern →</span> every disease here is the same disease: <b>relationships and meaning living in filenames, column names, and people's heads</b> instead of in the data itself. one card is a healthy source of record — accuse it and you've made the most expensive mistake of all. part VII builds the cure.</p>
+      <p class="widget-hint"><span class="hand">The pattern →</span> Every disease here is the same disease: <b>relationships and meaning living in filenames, column names, and people's heads</b> instead of in the data itself. One card is a healthy source of record — accuse it and you've made the most expensive mistake of all. Part VII builds the cure.</p>
     </div>
 
     <div class="pager">
@@ -217,7 +217,7 @@
 <footer>
   <div class="wrap">
     <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
-    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience — including building <a href="https://thessa.space">thessa.space</a> — a production knowledge graph of ~11,000 organizations and ~22,000 typed relationship edges with provenance-first verification. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience architecting and orchestrating enterprise data ecosystems across a wide range of industries — including building <a href="https://thessa.space">thessa.space</a> — a production knowledge graph of ~11,000 organizations and ~22,000 typed relationship edges with provenance-first verification. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
     <div class="foot-links">
       <a href="../">gradient home</a>
       <a href="https://bpachter.github.io/">portfolio</a>
