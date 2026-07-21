@@ -117,10 +117,14 @@
       <div class="term" id="loop-term">$ waiting…</div>
       <div class="loop-log" id="loop-log"></div>
       <div class="controls">
+        <div class="seg" id="seg-loop" role="group" aria-label="agent discipline">
+          <button data-mode="look" aria-pressed="true">look first</button>
+          <button data-mode="blind" aria-pressed="false">guess blindly</button>
+        </div>
         <button class="btn primary" id="btn-loop-run">run the loop</button>
         <button class="btn" id="btn-loop-break" disabled>break something</button>
       </div>
-      <p class="widget-hint"><span class="hand">watch →</span> the agent doesn't guess — it reads the failure, checks the spec, and only then edits. when it goes green, press <b>break something</b> and watch the loop absorb the surprise.</p>
+      <p class="widget-hint"><span class="hand">try it →</span> in <b>look first</b> the agent reads the failure, checks the spec, and only then edits — one read, green. flip to <b>guess blindly</b> and watch it skip the observation, hardcode the answer, and dig itself into whack-a-mole. when a run goes green, press <b>break something</b> and watch the loop absorb a fresh surprise.</p>
     </div>
   </div>
 </section>
@@ -215,9 +219,10 @@
       <span class="widget-label">one agent vs a small crew</span>
       <canvas class="viz" id="cv-race" width="880" height="300"></canvas>
       <div class="controls">
+        <div class="ctl" style="max-width:300px"><label>crew size — parallel workers <output id="o-crew">4</output></label><input type="range" id="in-crew" min="1" max="6" step="1" value="4"></div>
         <button class="btn primary" id="btn-race-run">race again</button>
       </div>
-      <p class="widget-hint"><span class="hand">watch →</span> the crew wins — but not 5×. the verifier bounces sloppy work back into the queue, and the merge at the end is a tax nobody skips.</p>
+      <p class="widget-hint"><span class="hand">try it →</span> the crew wins — but never by its headcount. slide crew size up: the first few workers help a lot, then the skeptical verifier becomes the bottleneck and the extra hands mostly wait. bounced work loops back, and the merge at the end is a tax nobody skips.</p>
     </div>
   </div>
 </section>

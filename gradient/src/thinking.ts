@@ -8,7 +8,19 @@ const sleepT = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
 (function () {
   const ticksA = $('#cot-ticks-a'); if (!ticksA) return;
   const ticksB = $('#cot-ticks-b'), scratch = $('#cot-scratch');
-  const SCRATCH_TEXT = 'let ball = x.  then bat = x + 1.00.\nx + (x + 1.00) = 1.10  →  2x = 0.10\n→ x = 5¢.  check: 5¢ + $1.05 = $1.10 ✓';
+  /* a longer canonical derivation; the reader dials how many of its steps get written */
+  const STEP_LINES = [
+    'let ball = x  (dollars).',
+    'then bat = x + 1.00.',
+    'x + (x + 1.00) = 1.10',
+    '→ 2x = 0.10',
+    '→ x = 0.05   (the ball is 5¢)',
+    'check: 5¢ + $1.05 = $1.10 ✓'
+  ];
+  const stepsEl = $<HTMLInputElement>('#in-cot-steps');
+  const steps = () => stepsEl ? +stepsEl.value : 3;
+  /* 30% at 0 steps (a pure guess) climbing to ~99% — never 0%, even guessing lands sometimes */
+  const acc = (s: number) => 1 - 0.7 * Math.pow(0.5, s);
   let running = false;
   const rng = mulberry32(1234);
 
@@ -19,26 +31,37 @@ const sleepT = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
     t.title = label;
     el.appendChild(t);
   }
+  function expectLine(): void {
+    const s = steps();
+    $('#o-cot-steps').textContent = String(s);
+    $('#cot-steps-lbl').textContent = String(s);
+    $('#cot-expect').textContent = Math.round(acc(s) * 100) + '% at ' + s + ' step' + (s === 1 ? '' : 's');
+  }
   async function run(): Promise<void> {
     if (running) return;
     running = true;
+    const s = steps();
     ticksA.innerHTML = ''; ticksB.innerHTML = '';
     $('#cot-acc-a').textContent = '—'; $('#cot-acc-b').textContent = '—';
-    /* the scratchpad writes itself once */
+    /* the scratchpad writes itself — exactly as many steps as the reader dialed in */
     scratch.textContent = '';
-    for (let i = 0; i <= SCRATCH_TEXT.length; i += 2) {
-      scratch.textContent = SCRATCH_TEXT.slice(0, i) + (i < SCRATCH_TEXT.length ? '▎' : '');
+    const text = s === 0
+      ? '(no scratchpad — it just blurts the first answer that comes to mind)'
+      : STEP_LINES.slice(0, s).join('\n');
+    for (let i = 0; i <= text.length; i += 2) {
+      scratch.textContent = text.slice(0, i) + (i < text.length ? '▎' : '');
       await sleepT(20);
     }
-    scratch.textContent = SCRATCH_TEXT;
+    scratch.textContent = text;
+    const pB = acc(s);
     let okA = 0, okB = 0;
     for (let i = 0; i < 20; i++) {
-      const a = rng() < 0.3, b = rng() < 0.9;
+      const a = rng() < 0.3, b = rng() < pB;
       tick(ticksA, a, a ? '5¢ — got lucky' : 'blurted 10¢');
       if (a) okA++;
       $('#cot-acc-a').textContent = Math.round(okA / (i + 1) * 100) + '%';
       await sleepT(85);
-      tick(ticksB, b, b ? '5¢ — derived' : 'slipped a step');
+      tick(ticksB, b, b ? '5¢ — derived' : s === 0 ? 'blurted 10¢' : 'slipped a step');
       if (b) okB++;
       $('#cot-acc-b').textContent = Math.round(okB / (i + 1) * 100) + '%';
       await sleepT(85);
@@ -46,6 +69,8 @@ const sleepT = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
     running = false;
   }
   $('#btn-cot-run').addEventListener('click', () => { void run(); });
+  if (stepsEl) stepsEl.addEventListener('input', expectLine);
+  expectLine();
   autoOnView($('#w-cot'), () => { if (!running && ticksA.childElementCount === 0) void run(); }, 900);
 })();
 

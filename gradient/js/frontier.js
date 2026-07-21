@@ -172,14 +172,37 @@ function orbit(cv, cam) {
 })();
 /* ══════════════ 09b · DPO ══════════════ */
 (function () {
+    const betaEl = $('#in-beta');
+    if (!betaEl)
+        return;
+    let pick = ''; /* '' until the reader votes; Δ = +1 once they do */
+    function render() {
+        const beta = +betaEl.value;
+        $('#o-beta').textContent = fmt(beta, 2);
+        if (!pick) {
+            $('#dpo-read').innerHTML = '<span class="stat hand" style="font-size:17px;color:var(--ink-faint)">↑ cast a vote, then dial β</span>';
+            return;
+        }
+        const other = pick === 'A' ? 'B' : 'A';
+        const s = 1 / (1 + Math.exp(-beta * 1)); /* σ(β·Δ), Δ = 1 after a pick */
+        const loss = -Math.log(s);
+        const push = beta * (1 - s); /* gradient magnitude toward the winner */
+        const word = beta < 0.35 ? 'a gentle nudge' : beta < 0.7 ? 'a firm shove' : 'a hard yank (risks over-fitting the vote)';
+        $('#dpo-read').innerHTML =
+            `<span class="stat">logged: <b>${pick} ≻ ${other}</b></span>` +
+                `<span class="stat">loss = −log σ(β·Δ) = <b>${loss.toFixed(3)}</b></span>` +
+                `<span class="stat">push ∝ <b>${push.toFixed(3)}</b> — ${word}</span>`;
+    }
     $$('.dpo-card').forEach(card => card.addEventListener('click', () => {
         $$('.dpo-card').forEach(c => c.classList.remove('chosen', 'rejected'));
         card.classList.add('chosen');
         $$('.dpo-card').forEach(c => { if (c !== card)
             c.classList.add('rejected'); });
-        const pick = (card.dataset.pick || 'a').toUpperCase(), other = pick === 'A' ? 'B' : 'A';
-        $('#dpo-read').innerHTML = `<span class="stat">logged: <b>${pick} ≻ ${other}</b></span><span class="stat">loss = −log σ(β·Δ) → policy nudged toward ${pick}</span>`;
+        pick = (card.dataset.pick || 'a').toUpperCase();
+        render();
     }));
+    betaEl.addEventListener('input', render);
+    render();
 })();
 /* ══════════════ 10a · MoE ROUTER ══════════════ */
 (function () {
@@ -195,28 +218,45 @@ function orbit(cv, cam) {
     }
     const moeTokens = ['gradient', 'the', 'robot', 'attention', 'learning', 'ball', 'descent', 'because', 'photon', 'tensor'];
     let mi = 0, moeOn = true, routed = 0;
+    const topk = () => { var _a, _b; return +((_b = (_a = $('#in-moe-k')) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : 2); };
+    function activeParams(k) {
+        /* 47B total = ~2B shared attention/router + 8 × 5.6B experts; only k experts fire */
+        return '~' + Math.round(2 + k * 5.6) + 'B';
+    }
     function moeTick() {
         if (!moeOn)
             return;
+        const k = topk();
         const tok = moeTokens[mi % moeTokens.length];
         $('#moe-token').textContent = '"' + tok + '"';
+        /* deterministic top-k from the token's hash: k distinct experts */
         let h = 0;
         for (const ch of tok)
             h = (h * 31 + ch.charCodeAt(0)) | 0;
-        const a = Math.abs(h) % 8;
-        let b = Math.abs(h >> 3) % 8;
-        if (b === a)
-            b = (b + 3) % 8;
-        counts[a]++;
-        counts[b]++;
+        const chosen = [];
+        let g = Math.abs(h);
+        while (chosen.length < k) {
+            const e = g % 8;
+            if (!chosen.includes(e))
+                chosen.push(e);
+            g = (g * 31 + 7) | 0;
+            g = Math.abs(g);
+        }
+        chosen.forEach(e => counts[e]++);
         routed++;
         $$('.moe-exp', expWrap).forEach((el, i) => {
-            el.classList.toggle('on', i === a || i === b);
+            el.classList.toggle('on', chosen.includes(i));
             el.querySelector('small').textContent = '×' + counts[i];
         });
         $('#moe-count').textContent = String(routed);
+        $('#moe-active').textContent = activeParams(k);
         mi++;
     }
+    $('#in-moe-k').addEventListener('input', function () {
+        $('#o-moe-k').textContent = this.value;
+        $('#moe-topk-lbl').textContent = this.value;
+        $('#moe-active').textContent = activeParams(+this.value);
+    });
     window.setInterval(moeTick, reduced ? 3200 : 1500);
     visible($('#w-moe'), v => moeOn = v);
     moeTick();
@@ -468,7 +508,8 @@ function orbit(cv, cam) {
     if (!cv)
         return;
     const [ctx, W, H] = fit(cv);
-    const N = 12, CELL = 16, MX = 60, MY = 70, TILE = 3;
+    const N = 12, CELL = 16, MX = 60, MY = 70;
+    let TILE = 3; /* 2/3/4/6 all divide N=12 */
     /* HBM + SRAM boxes */
     const HB = { x: 560, y: 46, w: 280, h: 130 }, SR = { x: 560, y: 214, w: 170, h: 92 };
     let mode = 'naive', prog = 0, run = true;
@@ -524,17 +565,19 @@ function orbit(cv, cam) {
             ctx.fillStyle = FAINT;
             ctx.fillText('144 numbers parked in slow memory…', HB.x + 130, HB.y + 66);
             $('#flash-mem').textContent = Math.min(prog, total) + ' / 144 cells to HBM';
+            $('#flash-passes').textContent = 'n/a — one giant matrix';
         }
         else {
-            /* only the current tile lives in SRAM; only a column lands in HBM */
+            /* only the current tile lives in SRAM; scale cells so a big tile still fits the box */
             const t = Math.floor(prog / (TILE * TILE));
+            const cell = Math.min(15, Math.floor(56 / TILE));
             ctx.fillStyle = 'rgba(138,174,104,0.5)';
             for (let a = 0; a < TILE; a++)
                 for (let b = 0; b < TILE; b++)
-                    ctx.fillRect(SR.x + 30 + b * 16, SR.y + 22 + a * 16, 14, 14);
-            ctx.font = '14px Caveat, cursive';
+                    ctx.fillRect(SR.x + 24 + b * cell, SR.y + 20 + a * cell, cell - 2, cell - 2);
+            ctx.font = '13px Caveat, cursive';
             ctx.fillStyle = FAINT;
-            ctx.fillText('one tile at a time', SR.x + 88, SR.y + 52);
+            ctx.fillText(TILE + '×' + TILE + ' tile in SRAM', SR.x + 30 + TILE * cell, SR.y + 30);
             const rowsDone = Math.min(N, Math.floor(t / (N / TILE)) * TILE + TILE);
             for (let i = 0; i < rowsDone; i++) {
                 ctx.fillStyle = GOOD;
@@ -542,6 +585,8 @@ function orbit(cv, cam) {
             }
             ctx.fillText('only the skinny answer column', HB.x + 44, HB.y + 60);
             $('#flash-mem').textContent = Math.min(rowsDone, N) + ' / 12 cells to HBM  (vs 144)';
+            const tiles = (N / TILE) * (N / TILE);
+            $('#flash-passes').textContent = (N / TILE) + '×' + (N / TILE) + ' = ' + tiles + ' tiles';
         }
     }
     window.setInterval(() => {
@@ -554,6 +599,14 @@ function orbit(cv, cam) {
         }
         draw();
     }, reduced ? 900 : 130);
+    $$('#seg-flash button').forEach(btn => btn.addEventListener('click', () => {
+        $$('#seg-flash button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+        TILE = +(btn.dataset.tile);
+        mode = 'flash';
+        prog = 0; /* jump to flash so the new tiling is visible at once */
+        draw();
+    }));
     visible(cv, v => run = v);
     draw();
 })();
@@ -563,12 +616,26 @@ function orbit(cv, cam) {
     if (!laneD)
         return;
     const laneV = $('#lane-verd'), laneF = $('#lane-final');
+    const gammaEl = $('#in-gamma');
+    const ALPHA = 0.8, COST = 0.12; /* per-token accept prob; one draft pass ≈ 12% of a big pass */
     const ROUNDS = [
         { draft: ['The', 'sky', 'looks', 'blue'], ok: 4 },
         { draft: ['because', 'air', 'absorbs', 'red'], ok: 2, fix: 'scatters' },
         { draft: ['blue', 'light', 'the', 'most'], ok: 2, fix: 'more' },
         { draft: ['than', 'red', 'light', '.'], ok: 4 }
     ];
+    const gamma = () => gammaEl ? +gammaEl.value : 4;
+    /* the real economics: expected accepted tokens per verify = (1−α^{γ+1})/(1−α),
+       paid for by one big pass + γ cheap draft passes. Peaks, then diminishes. */
+    function economics() {
+        const g = gamma();
+        if (gammaEl)
+            $('#o-gamma').textContent = String(g);
+        const E = (1 - Math.pow(ALPHA, g + 1)) / (1 - ALPHA);
+        const toks = 12 * E / (1 + COST * g);
+        $('#spec-toks').textContent = E.toFixed(2) + ' tokens';
+        $('#spec-speed').textContent = toks.toFixed(0) + ' tok/s — ×' + (toks / 12).toFixed(1) + ' faster';
+    }
     let running = false;
     const sleep = (ms) => new Promise(res => window.setTimeout(res, reduced ? ms / 4 : ms));
     function chip(txt, cls) {
@@ -584,35 +651,41 @@ function orbit(cv, cam) {
         laneD.innerHTML = '';
         laneV.innerHTML = '';
         laneF.innerHTML = '';
-        $('#spec-speed').textContent = '—';
+        $('#spec-speed').textContent = '…racing';
+        const g = gamma();
         for (const r of ROUNDS) {
+            const draft = r.draft.slice(0, g); /* the drafter only proposes γ tokens this round */
+            const ok = Math.min(r.ok, draft.length);
             laneD.innerHTML = '';
             laneV.innerHTML = '';
-            for (const w of r.draft) {
+            for (const w of draft) {
                 laneD.appendChild(chip(w, 'draft'));
                 await sleep(140);
             }
             await sleep(420);
-            for (let i = 0; i < r.draft.length; i++) {
-                const good = i < r.ok;
-                laneV.appendChild(chip(good ? '✓ ' + r.draft[i] : '✗ ' + r.draft[i], good ? 'ok' : 'no'));
+            for (let i = 0; i < draft.length; i++) {
+                const good = i < ok;
+                laneV.appendChild(chip(good ? '✓ ' + draft[i] : '✗ ' + draft[i], good ? 'ok' : 'no'));
                 await sleep(150);
                 if (!good)
                     break;
             }
             await sleep(380);
-            for (let i = 0; i < r.ok; i++)
-                laneF.appendChild(chip(r.draft[i], 'ok'));
-            if (r.fix) {
+            for (let i = 0; i < ok; i++)
+                laneF.appendChild(chip(draft[i], 'ok'));
+            if (ok < draft.length && r.fix) {
                 laneF.appendChild(chip(r.fix, 'fix'));
                 await sleep(260);
             }
             await sleep(300);
         }
-        $('#spec-speed').textContent = '31 tok/s — ×2.6 faster, same words';
+        economics();
         running = false;
     }
     $('#btn-spec-run').addEventListener('click', () => { void race(); });
+    if (gammaEl)
+        gammaEl.addEventListener('input', economics);
+    economics();
     autoOnView($('#w-spec'), () => { void race(); }, 900);
 })();
 /* ══════════════ 10g · QUANTIZATION ══════════════ */
@@ -734,24 +807,39 @@ function orbit(cv, cam) {
         { x: 0.74, y: 0.76, label: '10g — 4-bit weights, 4× smaller' },
         { x: 0.63, y: 0.90, label: '10a — a router picks 2 experts' }
     ];
+    /* positions laid out so the genuine nearest-neighbours (in the same stretched
+       pixel-space we render in) are the chunks each answer actually cites */
     const QS = [
-        { text: 'when was the perceptron born?', x: 0.18, y: 0.44, hits: [0, 1, 2],
+        { text: 'when was the perceptron born?', x: 0.14, y: 0.44,
             ans: 'In 1958 — Frank Rosenblatt\'s perceptron <sup>[1]</sup>, trained by nudging its weights after every mistake.' },
-        { text: 'why do chats eat GPU memory?', x: 0.78, y: 0.40, hits: [6, 7, 4],
+        { text: 'why do chats eat GPU memory?', x: 0.84, y: 0.36,
             ans: 'Every past token\'s keys and values are held in the KV cache — your context window is literally that memory <sup>[1]</sup>; sharing heads shrinks it <sup>[2]</sup>.' },
-        { text: 'how do big models fit on one GPU?', x: 0.76, y: 0.66, hits: [8, 7, 6],
+        { text: 'how do big models fit on one GPU?', x: 0.80, y: 0.68,
             ans: 'Quantize the weights to 4 bits — four times smaller <sup>[1]</sup> — and keep the KV cache lean with grouped heads <sup>[2]</sup>.' }
     ];
     const PX = (x) => 30 + x * (W - 60), PY = (y) => 26 + y * (H - 60);
-    let active = -1, anim = 0;
+    const kEl = $('#rag-k');
+    const kVal = () => kEl ? +kEl.value : 3;
+    let active = -1, anim = 0, hits = [];
+    /* real k-nearest-neighbour retrieval in the fixed 880×280 design space (minus the
+       30/26px margins ×2) so the ranking is identical at every viewport — the canvas
+       keeps its aspect ratio, so the dashed lines still fly to the chunks that look closest */
+    const AX = 820, AY = 220;
+    function retrieve(qx, qy, k) {
+        return CH
+            .map((c, i) => ({ i, d: Math.hypot((c.x - qx) * AX, (c.y - qy) * AY) }))
+            .sort((a, b) => a.d - b.d)
+            .slice(0, k)
+            .map(o => o.i);
+    }
     function draw() {
         ctx.clearRect(0, 0, W, H);
         ctx.font = '15px Caveat, cursive';
         ctx.fillStyle = FAINT;
         ctx.fillText('the library, embedded into meaning-space', 24, 20);
         CH.forEach((c, i) => {
-            const hit = active >= 0 && QS[active].hits.includes(i);
-            const rank = hit ? QS[active].hits.indexOf(i) : 9;
+            const rank = hits.indexOf(i);
+            const hit = active >= 0 && rank >= 0;
             if (hit && anim > 0.25) {
                 ctx.strokeStyle = rank === 0 ? LEAF_D : 'rgba(85,121,60,0.55)';
                 ctx.lineWidth = rank === 0 ? 2.6 : 1.6;
@@ -797,11 +885,29 @@ function orbit(cv, cam) {
             ctx.textAlign = 'left';
         }
     }
+    /* re-staple the retrieved chunks into the prompt (answer text stays put) */
+    function buildPrompt(q) {
+        const pr = $('#rag-prompt');
+        pr.innerHTML = '<span class="rag-slot">system: answer from the sources</span>';
+        hits.forEach((h, k) => {
+            const s = document.createElement('span');
+            s.className = 'rag-slot doc';
+            s.style.animationDelay = (0.35 + k * 0.18) + 's';
+            s.textContent = '[' + (k + 1) + '] ' + CH[h].label;
+            pr.appendChild(s);
+        });
+        const qs = document.createElement('span');
+        qs.className = 'rag-slot q';
+        qs.style.animationDelay = (0.35 + hits.length * 0.18 + 0.2) + 's';
+        qs.textContent = 'user: ' + q.text;
+        pr.appendChild(qs);
+    }
     let typeTimer = null;
     function ask(qi) {
         active = qi;
         anim = 0;
         const q = QS[qi];
+        hits = retrieve(q.x, q.y, kVal());
         const start = performance.now();
         (function grow(now) {
             anim = Math.min((now - start) / (reduced ? 1 : 900), 1);
@@ -809,21 +915,7 @@ function orbit(cv, cam) {
             if (anim < 1)
                 requestAnimationFrame(grow);
         })(start);
-        /* assemble the prompt */
-        const pr = $('#rag-prompt');
-        pr.innerHTML = '<span class="rag-slot">system: answer from the sources</span>';
-        q.hits.forEach((h, k) => {
-            const s = document.createElement('span');
-            s.className = 'rag-slot doc';
-            s.style.animationDelay = (0.35 + k * 0.22) + 's';
-            s.textContent = '[' + (k + 1) + '] ' + CH[h].label;
-            pr.appendChild(s);
-        });
-        const qs = document.createElement('span');
-        qs.className = 'rag-slot q';
-        qs.style.animationDelay = '1.0s';
-        qs.textContent = 'user: ' + q.text;
-        pr.appendChild(qs);
+        buildPrompt(q);
         /* type the answer */
         const ansEl = $('#rag-ans');
         ansEl.innerHTML = '';
@@ -841,6 +933,15 @@ function orbit(cv, cam) {
         }, 30);
     }
     $$('.rag-qbtn').forEach(btn => btn.addEventListener('click', () => ask(+(btn.dataset.q))));
+    if (kEl)
+        kEl.addEventListener('input', () => {
+            $('#o-rag-k').textContent = kEl.value;
+            if (active < 0)
+                return; /* re-retrieve live; keep the same answer text */
+            hits = retrieve(QS[active].x, QS[active].y, kVal());
+            draw();
+            buildPrompt(QS[active]);
+        });
     draw();
     autoOnView($('#w-rag'), () => { if (active < 0)
         ask(0); }, 1100);

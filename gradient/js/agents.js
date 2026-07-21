@@ -157,7 +157,14 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         { think: 'give rate a safe default so old callers keep working.', act: 'edit("adder.js", "rate" → "rate = 0")', obs: 'saved adder.js (1 line changed)', ok: false },
         { think: 'verify.', act: 'run_tests()', obs: '✓ 3 passed, 0 failed', ok: true }
     ];
-    let running = false, greenOnce = false;
+    /* the same first bug, but the agent skips the "look" step and just guesses */
+    const SCRIPT_BLIND = [
+        { think: 'the test wants adder(3,4) to be 8. easy — make it return 8.', act: 'edit("adder.js", "a + b" → "8")', obs: 'saved adder.js (1 line changed)', ok: false },
+        { think: 'that has to be green now.', act: 'run_tests()', obs: '✗ WORSE — adder(1,1): expected 3, got 8. hardcoding broke the rest.', ok: false },
+        { think: 'patch that case too, then…', act: 'edit("adder.js", "if (a===1) return 3")', obs: '✗ 4 failing now — every input became a special case. whack-a-mole.', ok: false },
+        { think: 'I never read WHY the spec wanted 8. I\'m digging, not fixing.', act: 'git_checkout("adder.js")  — revert', obs: '✗ loop ends red. guessing cost four steps and a mess; looking took one read.', ok: false }
+    ];
+    let running = false, greenOnce = false, mode = 'look';
     function chip(txt, cls) {
         const s = document.createElement('span');
         s.className = cls;
@@ -191,12 +198,24 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
             await sleepA(950);
         }
         running = false;
-        greenOnce = true;
-        $('#btn-loop-break').disabled = false;
+        greenOnce = script[script.length - 1].ok; /* only a green finish unlocks "break something" */
+        $('#btn-loop-break').disabled = !greenOnce;
     }
-    $('#btn-loop-run').addEventListener('click', () => { void run(SCRIPT_A); });
+    $('#btn-loop-run').addEventListener('click', () => { void run(mode === 'blind' ? SCRIPT_BLIND : SCRIPT_A); });
     $('#btn-loop-break').addEventListener('click', () => { if (greenOnce)
         void run(SCRIPT_B); });
+    $$('#seg-loop button').forEach(b => b.addEventListener('click', () => {
+        $$('#seg-loop button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+        mode = b.dataset.mode; /* selection is instant; feels alive mid-run */
+        if (running)
+            return; /* the in-flight run finishes; new mode applies on the next */
+        log.innerHTML = '';
+        iterEl.textContent = '0';
+        term.innerHTML = '$ waiting…';
+        greenOnce = false;
+        $('#btn-loop-break').disabled = true;
+    }));
     autoOnView($('#w-loop'), () => { if (!running && log.childElementCount === 0)
         void run(SCRIPT_A); }, 900);
 })();
@@ -438,11 +457,13 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         return;
     const [ctx, W, H] = fit(cv);
     const N = 12, WORK = 520, VER = 170;
-    let solo, crew, simT = 0, running = false;
+    let solo, crew, simT = 0, running = false, crewN = 4;
     const rejectSet = new Set([2, 6, 9]); /* these tasks bounce once */
+    const crewCount = () => { const el = $('#in-crew'); return el ? +el.value : 4; };
     function reset() {
+        crewN = crewCount();
         solo = { x0: 30, w: 380, queue: N, doing: [null], verQ: [], verUntil: 0, done: 0, redo: new Set(), t: 0, finished: 0 };
-        crew = { x0: 470, w: 380, queue: N, doing: [null, null, null, null], verQ: [], verUntil: 0, done: 0, redo: new Set(rejectSet), t: 0, finished: 0 };
+        crew = { x0: 470, w: 380, queue: N, doing: new Array(crewN).fill(null), verQ: [], verUntil: 0, done: 0, redo: new Set(rejectSet), t: 0, finished: 0 };
         simT = 0;
         running = true;
     }
@@ -512,16 +533,18 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         ctx.font = '15px Caveat, cursive';
         ctx.fillStyle = FAINT;
         ctx.fillText('one agent, one bench', solo.x0, 26);
-        ctx.fillText('orchestrator · 4 workers · 1 skeptical verifier', crew.x0, 26);
-        for (const [s, workers, verify] of [[solo, 1, false], [crew, 4, true]]) {
+        ctx.fillText('orchestrator · ' + crewN + ' worker' + (crewN > 1 ? 's' : '') + ' · 1 skeptical verifier', crew.x0, 26);
+        for (const [s, workers, verify] of [[solo, 1, false], [crew, crewN, true]]) {
             dots(s.x0 + 8, 48, s.queue, 'rgba(107,127,163,0.75)');
             ctx.font = '11px Karla, sans-serif';
             ctx.fillStyle = FAINT;
             ctx.fillText('queue', s.x0 + 8 + Math.max(1, s.queue) * 0 - 0, 70);
-            const bw = verify ? 74 : 120;
+            const gap = 10;
+            const bw = verify ? Math.min(76, Math.floor((s.w - 16 - (workers - 1) * gap) / workers)) : 120;
             for (let i = 0; i < workers; i++) {
                 const on = s.doing[i] !== null;
-                box(s.x0 + 8 + i * (bw + 12), 86, bw, 40, on ? 'working…' : 'worker ' + (workers > 1 ? i + 1 : ''), on);
+                const lbl = workers > 1 ? (on ? '⋯' : 'w' + (i + 1)) : (on ? 'working…' : 'worker');
+                box(s.x0 + 8 + i * (bw + gap), 86, bw, 40, lbl, on);
             }
             if (verify) {
                 box(s.x0 + 110, 150, 150, 36, s.verUntil > 0 ? 'verifier: inspecting' : 'verifier (idle)', s.verUntil > 0);
@@ -541,7 +564,7 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
             ctx.font = '19px Caveat, cursive';
             ctx.fillStyle = LEAF_D;
             ctx.textAlign = 'center';
-            ctx.fillText('crew: ' + (solo.finished / crew.finished).toFixed(1) + '× faster — with 5× the hands. the verifier and the bounces are the tax.', W / 2, H - 6);
+            ctx.fillText('crew: ' + (solo.finished / crew.finished).toFixed(1) + '× faster — with ' + (crewN + 1) + '× the hands. the verifier and the bounces are the tax.', W / 2, H - 6);
             ctx.textAlign = 'left';
             running = false;
         }
@@ -555,7 +578,7 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         if (running) {
             simT += dt;
             stepSide(solo, 1, false, dt);
-            stepSide(crew, 4, true, dt);
+            stepSide(crew, crewN, true, dt);
         }
         draw();
         if (onScreen)
@@ -572,6 +595,9 @@ const sleepA = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         }
     } });
     $('#btn-race-run').addEventListener('click', () => { reset(); });
+    const crewEl = $('#in-crew');
+    if (crewEl)
+        crewEl.addEventListener('input', () => { $('#o-crew').textContent = crewEl.value; reset(); });
 })();
 /* ══════════════ 16 · THE POISONED EMAIL ══════════════ */
 (function () {

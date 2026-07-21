@@ -511,6 +511,9 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .shame-card.revealed .reveal-txt { display: block; }
 .shame-card .vn { font-family: 'Caveat', cursive; font-size: 17px; }
 .shame-card.rot .vn { color: var(--bad); } .shame-card.fine .vn { color: var(--good); }
+@keyframes shame-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+.shame-card.misfire { animation: shame-shake .42s var(--ease); box-shadow: 0 0 0 2.5px var(--bad), 3px 3px 0 rgba(45, 42, 36, 0.12); }
+#shame-strikes.warn { color: var(--bad); }
 @media (max-width: 700px) { .shame-grid { grid-template-columns: 1fr; } .er-pair { grid-template-columns: 1fr; } }
 
 /* ---------- epilogue: stage captions + atlas ---------- */

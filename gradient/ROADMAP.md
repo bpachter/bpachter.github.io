@@ -228,3 +228,38 @@ depth requested.
 > the library is closed at 32 chapters.** Remaining: the trim pass
 > (multimodal 08b, engine-room 10i/10j, field-note refresh, portfolio
 > card update, cross-link sweep).
+
+## Interactivity audit — Tier 1 (shipped 2026-07-20)
+
+A pass over every widget found eleven that were animated-but-not-*driven* —
+they played a canned story with no dial the reader could turn. Tier 1 turned
+each into a real model:
+
+- **DPO (09b):** β slider now computes the live preference-loss `−log σ(β·Δ)`
+  and gradient push once you cast a vote.
+- **MoE (10a):** top-k slider (1–4) picks *k* distinct experts per token and
+  recomputes active-parameter count.
+- **FlashAttention (10e):** tile-size control (2/3/4/6) re-tiles the matrix and
+  reports SRAM passes = (N/tile)².
+- **Speculative decoding (10f):** γ slider drives the real throughput curve
+  `E=(1−α^{γ+1})/(1−α)`, `tok/s = 12·E/(1+cγ)` — it peaks then declines, showing
+  the wasted-draft tax.
+- **RAG (10h):** top-k slider does genuine k-NN retrieval in fixed design-space
+  (chunk coordinates laid out so the true nearest neighbours are the cited ones);
+  turning k up visibly drags weaker chunks into the prompt.
+- **The loop (11):** "look first / guess blindly" toggle — blind mode skips the
+  observation step, hardcodes the answer, and diverges into whack-a-mole.
+- **Many hands (15):** crew-size slider (1–6) shows the verifier becoming the
+  bottleneck — speedup never matches headcount.
+- **Chain of thought (17):** reasoning-steps slider (0–6); accuracy follows
+  `1 − 0.7·0.5^steps` (30% guessing → ~99%), and the scratchpad grows to match.
+- **Hall of shame (26):** false-alarm penalty — accusing the innocent system of
+  record shakes red and scores a strike.
+- **The flywheel (27):** verifier-strictness slider — too loose compounds
+  misinformation, too strict starves the graph (`accept when rng() > strictness`).
+- **The model fleet (29):** smart-routing / all-frontier toggle — helicopter mode
+  dumps every errand on the $$$ tier for ~11× the cost.
+
+Verified end-to-end with Playwright (each new control exercised, no JS
+exceptions, no 390px overflow). **Tier 2** (emb NN, pipe temperature-sampling,
+tool text-router, dept hover-inspect, all-scenario chips) remains optional.

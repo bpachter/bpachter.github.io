@@ -75,10 +75,11 @@
       <span class="widget-label">a few nights on the flywheel</span>
       <canvas class="viz" id="cv-fly" width="880" height="360"></canvas>
       <div class="controls">
+        <div class="ctl" style="max-width:320px"><label>verifier strictness <output id="o-strict">0.30</output></label><input type="range" id="in-strict" min="0.1" max="0.8" step="0.05" value="0.3"></div>
         <button class="btn primary" id="btn-fly-go" disabled>GO — release the batch</button>
       </div>
-      <div class="readout"><span class="stat">nights <b id="fly-nights">0</b></span><span class="stat">edges verified <b id="fly-ok">0</b></span><span class="stat">rejected <b id="fly-rej">0</b></span></div>
-      <p class="widget-hint"><span class="hand">watch →</span> dashed = proposed, green = verified, faded = rejected. when the extractor has a weird night and floods the queue, the gate freezes the whole batch — and <b>you</b> hold the release.</p>
+      <div class="readout"><span class="stat">nights <b id="fly-nights">0</b></span><span class="stat">edges verified <b id="fly-ok">0</b></span><span class="stat">rejected <b id="fly-rej">0</b></span><span class="stat">verifier accepts <b id="fly-accept">~70%</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> dashed = proposed, green = verified, faded = rejected. drag <b>strictness</b>: too loose and unchecked edges compound into a misinformation engine; too strict and the flywheel starves, rejecting good facts with the bad. when the extractor floods the queue, the gate freezes the whole batch — and <b>you</b> hold the release.</p>
     </div>
   </div>
 </section>
@@ -116,10 +117,14 @@
       <div class="lane"><span class="lab">verifier · $</span><span id="fleet-t1"></span></div>
       <div class="lane"><span class="lab">frontier · $$$</span><span id="fleet-t2"></span></div>
       <div class="controls" style="margin-top:14px">
+        <div class="seg" id="seg-fleet" role="group" aria-label="routing strategy">
+          <button data-mode="smart" aria-pressed="true">smart routing</button>
+          <button data-mode="frontier" aria-pressed="false">all-frontier</button>
+        </div>
         <button class="btn primary" id="btn-fleet-run">run the night again</button>
       </div>
-      <div class="readout"><span class="stat">fleet cost <b id="fleet-cost">$0.00</b></span><span class="stat">all-frontier would be <b id="fleet-alt">$0.00</b></span><span class="stat" id="fleet-save"></span></div>
-      <p class="widget-hint"><span class="hand">the rule →</span> volume goes local, checking goes cheap, <b>judgment goes frontier</b>. the router is why the whole flywheel runs for pocket change.</p>
+      <div class="readout"><span class="stat"><span id="fleet-cost-lbl">fleet cost</span> <b id="fleet-cost">$0.00</b></span><span class="stat"><span id="fleet-alt-lbl">all-frontier would be</span> <b id="fleet-alt">$0.00</b></span><span class="stat" id="fleet-save"></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> volume goes local, checking goes cheap, <b>judgment goes frontier</b>. flip to <b>all-frontier</b> and watch every trivial errand pile into the $$$ lane — the same night's work for an order of magnitude more. the router is why the whole flywheel runs for pocket change.</p>
     </div>
   </div>
 </section>

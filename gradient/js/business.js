@@ -146,6 +146,8 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         return;
     const [ctx, W, H] = fit(cv);
     const rng = mulberry32(2727);
+    const strictEl = $('#in-strict');
+    const strictness = () => strictEl ? +strictEl.value : 0.3; /* the verifier's bar; accept when rng() clears it */
     /* the org ring the flywheel grows */
     const NODES = [];
     for (let i = 0; i < 12; i++) {
@@ -265,7 +267,7 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
             edges.push(e);
             draw();
             await sleepB(520);
-            if (rng() < 0.74) {
+            if (rng() > strictness()) {
                 e.status = 'ok';
                 okN++;
             }
@@ -296,7 +298,7 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
             e.status = 'prop';
             draw();
             await sleepB(150);
-            if (rng() < 0.6) {
+            if (rng() > strictness()) {
                 e.status = 'ok';
                 okN++;
             }
@@ -308,6 +310,11 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         held = [];
         draw('batch reviewed under your GO — applied with receipts.');
     });
+    if (strictEl)
+        strictEl.addEventListener('input', () => {
+            $('#o-strict').textContent = (+strictEl.value).toFixed(2);
+            $('#fly-accept').textContent = '~' + Math.round((1 - +strictEl.value) * 100) + '%';
+        });
     visible(cv, v => { const was = onScreen; onScreen = v; if (v && !was && !reduced)
         void tick(); });
     draw();
@@ -474,7 +481,7 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         { t: 'write the what-changed brief', tier: 2, cost: 0.9, alt: 0.9 }
     ];
     const lanes = [$('#fleet-t0'), $('#fleet-t1'), $('#fleet-t2')];
-    let running = false;
+    let running = false, mode = 'smart';
     function chip(txt, cls) {
         const s = document.createElement('span');
         s.className = 'dchip ' + cls;
@@ -488,23 +495,37 @@ const sleepB = (ms) => new Promise(res => window.setTimeout(res, reduced ? Math.
         inLane.innerHTML = '';
         lanes.forEach(l => l.innerHTML = '');
         $('#fleet-save').textContent = '';
-        let cost = 0, alt = 0;
+        const front = mode === 'frontier';
+        $('#fleet-cost-lbl').textContent = front ? 'all-frontier cost' : 'fleet cost';
+        $('#fleet-alt-lbl').textContent = front ? 'smart fleet would be' : 'all-frontier would be';
+        let smartCost = 0, frontCost = 0;
         for (const t of TASKS) {
             const c = chip(t.t, 'draft');
             inLane.appendChild(c);
             await sleepB(480);
             c.remove();
-            lanes[t.tier].appendChild(chip(t.t, 't' + t.tier));
-            cost += t.cost;
-            alt += t.alt;
-            $('#fleet-cost').textContent = '$' + cost.toFixed(2);
-            $('#fleet-alt').textContent = '$' + alt.toFixed(2);
+            const laneIdx = front ? 2 : t.tier; /* helicopter mode dumps every errand on the frontier */
+            lanes[laneIdx].appendChild(chip(t.t, 't' + laneIdx));
+            smartCost += t.cost;
+            frontCost += t.alt;
+            $('#fleet-cost').textContent = '$' + (front ? frontCost : smartCost).toFixed(2);
+            $('#fleet-alt').textContent = '$' + (front ? smartCost : frontCost).toFixed(2);
             await sleepB(240);
         }
-        $('#fleet-save').textContent = '→ ' + Math.round((1 - cost / alt) * 100) + '% saved, judgment un-compromised';
+        $('#fleet-save').textContent = front
+            ? '→ ' + (frontCost / Math.max(smartCost, 0.01)).toFixed(1) + '× the cost — a helicopter for every errand'
+            : '→ ' + Math.round((1 - smartCost / frontCost) * 100) + '% saved, judgment un-compromised';
         running = false;
     }
     $('#btn-fleet-run').addEventListener('click', () => { void run(); });
+    $$('#seg-fleet button').forEach(b => b.addEventListener('click', () => {
+        if (running)
+            return;
+        $$('#seg-fleet button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+        mode = b.dataset.mode;
+        void run();
+    }));
     autoOnView($('#w-fleet'), () => { void run(); }, 900);
 })();
 /* ══════════════ 30 · THE DELEGATION DIAL ══════════════ */

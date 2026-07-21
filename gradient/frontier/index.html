@@ -136,6 +136,9 @@
         <div class="dpo-card" data-pick="a"><span class="tag">response A</span><br>Gradient descent is an iterative first-order optimization algorithm for minimizing a differentiable multivariate objective function.</div>
         <div class="dpo-card" data-pick="b"><span class="tag">response B</span><br>Imagine you're on a hill in thick fog, trying to find the bottom. You feel which way the ground slopes and take a small step downhill. Keep doing that — that's how a computer learns!</div>
       </div>
+      <div class="controls">
+        <div class="ctl" style="max-width:320px"><label>β — preference strength <output id="o-beta">0.30</output></label><input type="range" id="in-beta" min="0.1" max="1" step="0.05" value="0.3"></div>
+      </div>
       <div class="readout" id="dpo-read" style="min-height:28px"></div>
     </div>
   </div>
@@ -155,8 +158,11 @@
         <span class="widget-label">watch the router work</span>
         <div class="moe-box">
           <div class="moe-token" id="moe-token">"gradient"</div>
-          <div class="moe-router">↓ router picks 2 of 8 experts ↓</div>
+          <div class="moe-router">↓ router picks <span id="moe-topk-lbl">2</span> of 8 experts ↓</div>
           <div class="moe-experts" id="moe-experts"></div>
+        </div>
+        <div class="controls">
+          <div class="ctl" style="max-width:300px"><label>experts per token (top-k) <output id="o-moe-k">2</output></label><input type="range" id="in-moe-k" min="1" max="4" step="1" value="2"></div>
         </div>
         <div class="readout"><span class="stat">total params <b>47B</b></span><span class="stat">active per token <b id="moe-active">~13B</b></span><span class="stat">tokens routed <b id="moe-count">0</b></span></div>
         <p class="widget-hint"><span class="hand">watch →</span> different tokens light different specialists. the tally under each expert shows who's been busy — the router learns to balance the load.</p>
@@ -222,8 +228,17 @@
       <div class="widget" id="w-flash">
         <span class="widget-label">warehouse vs. scratchpad</span>
         <canvas class="viz" id="cv-flash" width="880" height="330"></canvas>
-        <div class="readout"><span class="stat">memory written <b id="flash-mem">—</b></span></div>
-        <p class="widget-hint"><span class="hand">watch →</span> naive fills the whole square in slow memory. flash chews tiles in the scratchpad and writes only the skinny answer column.</p>
+        <div class="controls">
+          <span class="ctl" style="flex:0; min-width:auto; font-size:12.5px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:var(--ink-faint); align-self:center;">tile size</span>
+          <div class="seg" id="seg-flash" role="group" aria-label="tile size">
+            <button data-tile="2" aria-pressed="false">2×2</button>
+            <button data-tile="3" aria-pressed="true">3×3</button>
+            <button data-tile="4" aria-pressed="false">4×4</button>
+            <button data-tile="6" aria-pressed="false">6×6</button>
+          </div>
+        </div>
+        <div class="readout"><span class="stat">memory written <b id="flash-mem">—</b></span><span class="stat">SRAM passes <b id="flash-passes">—</b></span></div>
+        <p class="widget-hint"><span class="hand">try it →</span> naive fills the whole square in slow memory; flash chews tiles in the scratchpad. bigger tiles = fewer passes, but the tile must still FIT in SRAM — that ceiling is the whole design constraint.</p>
       </div>
     </div>
 
@@ -238,8 +253,9 @@
         <div class="lane"><span class="lab">final text</span><span id="lane-final"></span></div>
         <div class="controls" style="margin-top:14px">
           <button class="btn primary" id="btn-spec-run">run the race</button>
+          <div class="ctl" style="max-width:340px"><label>draft length γ — tokens guessed per round <output id="o-gamma">4</output></label><input type="range" id="in-gamma" min="1" max="8" step="1" value="4"></div>
         </div>
-        <div class="readout"><span class="stat">big model alone <b>12 tok/s</b></span><span class="stat">with a drafter <b id="spec-speed">—</b></span></div>
+        <div class="readout"><span class="stat">big model alone <b>12 tok/s</b></span><span class="stat">accepted / verify <b id="spec-toks">—</b></span><span class="stat">with a drafter <b id="spec-speed">—</b></span></div>
         <p class="widget-hint"><span class="hand">watch →</span> gray = cheap draft guesses. green = accepted by the big model. crossed out = rejected — the editor overrides with the gold word and the intern sprints again.</p>
       </div>
     </div>
@@ -271,9 +287,12 @@
           <button class="btn small rag-qbtn" data-q="2">how do models fit on one GPU?</button>
         </div>
         <canvas class="viz" id="cv-rag" width="880" height="280"></canvas>
+        <div class="controls">
+          <div class="ctl" style="max-width:320px"><label>chunks retrieved (top-k) <output id="o-rag-k">3</output></label><input type="range" id="rag-k" min="2" max="6" step="1" value="3"></div>
+        </div>
         <div class="rag-prompt" id="rag-prompt"><span class="rag-slot">system: answer from the sources</span></div>
         <div class="rag-ans" id="rag-ans"></div>
-        <p class="widget-hint"><span class="hand">try it →</span> ask a question: it lands in the embedding space, the nearest chunks light up, get stapled into the prompt, and the answer cites them.</p>
+        <p class="widget-hint"><span class="hand">try it →</span> ask a question: it lands in the embedding space and the <b>k nearest</b> chunks light up, get stapled into the prompt, and the answer cites them. slide <b>top-k</b> up and watch weaker, off-topic chunks creep into the context — retrieve too much and you bury the signal in noise.</p>
       </div>
     </div>
 

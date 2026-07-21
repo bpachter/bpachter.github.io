@@ -441,15 +441,28 @@
 (function () {
   const grid = $('#shame-grid'); if (!grid) return;
   const INNOCENT = 1;
-  let found = 0;
+  let found = 0, misfired = false;
+  function verdict(): void {
+    if (found < 5) return;
+    $('#shame-done').textContent = misfired
+      ? 'all five found — but you also condemned the CRM, a healthy source of record. that tear-out is the costliest mistake here.'
+      : 'all five, CRM untouched — flawless. kill the copies, never the source. →';
+  }
   $$('.shame-card', grid).forEach(card => card.addEventListener('click', () => {
     if (card.classList.contains('revealed')) return;
     const k = +((card as HTMLElement).dataset.k!);
-    card.classList.add('revealed', k === INNOCENT ? 'fine' : 'rot');
-    if (k !== INNOCENT) {
+    const innocent = k === INNOCENT;
+    card.classList.add('revealed', innocent ? 'fine' : 'rot');
+    if (innocent) {
+      card.classList.add('misfire');                 /* false accusation — a visible penalty */
+      misfired = true;
+      $('#shame-strikes').textContent = '1 — you tore out a healthy system';
+      ($('#shame-strikes') as HTMLElement).classList.add('warn');
+      verdict();
+    } else {
       found++;
       $('#shame-found').textContent = found + ' / 5';
-      if (found === 5) $('#shame-done').textContent = 'all found — and the CRM survives. kill the copies, never the source. →';
+      verdict();
     }
   }));
 })();

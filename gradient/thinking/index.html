@@ -122,16 +122,18 @@
           <div class="tally">accuracy <b id="cot-acc-a">—</b></div>
         </div>
         <div class="pane">
-          <h5>think it through</h5>
+          <h5>think it through <small style="font-weight:400;color:var(--ink-faint)">· <span id="cot-steps-lbl">3</span> steps</small></h5>
           <div class="scratch" id="cot-scratch"></div>
           <div class="ticks" id="cot-ticks-b"></div>
           <div class="tally">accuracy <b id="cot-acc-b">—</b></div>
         </div>
       </div>
       <div class="controls">
+        <div class="ctl" style="max-width:340px"><label>reasoning steps the model writes <output id="o-cot-steps">3</output></label><input type="range" id="in-cot-steps" min="0" max="6" step="1" value="3"></div>
         <button class="btn primary" id="btn-cot-run">run 20 trials each</button>
       </div>
-      <p class="widget-hint"><span class="hand">notice →</span> the scratchpad's lines aren't for you — each written step becomes context that pins down the next. <b>reasoning is generation, aimed at itself.</b></p>
+      <div class="readout"><span class="stat">blurt · 0 steps <b>≈ 30%</b></span><span class="stat">scratchpad · expected <b id="cot-expect">—</b></span></div>
+      <p class="widget-hint"><span class="hand">try it →</span> drag <b>reasoning steps</b> from 0 to 6 and re-run. at 0 the scratchpad vanishes and it just blurts — same 30% as the left lane. each real step it writes becomes context that pins down the next, and the accuracy climbs and saturates. <b>reasoning is generation, aimed at itself.</b></p>
     </div>
   </div>
 </section>
