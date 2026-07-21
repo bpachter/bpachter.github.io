@@ -104,9 +104,54 @@
     }
     anim = requestAnimationFrame(frame);
   }
-  $('#btn-emb-analogy').addEventListener('click', () => runAnalogy('king', 'man', 'woman', 'queen'));
-  $('#btn-emb-analogy2').addEventListener('click', () => runAnalogy('puppy', 'dog', 'cat', 'kitten'));
-  $('#btn-emb-clear').addEventListener('click', () => { if (anim !== null) cancelAnimationFrame(anim); base(); });
+  const RESET_MSG = '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">↑ or click any word to see its nearest neighbours</span>';
+  /* genuine k-nearest-neighbour by Euclidean distance in the (cartoon 2-D) space */
+  function nearest(word: string, k: number): Array<[string, number]> {
+    const [wx, wy] = words[word];
+    return (Object.entries(words) as Array<[string, Pt]>)
+      .filter(([w]) => w !== word)
+      .map(([w, [x, y]]) => [w, Math.hypot(x - wx, y - wy)] as [string, number])
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, k);
+  }
+  function drawNN(word: string): void {
+    if (anim !== null) { cancelAnimationFrame(anim); anim = null; }
+    base();
+    const [wx, wy] = words[word];
+    const near = nearest(word, 3);
+    near.forEach(([w, ], rank) => {
+      const [x, y] = words[w];
+      ctx.strokeStyle = rank === 0 ? LEAF_D : 'rgba(85,121,60,0.5)';
+      ctx.lineWidth = rank === 0 ? 2.6 : 1.6;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(X(wx), Y(wy)); ctx.lineTo(X(x), Y(y)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = LEAF; ctx.strokeStyle = INK; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(X(x), Y(y), 6, 0, 7); ctx.fill(); ctx.stroke();
+    });
+    ctx.strokeStyle = GOLD; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(X(wx), Y(wy), 11, 0, 7); ctx.stroke();
+    ctx.fillStyle = INK; ctx.font = '700 13px Karla, sans-serif';
+    ctx.fillText(word, X(wx) + 12, Y(wy) - 9);
+    $('#emb-read').innerHTML = '<span class="stat">nearest to <b>' + word + '</b> —</span>' +
+      near.map(([w, d], r) => '<span class="stat">' + (r + 1) + '. ' + w + ' <b>' + d.toFixed(2) + '</b></span>').join('');
+  }
+  cv.addEventListener('click', e => {
+    const rect = cv.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width);
+    const my = (e.clientY - rect.top) * (H / rect.height);
+    let best = '', bd = 34;
+    for (const [w, [x, y]] of Object.entries(words)) {
+      const d = Math.hypot(X(x) - mx, Y(y) - my);
+      if (d < bd) { bd = d; best = w; }
+    }
+    if (best) drawNN(best);
+  });
+  (cv as HTMLElement).style.cursor = 'pointer';
+
+  $('#btn-emb-analogy').addEventListener('click', () => { $('#emb-read').innerHTML = RESET_MSG; runAnalogy('king', 'man', 'woman', 'queen'); });
+  $('#btn-emb-analogy2').addEventListener('click', () => { $('#emb-read').innerHTML = RESET_MSG; runAnalogy('puppy', 'dog', 'cat', 'kitten'); });
+  $('#btn-emb-clear').addEventListener('click', () => { if (anim !== null) cancelAnimationFrame(anim); base(); $('#emb-read').innerHTML = RESET_MSG; });
   base();
 
   const touch = userTouch($('#w-emb'));

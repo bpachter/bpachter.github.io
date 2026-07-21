@@ -161,6 +161,27 @@ function orbit(cv, cam) {
     const S4 = { x: 592, y: 92, w: 264, h: 124 }; /* odds */
     const ANS = { x: 24, y: 292 };
     const CYCLE = 1550, HOLD = 1900;
+    /* the model doesn't take the top guess — it SAMPLES. temperature reshapes the odds,
+       but reshaping alone is order-preserving (argmax never moves), so we actually draw. */
+    const rngP = mulberry32(0x5eed);
+    const TEMP = () => { const el = $('#in-pipe-temp'); return el ? +el.value : 0.2; };
+    let picks = STEPS.map(() => 0);
+    function scaledProbs(cands, T) {
+        const s = cands.map(([, p]) => Math.pow(p, 1 / Math.max(0.05, T)));
+        const z = s.reduce((a, b) => a + b, 0) || 1;
+        return s.map(v => v / z);
+    }
+    function sampleStep(cands, T) {
+        const sp = scaledProbs(cands, T);
+        let r = rngP();
+        for (let i = 0; i < sp.length; i++) {
+            r -= sp[i];
+            if (r <= 0)
+                return i;
+        }
+        return sp.length - 1;
+    }
+    function resample() { picks = STEPS.map(s => sampleStep(s.cands, TEMP())); }
     function box(s, active, cap) {
         ctx.fillStyle = active > 0.05 ? `rgba(138,174,104,${0.10 + active * 0.12})` : 'rgba(45,42,36,0.025)';
         ctx.strokeStyle = INK;
@@ -241,11 +262,14 @@ function orbit(cv, cam) {
         ctx.font = '12px Karla, sans-serif';
         ctx.fillStyle = FAINT;
         ctx.fillText('× 24 more', S3.x + 22, S3.y + 126);
-        /* stage 4: candidate bars */
-        const st = STEPS[Math.min(stepIdx, STEPS.length - 1)];
-        st.cands.forEach(([w, p], i) => {
+        /* stage 4: candidate bars — reshaped by temperature, the sampled one in gold */
+        const sIdx = Math.min(stepIdx, STEPS.length - 1);
+        const st = STEPS[sIdx];
+        const sp = scaledProbs(st.cands, TEMP());
+        const pick = picks[sIdx];
+        st.cands.forEach(([w,], i) => {
             const by = S4.y + 18 + i * 34, grow = done ? 1 : Math.max(0, Math.min(1, (tt - 0.72) / 0.18));
-            const winner = i === 0 && (done || tt > 0.9);
+            const winner = i === pick && (done || tt > 0.9);
             ctx.font = '13px Karla, sans-serif';
             ctx.fillStyle = INK;
             ctx.textAlign = 'right';
@@ -255,10 +279,10 @@ function orbit(cv, cam) {
             ctx.lineWidth = 1.6;
             ctx.strokeRect(S4.x + 96, by, 130, 18);
             ctx.fillStyle = winner ? GOLD : LEAF;
-            ctx.fillRect(S4.x + 97.5, by + 1.5, 127 * p * grow, 15);
+            ctx.fillRect(S4.x + 97.5, by + 1.5, 127 * sp[i] * grow, 15);
             ctx.fillStyle = FAINT;
             ctx.font = '12px Karla, sans-serif';
-            ctx.fillText(Math.round(p * 100) + '%', S4.x + 232, by + 13);
+            ctx.fillText(Math.round(sp[i] * 100) + '%', S4.x + 232, by + 13);
         });
         /* arrows between stages */
         const flow = [[S1.x + S1.w, S2.x], [S2.x + S2.w, S3.x], [S3.x + S3.w, S4.x]];
@@ -283,25 +307,39 @@ function orbit(cv, cam) {
         ctx.font = '13px Caveat, cursive';
         ctx.fillStyle = FAINT;
         ctx.fillText('…and the new word goes back in', 30, ANS.y - 34);
-        /* the answer line */
+        /* the answer line — follows the sampled path, not always the top guess */
         const nDone = done ? STEPS.length : stepIdx + (tt > 0.97 ? 1 : 0);
-        const answer = STEPS.slice(0, nDone).map(s => s.cands[0][0]);
+        const answer = STEPS.slice(0, nDone).map((s, i) => s.cands[picks[i]][0]);
         ctx.font = '18px Fraunces, serif';
         ctx.fillStyle = INK;
         let out = 'claude:  ';
         answer.forEach(w => { out += (w === '.' || w === '!' ? w : ' ' + w); });
         ctx.fillText(out + (done ? '' : ' ▎'), ANS.x, ANS.y + 6);
     }
+    const tempSlider = $('#in-pipe-temp');
+    if (tempSlider)
+        tempSlider.addEventListener('input', () => {
+            $('#o-pipe-temp').textContent = (+tempSlider.value).toFixed(2);
+            resample();
+            if (reduced)
+                draw(STEPS.length - 1, 1, true);
+        });
     if (reduced) {
         draw(STEPS.length - 1, 1, true);
         return;
-    }
-    let t0 = null, onScreen = false;
+    } /* static: the clean, canonical (greedy) answer */
+    let t0 = null, onScreen = false, curPass = -1;
     function loop(ts) {
         if (t0 === null)
             t0 = ts;
         const total = STEPS.length * CYCLE + HOLD;
-        const t = (ts - t0) % total;
+        const elapsed = ts - t0;
+        const passN = Math.floor(elapsed / total);
+        if (passN !== curPass) {
+            curPass = passN;
+            resample();
+        } /* fresh sample each full pass */
+        const t = elapsed % total;
         const idx = Math.floor(t / CYCLE);
         if (idx >= STEPS.length)
             draw(STEPS.length - 1, 1, true);

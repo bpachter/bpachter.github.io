@@ -139,9 +139,13 @@
     <div class="widget alt" id="w-tools">
       <span class="widget-label">the model writes order slips</span>
       <div class="rag-btns">
-        <button class="btn small toolq-btn" data-q="0">what's the weather in Raleigh?</button>
-        <button class="btn small toolq-btn" data-q="1">what's our refund policy?</button>
-        <button class="btn small toolq-btn" data-q="2">how many signups in June?</button>
+        <button class="btn small toolq-btn">what's the weather in Raleigh?</button>
+        <button class="btn small toolq-btn">what's our refund policy?</button>
+        <button class="btn small toolq-btn">how many signups in June?</button>
+      </div>
+      <div class="controls" style="margin-top:2px">
+        <input type="text" id="tool-input" autocomplete="off" placeholder="…or type any question — 'is it raining in Tokyo?'" style="flex:1;min-width:180px;padding:9px 12px;border:2px solid var(--ink);border-radius:9px;font:inherit;font-size:14px;background:#fff;color:var(--ink)" />
+        <button class="btn primary" id="btn-tool-route">route it →</button>
       </div>
       <div class="tool-grid">
         <div class="tool-card" data-tool="get_weather"><h5>get_weather</h5><div class="sig">(city: string)</div>live conditions for a city</div>
@@ -154,7 +158,7 @@
         <span class="mcp-srv">Slack</span><span class="mcp-srv">GitHub</span><span class="mcp-srv">Postgres</span><span class="mcp-srv">Files</span>
         <span class="mcp-port">⟵ one plug shape — that's MCP. any box of tools, any model.</span>
       </div>
-      <p class="widget-hint"><span class="hand">notice →</span> the model never runs anything. it writes a wish; the <b>harness</b> executes it and pastes back the result — which is chapter 14's whole subject.</p>
+      <p class="widget-hint"><span class="hand">try it →</span> type any question. a keyword <b>router</b> reads your words and picks the tool — ask about rain and it reaches for <code>get_weather</code>, ask for a count and it writes SQL, ask a riddle and it <em>declines</em> and answers from memory. the model never runs anything itself: it writes a wish; the <b>harness</b> executes it and pastes back the result — chapter 14's whole subject.</p>
     </div>
   </div>
 </section>

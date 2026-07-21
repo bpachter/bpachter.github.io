@@ -72,12 +72,54 @@ const sleepA = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
 (function () {
   const callEl = $('#tool-call'); if (!callEl) return;
   const tlog = $('#tool-log');
-  interface Q { tool: string; args: Record<string, string>; result: string; answer: string; }
-  const QS: Q[] = [
-    { tool: 'get_weather', args: { city: 'Raleigh' }, result: '{ "temp": "72°F", "sky": "clear" }', answer: 'It\'s 72°F and clear in Raleigh right now.' },
-    { tool: 'search_docs', args: { query: 'refund policy' }, result: '[ §4.2 — "Refunds within 30 days of purchase" ]', answer: 'Handbook §4.2: refunds are honored within 30 days.' },
-    { tool: 'run_sql', args: { query: 'SELECT count(*) FROM signups WHERE month = \'June\'' }, result: '[ { "count": 1284 } ]', answer: '1,284 signups in June.' }
-  ];
+  const inp = $<HTMLInputElement>('#tool-input');
+  const hashS = (s: string): number => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); };
+  const cap = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+  const CITIES = ['raleigh', 'denver', 'tokyo', 'paris', 'austin', 'boston', 'seattle', 'miami', 'london', 'berlin', 'chicago'];
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  interface Built { args: Record<string, string>; result: string; answer: string; }
+  interface Tool { kw: string[]; build: (t: string) => Built; }
+  const TOOLS: Record<string, Tool> = {
+    get_weather: {
+      kw: ['weather', 'temperature', 'temp', 'hot', 'cold', 'rain', 'sunny', 'forecast', 'degrees', 'warm', 'cool', 'umbrella', 'snow'],
+      build(t) {
+        const city = CITIES.find(c => t.toLowerCase().includes(c)) || 'raleigh';
+        const h = hashS(t), temp = 54 + h % 32, sky = ['clear', 'cloudy', 'light rain', 'sunny', 'overcast'][h % 5];
+        return { args: { city: cap(city) }, result: `{ "temp": "${temp}°F", "sky": "${sky}" }`, answer: `It's ${temp}°F and ${sky} in ${cap(city)} right now.` };
+      }
+    },
+    search_docs: {
+      kw: ['refund', 'policy', 'return', 'warranty', 'handbook', 'docs', 'document', 'terms', 'cancel', 'shipping', 'privacy', 'rules', 'guarantee'],
+      build(t) {
+        const q = t.trim().replace(/[?.!]+$/, '').slice(0, 44) || 'refund policy';
+        return { args: { query: q }, result: '[ §4.2 — "honored within 30 days of purchase" ]', answer: `Handbook §4.2 is the closest match to "${q}" — the window is 30 days.` };
+      }
+    },
+    run_sql: {
+      kw: ['how many', 'count', 'number of', 'signup', 'user', 'average', 'total', 'row', 'sale', 'revenue', 'order', 'customer'],
+      build(t) {
+        const month = MONTHS.find(m => t.toLowerCase().includes(m)) || 'june';
+        const n = 700 + hashS(t) % 1400;
+        return { args: { query: `SELECT count(*) FROM signups WHERE month = '${cap(month)}'` }, result: `[ { "count": ${n} } ]`, answer: `${n.toLocaleString()} signups in ${cap(month)}.` };
+      }
+    }
+  };
+  function classify(text: string): string {
+    /* match on whole-word prefixes (raining→rain, refunds→refund) not raw substrings,
+       so 'temp' no longer hides in 'attempts' nor 'sum' in 'summarize' */
+    const low = text.toLowerCase();
+    const tokens = low.split(/[^a-z]+/).filter(Boolean);
+    let best = '', score = 0;
+    for (const [name, tool] of Object.entries(TOOLS)) {
+      let s = 0;
+      for (const k of tool.kw) {
+        if (k.includes(' ')) { if (low.includes(k)) s++; }               /* phrase keyword */
+        else if (tokens.some(w => w.startsWith(k))) s++;                 /* whole-word (stemmed) */
+      }
+      if (s > score) { score = s; best = name; }
+    }
+    return score > 0 ? best : '';
+  }
   let busy = false;
   async function typeInto(el: Element, txt: string, cps = 3): Promise<void> {
     el.textContent = '';
@@ -87,29 +129,43 @@ const sleepA = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
     }
     el.textContent = txt;
   }
-  async function ask(qi: number): Promise<void> {
-    if (busy) return;
+  async function route(text: string): Promise<void> {
+    if (busy || !text.trim()) return;
     busy = true;
-    const q = QS[qi];
     tlog.innerHTML = '';
     $$('.tool-card').forEach(c => c.classList.remove('on'));
-    await sleepA(350);
-    $(`.tool-card[data-tool="${q.tool}"]`).classList.add('on');
-    const json = JSON.stringify({ name: q.tool, arguments: q.args }, null, 1).replace(/\n\s*/g, ' ');
+    const name = classify(text);
+    await sleepA(320);
+    if (!name) {                                       /* the router is allowed to decline */
+      callEl.textContent = '(no tool fits — the model answers from memory)';
+      const a = document.createElement('div'); a.className = 'log-line';
+      a.textContent = '💬 no tool call — I\'ll take that one from memory.';
+      tlog.appendChild(a);
+      busy = false; return;
+    }
+    $(`.tool-card[data-tool="${name}"]`).classList.add('on');
+    const built = TOOLS[name].build(text);
+    const json = JSON.stringify({ name, arguments: built.args }, null, 1).replace(/\n\s*/g, ' ');
     await typeInto(callEl, json);
     await sleepA(420);
     const r = document.createElement('div'); r.className = 'log-line';
-    r.textContent = '⇢ harness runs it · result: ' + q.result;
+    r.textContent = '⇢ router chose ' + name + ' · harness runs it · result: ' + built.result;
     tlog.appendChild(r);
     await sleepA(650);
     const a = document.createElement('div'); a.className = 'log-line good';
-    a.textContent = '💬 ' + q.answer;
+    a.textContent = '💬 ' + built.answer;
     tlog.appendChild(a);
     busy = false;
   }
-  $$('.toolq-btn').forEach(b => b.addEventListener('click', () => { void ask(+((b as HTMLElement).dataset.q!)); }));
+  $$('.toolq-btn').forEach(b => b.addEventListener('click', () => {
+    const q = (b.textContent || '').trim();
+    if (inp) inp.value = q;
+    void route(q);
+  }));
+  if (inp) inp.addEventListener('keydown', e => { if ((e as KeyboardEvent).key === 'Enter') { e.preventDefault(); void route(inp.value); } });
+  $('#btn-tool-route').addEventListener('click', () => { if (inp) void route(inp.value); });
   const touch = userTouch($('#w-tools'));
-  autoOnView($('#w-tools'), () => { if (!touch.touched) void ask(0); }, 1000);
+  autoOnView($('#w-tools'), () => { if (!touch.touched) void route('what\'s the weather in Raleigh?'); }, 1000);
 })();
 
 /* ══════════════ 13 · THE CONTEXT ENGINEER ══════════════ */

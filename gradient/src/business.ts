@@ -381,7 +381,34 @@ const sleepB = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
   const cv = $<HTMLCanvasElement>('#cv-dept'); if (!cv) return;
   const [ctx, W, H] = fit(cv);
   const CY = 165, GX = 470;
-  let t = 0, onScreen = false;
+  let t = 0, onScreen = false, hover = -1;
+  interface Region { x: number; y: number; w: number; h: number; title: string; body: string; }
+  const REGIONS: Region[] = [
+    { x: 40, y: 70, w: 92, h: 40, title: 'filings', body: 'SEC filings, 10-Ks, press releases — raw text, no schema. Extractor agents read these into typed edges.' },
+    { x: 40, y: 132, w: 92, h: 40, title: 'contracts', body: 'Supplier & customer contracts — who supplies whom. The literal source of the graph\'s edges (ch 23).' },
+    { x: 40, y: 194, w: 92, h: 40, title: 'news', body: 'News & live alerts — a flood memo lands here and the flywheel reacts by morning.' },
+    { x: 208, y: 128, w: 114, h: 70, title: 'one pipeline', body: 'One governed pipeline: every source flows through with lineage + freshness alarms — never the ad-hoc dumps of ch 26.' },
+    { x: 398, y: 96, w: 144, h: 138, title: 'the graph', body: 'Typed nodes, receipted edges, bitemporal history (chs 23-25) — the single source of truth every answer traces back to.' },
+    { x: 742, y: 70, w: 100, h: 40, title: 'screener', body: 'A standing query over the graph: which suppliers just got risky? It runs itself.' },
+    { x: 742, y: 132, w: 100, h: 40, title: 'weekly brief', body: 'The frontier model\'s one expensive job (ch 29): turn the graph\'s week into prose a human reads.' },
+    { x: 742, y: 194, w: 100, h: 40, title: 'alerts', body: 'The gate (ch 14) fires these when a blast radius crosses a threshold — receipts attached.' },
+    { x: GX - 185, y: 22, w: 370, h: 22, title: 'the agents', body: 'Behind the gate, all night: extract new edges, a skeptic verifies, curators merge — the flywheel of ch 27.' }
+  ];
+  function showDetail(i: number): void {
+    const el = $('#dept-detail');
+    el.innerHTML = i < 0
+      ? '<span class="stat hand" style="font-size:16px;color:var(--ink-faint)">hover (or tap) any box to inspect its job</span>'
+      : '<span class="stat"><b>' + REGIONS[i].title + '</b> — ' + REGIONS[i].body + '</span>';
+  }
+  function hitTest(e: MouseEvent): number {
+    const rect = cv.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width), my = (e.clientY - rect.top) * (H / rect.height);
+    for (let i = 0; i < REGIONS.length; i++) {
+      const R = REGIONS[i];
+      if (mx >= R.x && mx <= R.x + R.w && my >= R.y && my <= R.y + R.h) return i;
+    }
+    return -1;
+  }
   interface Dot { seg: 0 | 1; p: number; off: number; }
   const dots: Dot[] = [];
   for (let i = 0; i < 7; i++) dots.push({ seg: (i % 2) as 0 | 1, p: (i * 0.16) % 1, off: (i % 3 - 1) * 14 });
@@ -448,9 +475,22 @@ const sleepB = (ms: number) => new Promise<void>(res => window.setTimeout(res, r
       ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
       ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill(); ctx.stroke();
     });
+    /* inspect highlight */
+    if (hover >= 0) {
+      const R = REGIONS[hover];
+      ctx.strokeStyle = GOLD; ctx.lineWidth = 2.5; ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.roundRect(R.x - 5, R.y - 5, R.w + 10, R.h + 10, 8); ctx.stroke();
+      ctx.setLineDash([]);
+    }
     t++;
   }
   function loop(): void { draw(); if (onScreen) requestAnimationFrame(loop); }
   visible(cv, v => { const was = onScreen; onScreen = v; if (v && !was && !reduced) requestAnimationFrame(loop); });
+  cv.addEventListener('mousemove', e => {
+    const h = hitTest(e);
+    if (h !== hover) { hover = h; showDetail(h); (cv as HTMLElement).style.cursor = h >= 0 ? 'pointer' : 'default'; if (reduced || !onScreen) draw(); }
+  });
+  cv.addEventListener('mouseleave', () => { if (hover !== -1) { hover = -1; showDetail(-1); if (reduced || !onScreen) draw(); } });
+  cv.addEventListener('click', e => { const h = hitTest(e); hover = h; showDetail(h); if (reduced || !onScreen) draw(); });
   draw();
 })();

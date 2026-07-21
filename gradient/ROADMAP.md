@@ -261,5 +261,26 @@ each into a real model:
   dumps every errand on the $$$ tier for ~11× the cost.
 
 Verified end-to-end with Playwright (each new control exercised, no JS
-exceptions, no 390px overflow). **Tier 2** (emb NN, pipe temperature-sampling,
-tool text-router, dept hover-inspect, all-scenario chips) remains optional.
+exceptions, no 390px overflow).
+
+## Interactivity audit — Tier 2 (shipped 2026-07-21)
+
+The five deeper reworks — each turning a passive animation into a probe:
+
+- **Embeddings (05):** click any word and its genuine k-nearest neighbours light
+  up, ranked by Euclidean distance — "who sits nearby" made literal.
+- **The autocomplete hero (landing):** a temperature dial that *actually samples*
+  the next token (reshaping alone is order-preserving, so we sample and draw the
+  reshaped odds); low τ is the confident answer, high τ wanders.
+- **Tools & MCP (12):** a free-text keyword **router** — ask about rain → it calls
+  `get_weather`, ask for a count → it writes SQL, ask a riddle → it declines and
+  answers from memory. Args are extracted from your words.
+- **The modern data department (31):** hover/tap any box to inspect its job and
+  the chapter it comes from — nine regions, hit-tested in the fixed 880-space.
+- **The whole machine (epilogue 32):** three **scenario chips** run different
+  questions (supply shock / sole-supplier / tariff) through the same eight
+  stations — one machine, different stories in and out.
+
+Verified with Playwright (router routes + declines, NN readout, hover regions,
+scenario switch, temperature control, no exceptions, no 390px overflow) and an
+adversarial multi-agent review of the diff.

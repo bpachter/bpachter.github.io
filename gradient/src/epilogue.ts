@@ -8,24 +8,69 @@
   const CX = W / 2, CY = 228, RX = 338, RY = 158;
 
   interface Chip { t: string; href: string; }
-  interface Stage { label: string; now: string; expl: string; chips: Chip[]; }
-  const STAGES: Stage[] = [
-    { label: 'tokens', now: '8:04 am — the question becomes tokens', expl: 'the words are chopped into chunks and mapped to coordinates. meaning as geometry.', chips: [{ t: '05 · words become numbers', href: '../language/#ch5' }] },
-    { label: 'the tower', now: 'up the tower', expl: 'every token watches every other; dozens of layers refine what each word means here.', chips: [{ t: '06 · attention', href: '../language/#ch6' }, { t: '07 · the tower in 3-D', href: '../language/#ch7' }, { t: '10 · the engine room', href: '../frontier/#ch10' }] },
-    { label: 'thinking', now: 'it pauses to think', expl: 'scratchpad first: reason, check, then speak — thinking tokens spent on purpose.', chips: [{ t: '17 · thinking out loud', href: '../thinking/#ch17' }, { t: '19 · the thinking budget', href: '../thinking/#ch19' }] },
-    { label: 'the agent', now: 'the agent reaches for a tool', expl: 'this needs live data, not vibes. it writes an order slip for the graph.', chips: [{ t: '11 · the loop', href: '../agents/#ch11' }, { t: '12 · tools & MCP', href: '../agents/#ch12' }] },
-    { label: 'the graph', now: 'GraphRAG walks the graph', expl: 'Fab-9 → Chipco → two customers: the blast radius, receipts on every edge.', chips: [{ t: '22 · the walk', href: '../graph/#ch22' }, { t: '25 · receipts', href: '../graph/#ch25' }, { t: '28 · GraphRAG', href: '../business/#ch28' }] },
-    { label: 'the gate', now: 'the gate checks the act', expl: 'notify two account owners? small blast radius, within bounds — applied and logged.', chips: [{ t: '14 · guardrails', href: '../agents/#ch14' }, { t: '30 · humans in the org chart', href: '../business/#ch30' }] },
-    { label: 'the fleet', now: 'the fleet kept it cheap', expl: 'local models did the reading, a verifier doubted it, the frontier wrote the brief.', chips: [{ t: '10g · quantization', href: '../frontier/#quant' }, { t: '29 · the model fleet', href: '../business/#ch29' }] },
-    { label: 'the answer', now: 'the answer streams out', expl: 'token by token, citations attached — one skill, wearing the whole machine.', chips: [{ t: '08 · the autocomplete machine', href: '../language/#ch8' }, { t: '25 · receipts', href: '../graph/#ch25' }] },
-    { label: 'the flywheel', now: 'and that night, the flywheel turns', expl: 'extract → verify → gate, unattended: the graph is richer by morning, so tomorrow\'s answer is better.', chips: [{ t: '27 · the flywheel', href: '../business/#ch27' }, { t: '13 · the context engineer', href: '../agents/#ch13' }] }
+  interface StageDef { label: string; chips: Chip[]; }
+  /* the eight stations are fixed machinery; only the story flowing through them changes */
+  const STAGES: StageDef[] = [
+    { label: 'tokens', chips: [{ t: '05 · words become numbers', href: '../language/#ch5' }] },
+    { label: 'the tower', chips: [{ t: '06 · attention', href: '../language/#ch6' }, { t: '07 · the tower in 3-D', href: '../language/#ch7' }, { t: '10 · the engine room', href: '../frontier/#ch10' }] },
+    { label: 'thinking', chips: [{ t: '17 · thinking out loud', href: '../thinking/#ch17' }, { t: '19 · the thinking budget', href: '../thinking/#ch19' }] },
+    { label: 'the agent', chips: [{ t: '11 · the loop', href: '../agents/#ch11' }, { t: '12 · tools & MCP', href: '../agents/#ch12' }] },
+    { label: 'the graph', chips: [{ t: '22 · the walk', href: '../graph/#ch22' }, { t: '25 · receipts', href: '../graph/#ch25' }, { t: '28 · GraphRAG', href: '../business/#ch28' }] },
+    { label: 'the gate', chips: [{ t: '14 · guardrails', href: '../agents/#ch14' }, { t: '30 · humans in the org chart', href: '../business/#ch30' }] },
+    { label: 'the fleet', chips: [{ t: '10g · quantization', href: '../frontier/#quant' }, { t: '29 · the model fleet', href: '../business/#ch29' }] },
+    { label: 'the answer', chips: [{ t: '08 · the autocomplete machine', href: '../language/#ch8' }, { t: '25 · receipts', href: '../graph/#ch25' }] },
+    { label: 'the flywheel', chips: [{ t: '27 · the flywheel', href: '../business/#ch27' }, { t: '13 · the context engineer', href: '../agents/#ch13' }] }
   ];
+  interface Step { now: string; expl: string; }
+  interface Scenario { q: string; when: string; answer: string; steps: Step[]; }
+  const SCEN: Scenario[] = [
+    { q: '"Fab-9 flooded — who\'s exposed?"', when: 'monday, 8:04 am',
+      answer: 'exposed: Acme Rockets + OrbitalWorks, via Chipco [1][2] — owners notified.',
+      steps: [
+        { now: '8:04 am — the question becomes tokens', expl: 'the words are chopped into chunks and mapped to coordinates. meaning as geometry.' },
+        { now: 'up the tower', expl: 'every token watches every other; dozens of layers refine what each word means here.' },
+        { now: 'it pauses to think', expl: 'scratchpad first: reason, check, then speak — thinking tokens spent on purpose.' },
+        { now: 'the agent reaches for a tool', expl: 'this needs live data, not vibes. it writes an order slip for the graph.' },
+        { now: 'GraphRAG walks the graph', expl: 'Fab-9 → Chipco → two customers: the blast radius, receipts on every edge.' },
+        { now: 'the gate checks the act', expl: 'notify two account owners? small blast radius, within bounds — applied and logged.' },
+        { now: 'the fleet kept it cheap', expl: 'local models did the reading, a verifier doubted it, the frontier wrote the brief.' },
+        { now: 'the answer streams out', expl: 'token by token, citations attached — one skill, wearing the whole machine.' },
+        { now: 'and that night, the flywheel turns', expl: 'extract → verify → gate, unattended: the graph is richer by morning, so tomorrow\'s answer is better.' }
+      ] },
+    { q: '"Which customers ride on a single supplier?"', when: 'tuesday, 9:12 am',
+      answer: 'fragile: Acme Rockets is sole-sourced on Chipco [1] — second-source suggested.',
+      steps: [
+        { now: '9:12 am — the risk question becomes tokens', expl: 'same machine, different words — chopped and placed in the very same meaning-space.' },
+        { now: 'up the tower', expl: 'attention ties "single" to "supplier" to "customers" — the real shape of the ask.' },
+        { now: 'it plans the search', expl: 'a counting question over structure — it decides to walk the graph, not guess.' },
+        { now: 'the agent writes a graph query', expl: 'find customers whose distinct-supplier count is 1. an order slip, not a hunch.' },
+        { now: 'it walks every supply path', expl: 'per customer, count distinct suppliers; Acme resolves to only Chipco — a single point of failure.' },
+        { now: 'the gate reviews the finding', expl: 'read-only, zero blast radius — surfaced straight to the analyst and logged.' },
+        { now: 'cheap tiers did the counting', expl: 'local models traversed the edges; the frontier only phrased the warning.' },
+        { now: 'the answer streams out', expl: 'one fragile customer, the supplier named, a fix proposed — with receipts.' },
+        { now: 'and overnight it re-checks', expl: 'new contracts change the counts; tomorrow\'s fragile-list is current without anyone asking.' }
+      ] },
+    { q: '"A tariff hits Taiwan chips — what\'s our exposure?"', when: 'thursday, 7:48 am',
+      answer: 'exposure ≈ $2.4M across 3 products, via Chipco [1][2] — sourcing review opened.',
+      steps: [
+        { now: '7:48 am — the news becomes tokens', expl: 'a headline, chopped and mapped like any other prompt.' },
+        { now: 'up the tower', expl: 'it links "tariff", "Taiwan", "chips" — and knows which of your nodes those touch.' },
+        { now: 'it reasons about propagation', expl: 'a cost shock flows downstream; it plans a multi-hop walk before answering.' },
+        { now: 'the agent reaches for the graph', expl: 'trace Taiwan-fab → chips → your products → revenue at risk. live data, not vibes.' },
+        { now: 'it propagates the shock', expl: 'fab in Taiwan → Chipco → three of your products; multiply by volume for the dollar figure.' },
+        { now: 'the gate weighs the act', expl: 'opening a sourcing review touches budgets — a bigger blast radius, so it asks a human first.' },
+        { now: 'the fleet split the work', expl: 'local models did the arithmetic across edges; the frontier wrote the exec summary.' },
+        { now: 'the answer streams out', expl: 'a dollar figure, the products, the path — every number traceable to a source.' },
+        { now: 'and it keeps watching', expl: 'if the tariff sticks, tonight\'s run updates the exposure as new orders land.' }
+      ] }
+  ];
+  let cur = 0;
+  const scn = (): Scenario => SCEN[cur];
   const N = STAGES.length;
   const ang = (i: number) => -Math.PI / 2 + (i / N) * Math.PI * 2;
   const pos = (i: number): Pt => [CX + Math.cos(ang(i)) * RX, CY + Math.sin(ang(i)) * RY];
 
   let stage = 0, playing = true, pulse = 1, sinceAdvance = 0, answerLen = 0, onScreen = false;
-  const ANSWER = 'exposed: Acme Rockets + OrbitalWorks, via Chipco [1][2] — owners notified.';
 
   /* ── tiny icons, one per station ── */
   function icon(i: number, x: number, y: number, on: boolean, past: boolean): void {
@@ -117,11 +162,11 @@
     ctx.beginPath(); ctx.arc(CX + Math.cos(aa) * RX, CY + Math.sin(aa) * RY, 7, 0, 7); ctx.fill(); ctx.stroke();
     /* center: the question and, later, the answer */
     ctx.font = '16px Fraunces, serif'; ctx.fillStyle = INK; ctx.textAlign = 'center';
-    ctx.fillText('"Fab-9 flooded — who\'s exposed?"', CX, CY - 26);
+    ctx.fillText(scn().q, CX, CY - 26);
     ctx.font = '12px Karla, sans-serif'; ctx.fillStyle = FAINT;
-    ctx.fillText('monday, 8:04 am', CX, CY - 8);
+    ctx.fillText(scn().when, CX, CY - 8);
     if (stage >= 7) {
-      const txt = ANSWER.slice(0, answerLen | 0);
+      const txt = scn().answer.slice(0, answerLen | 0);
       ctx.font = '13.5px Karla, sans-serif'; ctx.fillStyle = LEAF_D;
       const mid = Math.ceil(txt.length / 2);
       ctx.fillText(txt.slice(0, mid), CX, CY + 22);
@@ -134,11 +179,10 @@
     ctx.textAlign = 'left';
   }
   function caption(): void {
-    const s = STAGES[stage];
-    $('#all-now').textContent = s.now;
-    $('#all-expl').textContent = s.expl;
+    $('#all-now').textContent = scn().steps[stage].now;
+    $('#all-expl').textContent = scn().steps[stage].expl;
     const chips = $('#all-chips'); chips.innerHTML = '';
-    s.chips.forEach(c => {
+    STAGES[stage].chips.forEach(c => {
       const a = document.createElement('a'); a.href = c.href; a.textContent = c.t;
       chips.appendChild(a);
     });
@@ -153,7 +197,7 @@
   function loop(ts: number): void {
     const dt = last ? Math.min(ts - last, 60) : 16; last = ts;
     pulse = Math.min(1, pulse + dt / 700);
-    if (stage >= 7 && answerLen < ANSWER.length) answerLen += dt / 26;
+    if (stage >= 7 && answerLen < scn().answer.length) answerLen += dt / 26;
     if (playing) {
       sinceAdvance += dt;
       if (sinceAdvance > (stage === N - 1 ? 4200 : 2900)) setStage(stage + 1);
@@ -168,7 +212,17 @@
   $('#btn-all-prev').addEventListener('click', () => setStage(stage - 1));
   $('#btn-all-next').addEventListener('click', () => setStage(stage + 1));
   $('#btn-all-restart').addEventListener('click', () => setStage(0));
+  function setScenario(i: number): void {
+    cur = ((i % SCEN.length) + SCEN.length) % SCEN.length;
+    $$('#all-scenarios button').forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(k === cur));
+      b.classList.toggle('primary', k === cur);
+    });
+    if (reduced) { stage = N - 1; pulse = 1; answerLen = scn().answer.length; caption(); draw(); }
+    else { playing = true; $('#btn-all-play').textContent = 'pause'; setStage(0); }
+  }
+  $$('#all-scenarios button').forEach((b, i) => b.addEventListener('click', () => setScenario(i)));
   visible(cv, v => { const was = onScreen; onScreen = v; if (v && !was && !reduced) { last = 0; requestAnimationFrame(loop); } });
-  if (reduced) { stage = N - 1; pulse = 1; answerLen = ANSWER.length; playing = false; $('#btn-all-play').textContent = 'play'; }
+  if (reduced) { stage = N - 1; pulse = 1; answerLen = scn().answer.length; playing = false; $('#btn-all-play').textContent = 'play'; }
   caption(); draw();
 })();

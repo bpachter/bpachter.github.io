@@ -110,7 +110,10 @@
     <div class="widget" id="w-pipe">
       <span class="widget-label">eight seconds inside a chatbot</span>
       <canvas class="viz" id="cv-pipe" width="880" height="330"></canvas>
-      <p class="widget-hint"><span class="hand">watch →</span> a chatbot has exactly one skill: <b>guess the next word, append it, repeat</b>. everything else on this site is what happens inside the tower.</p>
+      <div class="controls">
+        <div class="ctl" style="max-width:340px"><label>temperature τ — how boldly it samples <output id="o-pipe-temp">0.20</output></label><input type="range" id="in-pipe-temp" min="0" max="1.2" step="0.05" value="0.2"></div>
+      </div>
+      <p class="widget-hint"><span class="hand">watch →</span> a chatbot has exactly one skill: <b>guess the next word, append it, repeat</b>. it doesn't always take the top guess — it <em>samples</em>. leave <b>τ</b> low and the answer is the confident one; turn it up and the machine gets adventurous, sometimes wandering off the sensible path. everything else on this site is what happens inside the tower.</p>
     </div>
     <p class="pipe-caption">← this loop runs every time Claude answers you. really. that's the whole trick.</p>
   </div>
