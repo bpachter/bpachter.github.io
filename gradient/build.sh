@@ -17,3 +17,9 @@ tsc --target es2019 --lib es2019,dom --module none --strict \
     --noUnusedLocals --skipLibCheck \
     --outFile js/chat.js src/chat.ts
 echo "built js/chat.js"
+
+# sidebar drawer toggle (no core; loaded on every page)
+tsc --target es2019 --lib es2019,dom --module none --strict \
+    --noUnusedLocals --skipLibCheck \
+    --outFile js/nav.js src/nav.ts
+echo "built js/nav.js"

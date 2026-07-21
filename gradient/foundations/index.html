@@ -14,47 +14,48 @@
 </head>
 <body>
 
-<nav>
-  <div class="nav-in">
-    <a class="nav-brand" href="../">gradient<span>.</span></a>
-    <div class="nav-links">
-      <div class="nav-item">
-        <a href="./" class="active">foundations</a>
-        <div class="nav-drop">
-          <a href="#ch1"><span class="n">01</span>Hello, neuron</a>
-          <a href="#ch2"><span class="n">02</span>Learning is descending</a>
-          <a href="#ch3"><span class="n">03</span>The landscape, in 3-D</a>
-          <a href="#ch4"><span class="n">04</span>Going deep</a>
+<button class="nav-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<div class="nav-backdrop" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../">gradient<span>.</span></a>
+  <nav class="side-nav" aria-label="Chapters">
+    <div class="side-book">Book I · How machines learn</div>
+      <details class="nav-sec active" open>
+        <summary>Foundations<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../foundations/#ch1"><span class="n">01</span>Hello, neuron</a>
+          <a href="../foundations/#ch2"><span class="n">02</span>Learning is descending</a>
+          <a href="../foundations/#ch3"><span class="n">03</span>The landscape, in 3-D</a>
+          <a href="../foundations/#ch4"><span class="n">04</span>Going deep</a>
         </div>
-      </div>
-      <div class="nav-item">
-        <a href="../language/">language</a>
-        <div class="nav-drop">
+      </details>
+      <details class="nav-sec">
+        <summary>Language<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../language/#ch5"><span class="n">05</span>Words become numbers</a>
           <a href="../language/#ch6"><span class="n">06</span>Attention is all you need</a>
           <a href="../language/#ch7"><span class="n">07</span>Inside the tower, in 3-D</a>
           <a href="../language/#ch8"><span class="n">08</span>The autocomplete machine</a>
         </div>
-      </div>
-      <div class="nav-item">
-        <a href="../frontier/">engine room</a>
-        <div class="nav-drop">
+      </details>
+      <details class="nav-sec">
+        <summary>Engine room<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../frontier/#ch9"><span class="n">09</span>Sculpting the mind</a>
           <a href="../frontier/#ch10"><span class="n">10</span>The engine room</a>
-          <div class="drop-rule"></div>
-          <a class="sub" href="../frontier/#moe"><span class="n">10a</span>Mixture of Experts</a>
-          <a class="sub" href="../frontier/#kv"><span class="n">10b</span>The KV cache</a>
-          <a class="sub" href="../frontier/#rope"><span class="n">10c</span>RoPE</a>
-          <a class="sub" href="../frontier/#gqa"><span class="n">10d</span>GQA</a>
-          <a class="sub" href="../frontier/#flash"><span class="n">10e</span>FlashAttention</a>
-          <a class="sub" href="../frontier/#spec"><span class="n">10f</span>Speculative decoding</a>
-          <a class="sub" href="../frontier/#quant"><span class="n">10g</span>Quantization</a>
-          <a class="sub" href="../frontier/#rag"><span class="n">10h</span>RAG</a>
+          <a href="../frontier/#moe" class="sub"><span class="n">10a</span>Mixture of Experts</a>
+          <a href="../frontier/#kv" class="sub"><span class="n">10b</span>The KV cache</a>
+          <a href="../frontier/#rope" class="sub"><span class="n">10c</span>RoPE</a>
+          <a href="../frontier/#gqa" class="sub"><span class="n">10d</span>GQA</a>
+          <a href="../frontier/#flash" class="sub"><span class="n">10e</span>FlashAttention</a>
+          <a href="../frontier/#spec" class="sub"><span class="n">10f</span>Speculative decoding</a>
+          <a href="../frontier/#quant" class="sub"><span class="n">10g</span>Quantization</a>
+          <a href="../frontier/#rag" class="sub"><span class="n">10h</span>RAG</a>
         </div>
-      </div>
-      <div class="nav-item">
-        <a href="../agents/">agents</a>
-        <div class="nav-drop">
+      </details>
+      <details class="nav-sec">
+        <summary>Agents<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../agents/#ch11"><span class="n">11</span>The loop</a>
           <a href="../agents/#ch12"><span class="n">12</span>Hands: tools &amp; MCP</a>
           <a href="../agents/#ch13"><span class="n">13</span>The context engineer</a>
@@ -62,39 +63,44 @@
           <a href="../agents/#ch15"><span class="n">15</span>Many hands</a>
           <a href="../agents/#ch16"><span class="n">16</span>Teaching it to behave</a>
         </div>
-      </div>
-      <div class="nav-item">
-        <a href="../thinking/">thinking</a>
-        <div class="nav-drop">
+      </details>
+      <details class="nav-sec">
+        <summary>Thinking<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../thinking/#ch17"><span class="n">17</span>Thinking out loud</a>
           <a href="../thinking/#ch18"><span class="n">18</span>Training a reasoner</a>
           <a href="../thinking/#ch19"><span class="n">19</span>The thinking budget</a>
           <a href="../thinking/#ch20"><span class="n">20</span>Inside the mind</a>
         </div>
-      </div>
-      <div class="nav-item">
-        <a href="../graph/">book II ▾</a>
-        <div class="nav-drop">
+      </details>
+    <div class="side-book">Book II · Running a business on it</div>
+      <details class="nav-sec">
+        <summary>The graph<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../graph/#ch21"><span class="n">21</span>Everything is a record</a>
           <a href="../graph/#ch22"><span class="n">22</span>The join tax</a>
           <a href="../graph/#ch23"><span class="n">23</span>Nodes &amp; edges, done right</a>
           <a href="../graph/#ch24"><span class="n">24</span>The ontology</a>
           <a href="../graph/#ch25"><span class="n">25</span>Provenance, or receipts</a>
           <a href="../graph/#ch26"><span class="n">26</span>The hall of shame</a>
-          <div class="drop-rule"></div>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>The business<span class="chev"></span></summary>
+        <div class="sec-links">
           <a href="../business/#ch27"><span class="n">27</span>The flywheel</a>
           <a href="../business/#ch28"><span class="n">28</span>GraphRAG</a>
           <a href="../business/#ch29"><span class="n">29</span>The model fleet</a>
           <a href="../business/#ch30"><span class="n">30</span>Humans in the org chart</a>
           <a href="../business/#ch31"><span class="n">31</span>The modern data department</a>
-          <a href="../epilogue/"><span class="n">32</span>Epilogue: the whole story</a>
         </div>
-      </div>
-      <a href="../build-an-llm/">build an LLM</a>
-      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
-    </div>
-  </div>
-</nav>
+      </details>
+      <a class="side-link" href="../epilogue/">Epilogue</a>
+    <div class="side-book">Bonus</div>
+      <a class="side-link" href="../build-an-llm/">Build an LLM</a>
+      <a class="side-link portfolio" href="https://bpachter.github.io/">← Portfolio</a>
+  </nav>
+</aside>
 
 <header class="part-hero">
   <div class="wrap">
@@ -220,6 +226,7 @@
 </footer>
 
 <script src="../js/foundations.js"></script>
+<script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
 </body>
 </html>
