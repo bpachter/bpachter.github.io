@@ -176,6 +176,70 @@
     .fx-tr > span, .fx-up, .card { animation: none; }
     .card { transition: border-color .2s; }
   }
+
+  /* ---------- Ask AI about Benjamin ---------- */
+  .pf-fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 60;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 18px; border-radius: 30px; border: 1px solid var(--border-lit);
+    background: var(--surface); color: var(--head); cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500;
+    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.5); transition: all .18s var(--ease-out);
+  }
+  .pf-fab:hover { border-color: var(--accent-dim); box-shadow: 0 10px 28px -8px var(--glow); transform: translateY(-2px); }
+  .pf-fab-ico { color: var(--accent); }
+  .pf-fab.pf-hidden { opacity: 0; pointer-events: none; transform: scale(0.85); }
+  .pf-fab-s { display: none; }
+  @media (max-width: 420px) { .pf-fab-l { display: none; } .pf-fab-s { display: inline; } }
+
+  .pf-panel {
+    position: fixed; right: 22px; bottom: 22px; z-index: 61;
+    width: 370px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 40px);
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border-lit); border-radius: 14px;
+    box-shadow: 0 20px 60px -16px rgba(0, 0, 0, 0.6);
+    opacity: 0; transform: translateY(14px) scale(0.98); transform-origin: bottom right;
+    transition: opacity .2s var(--ease-out), transform .2s var(--ease-out);
+  }
+  .pf-panel[hidden] { display: none; }
+  .pf-panel.pf-show { opacity: 1; transform: none; }
+  .pf-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-bottom: 1px solid var(--border); }
+  .pf-title { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13.5px; color: var(--head); letter-spacing: 0.3px; }
+  .pf-title span { color: var(--accent); }
+  .pf-x { border: none; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 4px; }
+  .pf-x:hover { color: var(--head); }
+  .pf-log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .pf-msg {
+    max-width: 84%; padding: 9px 13px; border-radius: 12px; font-size: 13.5px; line-height: 1.55;
+    font-family: 'IBM Plex Sans', sans-serif; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .pf-user { align-self: flex-end; background: var(--accent); color: #04110f; border-bottom-right-radius: 3px; }
+  .pf-bot { align-self: flex-start; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+  .pf-typing { display: inline-flex; gap: 4px; align-items: center; }
+  .pf-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: pf-blink 1s infinite; }
+  .pf-typing i:nth-child(2) { animation-delay: .2s; } .pf-typing i:nth-child(3) { animation-delay: .4s; }
+  @keyframes pf-blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+  .pf-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+  .pf-in {
+    flex: 1; min-width: 0; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-lit);
+    font: inherit; font-family: 'IBM Plex Sans', sans-serif; font-size: 13.5px; background: var(--bg-2); color: var(--text);
+  }
+  .pf-in:focus { outline: none; border-color: var(--accent); }
+  .pf-send {
+    flex: 0 0 auto; width: 42px; border-radius: 8px; border: 1px solid var(--border-lit);
+    background: var(--accent); color: #04110f; font-size: 17px; font-weight: 700; cursor: pointer;
+  }
+  .pf-send:hover { background: #45e6d1; }
+  .pf-send:disabled { opacity: .5; cursor: default; }
+  .pf-foot { padding: 8px 12px 11px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); text-align: center; }
+  @media (max-width: 480px) {
+    .pf-panel { right: 12px; left: 12px; bottom: 12px; width: auto; max-width: none; height: 78vh; }
+    .pf-fab { right: 14px; bottom: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-fab, .pf-panel { transition: none; }
+    .pf-typing i { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -356,6 +420,121 @@
         card.classList.remove('tilting');
       });
     });
+  })();
+</script>
+
+<script>
+  /* "Ask AI about Benjamin" — a small chat guide wired to a Cloudflare Worker that
+     talks to Claude Haiku. No secrets live here; the widget only knows the Worker's
+     public URL. Stays dormant until WORKER_URL is set (same proxy as gradient/). */
+  (function () {
+    var WORKER_URL = '';
+    if (!WORKER_URL) return;
+
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var history = [];
+    var busy = false, opened = false;
+    function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+    var fab = document.createElement('button');
+    fab.className = 'pf-fab'; fab.type = 'button';
+    fab.setAttribute('aria-label', 'Ask AI about Benjamin');
+    fab.innerHTML = '<span class="pf-fab-ico" aria-hidden="true">✦</span>' +
+      '<span class="pf-fab-l">Ask AI about Benjamin</span>' +
+      '<span class="pf-fab-s">Ask AI about Ben</span>';
+
+    var panel = document.createElement('div');
+    panel.className = 'pf-panel'; panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', 'Ask AI about Benjamin'); panel.hidden = true;
+    panel.innerHTML =
+      '<div class="pf-head"><span class="pf-title">Ask AI about <span>Benjamin</span></span>' +
+      '<button class="pf-x" type="button" aria-label="Close chat">×</button></div>' +
+      '<div class="pf-log" aria-live="polite"></div>' +
+      '<form class="pf-form"><input class="pf-in" type="text" autocomplete="off" ' +
+      'placeholder="his work? his stack? just ask…" aria-label="Your question" maxlength="1500" />' +
+      '<button class="pf-send" type="submit" aria-label="Send">→</button></form>' +
+      '<div class="pf-foot">an AI guide · Claude Haiku · answers can be imperfect</div>';
+
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+
+    var log = panel.querySelector('.pf-log');
+    var form = panel.querySelector('.pf-form');
+    var input = panel.querySelector('.pf-in');
+
+    function bubble(role, text) {
+      var el = document.createElement('div');
+      el.className = 'pf-msg pf-' + role;
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+    function typing() {
+      var el = document.createElement('div');
+      el.className = 'pf-msg pf-bot pf-typing';
+      el.innerHTML = '<i></i><i></i><i></i>';
+      log.appendChild(el); log.scrollTop = log.scrollHeight;
+      return el;
+    }
+    function reveal(el, text) {
+      if (reduced) { el.textContent = text; log.scrollTop = log.scrollHeight; return Promise.resolve(); }
+      el.textContent = '';
+      var i = 0;
+      function step() {
+        i += 2; el.textContent = text.slice(0, i); log.scrollTop = log.scrollHeight;
+        if (i < text.length) return sleep(i % 8 === 0 ? 12 : 0).then(step);
+        el.textContent = text;
+      }
+      return step();
+    }
+
+    function send(text) {
+      if (busy || !text || !text.trim()) return;
+      busy = true; input.value = ''; panel.querySelector('.pf-send').disabled = true;
+      bubble('user', text);
+      history.push({ role: 'user', content: text });
+      var dots = typing();
+      var reply = '', limited = false;
+      fetch(WORKER_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history.slice(-10) }),
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; });
+      }).then(function (data) {
+        reply = data.reply || 'Sorry — I couldn\'t answer that one just now.';
+        limited = !!data.limited;
+      }).catch(function () {
+        reply = 'I couldn\'t reach my brain just now — try again in a moment, or email ben.pachter@bellsouth.net.';
+        limited = true;
+      }).then(function () {
+        dots.remove();
+        return reveal(bubble('bot', ''), reply);
+      }).then(function () {
+        if (!limited) history.push({ role: 'assistant', content: reply });
+        busy = false; panel.querySelector('.pf-send').disabled = false;
+        input.focus();
+      });
+    }
+
+    function openPanel() {
+      panel.hidden = false; fab.classList.add('pf-hidden');
+      requestAnimationFrame(function () { panel.classList.add('pf-show'); });
+      if (!opened) {
+        opened = true;
+        reveal(bubble('bot', ''),
+          'Hi! 👋 I\'m the guide to Ben Pachter\'s work — knowledge graphs, LLM pipelines, and the odd hand-built physics engine. Ask me anything: what he does at Duke Energy, how Thessa works, what he\'s built for fun. What are you curious about?');
+      }
+      setTimeout(function () { input.focus(); }, 220);
+    }
+    function closePanel() {
+      panel.classList.remove('pf-show'); fab.classList.remove('pf-hidden');
+      setTimeout(function () { panel.hidden = true; }, 220);
+    }
+    fab.addEventListener('click', openPanel);
+    panel.querySelector('.pf-x').addEventListener('click', closePanel);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) closePanel(); });
+    form.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
   })();
 </script>
 </body>

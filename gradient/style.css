@@ -589,6 +589,8 @@ footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0
 }
 .gc-fab:hover { transform: translateY(-2px); box-shadow: 4px 5px 0 rgba(45, 42, 36, 0.22); }
 .gc-fab-ico { font-size: 17px; color: var(--leaf-deep); }
+.gc-fab-s { display: none; }
+@media (max-width: 420px) { .gc-fab-l { display: none; } .gc-fab-s { display: inline; } }
 .gc-fab.gc-hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
 
 .gc-panel {
