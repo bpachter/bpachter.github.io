@@ -97,10 +97,10 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="hero-kicker">A field guide, with working parts</div>
+    <div class="hero-kicker">An interactive guide to modern AI</div>
     <h1><span class="underline-wrap">Gradient<svg viewBox="0 0 200 14" preserveAspectRatio="none"><path class="sketch draw-me" style="--len:220" d="M4 9 C 40 12, 70 5, 105 8 S 170 11, 196 6" /></svg></span></h1>
-    <p class="hero-sub">How machines learn, how tools like <em>Claude and ChatGPT</em> actually work — and how to run a business on them. A small interactive textbook, in chapters you can touch.</p>
-    <p class="hero-note hand">written for curious humans. no math degree required. ↓</p>
+    <p class="hero-sub">How the AI behind tools like <em>Claude and ChatGPT</em> actually works — and how companies build on it. Every idea here is a working model you can run and adjust yourself, not just read about.</p>
+    <p class="hero-note">No technical background needed — each concept is built up from the ground. ↓</p>
   </div>
 </header>
 
@@ -113,9 +113,9 @@
       <div class="controls">
         <div class="ctl" style="max-width:340px"><label>temperature τ — how boldly it samples <output id="o-pipe-temp">0.20</output></label><input type="range" id="in-pipe-temp" min="0" max="1.2" step="0.05" value="0.2"></div>
       </div>
-      <p class="widget-hint"><span class="hand">watch →</span> a chatbot has exactly one skill: <b>guess the next word, append it, repeat</b>. it doesn't always take the top guess — it <em>samples</em>. leave <b>τ</b> low and the answer is the confident one; turn it up and the machine gets adventurous, sometimes wandering off the sensible path. everything else on this site is what happens inside the tower.</p>
+      <p class="widget-hint"><span class="hand">Try it →</span> A chatbot has exactly one core skill: <b>guess the next word, add it, and repeat</b>. It doesn't always take its top guess — it <em>samples</em> from the likely options. Keep <b>τ</b> low and you get the safe, confident answer; turn it up and it takes more risks, sometimes wandering off. Everything else in this guide is a closer look at what happens inside that loop.</p>
     </div>
-    <p class="pipe-caption">← this loop runs every time Claude answers you. really. that's the whole trick.</p>
+    <p class="pipe-caption">This same loop runs every time Claude or ChatGPT answers you — it's the core of how they work.</p>
   </div>
 </section>
 
@@ -124,7 +124,7 @@
   <div class="wrap-wide">
     <div class="wrap" style="padding:0">
       <div class="ch-head"><span class="ch-num">book I ·</span><h2>How machines learn</h2></div>
-      <p>Five hikes from a single 1958 neuron to models that reason and agents that act — every chapter with a live machine in it: real training, real sampling, real 3-D landscapes, a real agent loop, all simulated right in your browser. Start at the bottom of the hill:</p>
+      <p>Five short chapters, from a single artificial neuron invented in 1958 to today's models that reason and act on their own. Each one includes a working model you can run right in your browser — training, sampling, 3-D landscapes, a live agent loop. Start at the beginning:</p>
     </div>
     <div class="parts-grid">
       <div class="part-card">
@@ -191,7 +191,7 @@
   <div class="wrap-wide">
     <div class="wrap" style="padding:0">
       <div class="ch-head"><span class="ch-num">book II ·</span><h2>Running a business on it</h2></div>
-      <p>Book I taught the machine. Book II is the other half of the modern stack: how an enterprise should store what it knows — <b>graph theory, done right</b> — and then how agents, fleets, and verification loops run on top of it. Built from the working experience behind <a href="https://thessa.space">thessa.space</a>.</p>
+      <p>Book I explained the machine. Book II is the other half of a real AI product: how a company should organize what it knows — <b>its knowledge layer, done right</b> — and how agents, model fleets, and fact-checking loops run on top of it. Drawn from the hands-on work behind <a href="https://thessa.space">thessa.space</a>.</p>
     </div>
     <div class="parts-grid">
       <div class="part-card">
@@ -226,8 +226,8 @@
 
 <footer>
   <div class="wrap">
-    <p class="foot-hand">every dial you'll touch is a real dial.</p>
-    <p class="foot-meta">Built by <a href="https://bpachter.github.io/">Benjamin Pachter</a> from my own notes on how these systems work — plus field notes from running local LLMs on my own GPU. Zero libraries: every simulation is hand-written TypeScript compiled to plain JavaScript.</p>
+    <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience building AI systems and running models locally. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
     <div class="foot-links">
       <a href="https://bpachter.github.io/">portfolio</a>
       <a href="https://bpachter.github.io/entropy/">entropy — the physics sibling</a>
