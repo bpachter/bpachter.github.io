@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How to build an LLM — Gradient</title>
+<meta name="description" content="How open-weight models like Qwen, DeepSeek, Gemma, Kimi, Llama, and Nemotron are actually built — from data to release — and a practical, step-by-step guide to running one on your own machine with Ollama. Includes a live VRAM-fit calculator." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f3efe6'/%3E%3Cpath d='M6 24 C10 24 12 8 16 8 C20 8 22 20 26 14' stroke='%238aae68' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Karla:wght@400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="nav-brand" href="../">gradient<span>.</span></a>
+    <div class="nav-links">
+      <div class="nav-item">
+        <a href="../foundations/">foundations</a>
+        <div class="nav-drop">
+          <a href="../foundations/#ch1"><span class="n">01</span>Hello, neuron</a>
+          <a href="../foundations/#ch2"><span class="n">02</span>Learning is descending</a>
+          <a href="../foundations/#ch3"><span class="n">03</span>The landscape, in 3-D</a>
+          <a href="../foundations/#ch4"><span class="n">04</span>Going deep</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../language/">language</a>
+        <div class="nav-drop">
+          <a href="../language/#ch5"><span class="n">05</span>Words become numbers</a>
+          <a href="../language/#ch6"><span class="n">06</span>Attention is all you need</a>
+          <a href="../language/#ch7"><span class="n">07</span>Inside the tower, in 3-D</a>
+          <a href="../language/#ch8"><span class="n">08</span>The autocomplete machine</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../frontier/">engine room</a>
+        <div class="nav-drop">
+          <a href="../frontier/#ch9"><span class="n">09</span>Sculpting the mind</a>
+          <a href="../frontier/#ch10"><span class="n">10</span>The engine room</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="../agents/">agents</a>
+        <div class="nav-drop">
+          <a href="../agents/#ch11"><span class="n">11</span>The loop</a>
+          <a href="../agents/#ch12"><span class="n">12</span>Hands: tools &amp; MCP</a>
+          <a href="../agents/#ch13"><span class="n">13</span>The context engineer</a>
+          <a href="../agents/#ch14"><span class="n">14</span>Guardrails &amp; harnesses</a>
+          <a href="../agents/#ch15"><span class="n">15</span>Many hands</a>
+          <a href="../agents/#ch16"><span class="n">16</span>Teaching it to behave</a>
+        </div>
+      </div>
+      <a href="../thinking/" class="hide-sm">thinking</a>
+      <div class="nav-item">
+        <a href="../graph/" class="hide-sm">book II ▾</a>
+        <div class="nav-drop">
+          <a href="../graph/"><span class="n">VI</span>The graph</a>
+          <a href="../business/"><span class="n">VII</span>The business</a>
+          <a href="../epilogue/"><span class="n">32</span>Epilogue</a>
+        </div>
+      </div>
+      <a href="./" class="active">build an LLM</a>
+      <a href="https://bpachter.github.io/" class="hide-sm">← portfolio</a>
+    </div>
+  </div>
+</nav>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">A practical bonus chapter</div>
+    <h1>How to build an LLM</h1>
+    <p class="part-sub">The models in this guide — Claude, ChatGPT — are closed: you can use them, but you can't hold them. A parallel world of <b>open-weight</b> models can be downloaded, inspected, and run on your own hardware. Here's how they're actually built, and how to run one yourself this afternoon.</p>
+  </div>
+</header>
+
+<!-- ─────────────── A · OPEN WEIGHTS ─────────────── -->
+<section class="chapter" id="open">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">first ·</span><h2>What "open weights" means</h2></div>
+    <p>A trained model is, in the end, just a very large pile of numbers — its <b>weights</b>, the values every dial in the network settled on during training (<a href="../foundations/#ch2">chapter 02</a>). A <b>closed</b> model like GPT&#8209;4 or Claude keeps that pile private: you send text to a company's servers and get text back, but the weights never leave their building.</p>
+    <p>An <b>open-weight</b> model publishes the pile. Anyone can download the file, run it on their own machine, fine-tune it, or study it — usually under a license that permits commercial use. It is <em>not</em> the same as fully open-source: the training data and code often stay private. What you get is the finished brain, free to run. That single difference is why a capable model can sit on your laptop with no internet connection and no bill.</p>
+    <p>The open ecosystem is now genuinely strong, led by a handful of families:</p>
+    <div class="notes-grid" style="margin-top:18px">
+      <div class="note-card"><h4>Qwen</h4>Alibaba. A broad range of sizes, strong at coding and multilingual work; many releases use a <em>mixture-of-experts</em> design (<a href="../frontier/#moe">ch 10a</a>).</div>
+      <div class="note-card"><h4>DeepSeek</h4>DeepSeek AI. Large mixture-of-experts models known for strong reasoning at a fraction of the usual training cost.</div>
+      <div class="note-card"><h4>Llama</h4>Meta. The family that kick-started the open ecosystem and the format most tools support first.</div>
+      <div class="note-card"><h4>Gemma</h4>Google DeepMind. Small, efficient, high-quality models designed to run comfortably on a single GPU or laptop.</div>
+      <div class="note-card"><h4>Mistral</h4>Mistral AI. Compact European models with a reputation for punching well above their weight class.</div>
+      <div class="note-card"><h4>Kimi</h4>Moonshot AI. Very large mixture-of-experts models aimed at long-context and agentic use.</div>
+      <div class="note-card"><h4>Nemotron</h4>NVIDIA. Models tuned and released alongside the hardware and tooling they run on.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── B · HOW IT'S BUILT ─────────────── -->
+<section class="chapter" id="built">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">second ·</span><h2>How an open model is built</h2></div>
+    <p>Every one of those models — open or closed — is made the same way, on the same assembly line. It's a five-stage pipeline, and each stage is a chapter of this guide seen from the factory floor.</p>
+
+    <div class="ladder-page">
+      <div class="build-step"><span class="bs-n">1</span><div><b>The data.</b> Trillions of words of text and code, scraped from the web, books, and repositories, then aggressively <em>filtered</em> — deduplicated, stripped of junk and personal data, quality-scored. The old saying holds: a model is what it eats. Most of the gap between a good model and a mediocre one is decided here, before any training starts.</div></div>
+      <div class="build-step"><span class="bs-n">2</span><div><b>The tokenizer.</b> Text is chopped into <b>tokens</b> — subword pieces (<a href="../language/#ch5">chapter 05</a>). The team builds a fixed vocabulary (often ~100,000–200,000 pieces) by repeatedly merging the most common character pairs. This vocabulary is frozen for the life of the model.</div></div>
+      <div class="build-step"><span class="bs-n">3</span><div><b>The architecture.</b> Almost always a <b>transformer</b> (<a href="../language/#ch6">chapter 06</a>). The main design choices: how many layers deep, how wide, how long a context it can hold, and — increasingly — <b>dense vs. mixture-of-experts</b> (<a href="../frontier/#moe">ch 10a</a>), where only a slice of a huge network fires for any given token. This is why a "600-billion-parameter" model can be cheaper to run than the number suggests.</div></div>
+      <div class="build-step"><span class="bs-n">4</span><div><b>Pretraining.</b> The expensive part. The network reads the entire dataset and does one thing, billions of times: <em>guess the next token, check, adjust</em> (<a href="../language/#ch8">chapter 08</a>). This runs for weeks or months across thousands of GPUs and is where the money goes. The result is a "base model" — fluent, knowledgeable, but not yet helpful; it will happily continue your prompt instead of answering it.</div></div>
+      <div class="build-step"><span class="bs-n">5</span><div><b>Post-training.</b> The polish that turns a text-continuer into an assistant. First <b>instruction tuning</b> — showing it thousands of examples of good answers. Then <b>alignment</b> — methods like DPO and RLHF (<a href="../frontier/#ch9">chapter 09</a>) that teach it to prefer helpful, honest responses, and <b>RLVR</b> (<a href="../thinking/#ch18">chapter 18</a>) that trains reasoning by rewarding correct final answers. Smaller models are often <em>distilled</em> from larger ones — taught to imitate a bigger sibling.</div></div>
+    </div>
+
+    <p style="margin-top:22px">Then the weights are packaged and released — often with a technical report but rarely the data. The community takes it from there: fine-tuning it for niches, and <b>quantizing</b> it (more on that below) so it fits on ordinary hardware. That last step is what puts these models within your reach.</p>
+  </div>
+</section>
+
+<!-- ─────────────── C · THE HARDWARE + WIDGET ─────────────── -->
+<section class="chapter" id="hardware">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">third ·</span><h2>Running one yourself: the one number that matters</h2></div>
+    <p>To run a model, your computer has to hold all those weights in fast memory at once. On a graphics card that's <b>VRAM</b>; on an Apple Silicon Mac it's <b>unified memory</b> shared between the chip and the graphics cores. This is the single constraint that decides what you can run. Everything else is detail.</p>
+    <p>The math is refreshingly simple. Each weight takes up a certain number of bytes depending on its <b>precision</b>. At full <b>FP16</b> precision that's 2 bytes per weight, so a 7-billion-parameter model needs about <b>14&nbsp;GB</b> — more than most laptops have. The trick that changed everything is <b>quantization</b>: storing each weight in fewer bits. At 4-bit precision the same model shrinks to roughly <b>4&nbsp;GB</b>, with surprisingly little loss in quality. Quantization is the reason a 70-billion-parameter model can run on a gaming PC at all.</p>
+
+    <div class="widget" id="w-vram">
+      <span class="widget-label">will it run on your machine?</span>
+      <div class="controls">
+        <div class="ctl" style="max-width:300px"><label>model size <output id="o-vram-size">8B</output></label><input type="range" id="in-vram-size" min="1" max="140" step="1" value="8"></div>
+        <div class="ctl" style="min-width:0;max-width:340px">
+          <label>precision</label>
+          <div class="seg" id="seg-vram" role="group" aria-label="precision">
+            <button data-b="2">FP16</button>
+            <button data-b="1">8-bit</button>
+            <button data-b="0.65">5-bit</button>
+            <button data-b="0.5" aria-pressed="true">4-bit</button>
+          </div>
+        </div>
+      </div>
+      <div class="readout" style="margin-top:14px"><span class="stat">memory needed <b id="vram-need">~4 GB</b></span><span class="stat" id="vram-summary">runs on almost anything</span></div>
+      <div class="mem-bars" id="vram-bars" style="margin-top:16px"></div>
+      <p class="widget-hint"><span class="hand">Try it →</span> Drag the <b>size</b> up and watch where it stops fitting. Then switch from <b>FP16</b> to <b>4-bit</b> and watch a model that needed a data-center GPU drop onto a laptop. Green means it fits (with room for context); red means it overflows. Truly huge mixture-of-experts models — 200B and up — need multiple cards or a big-memory Mac, and are shown here for scale.</p>
+    </div>
+
+    <p>Two practical notes the calculator can't show. You want <b>headroom</b> above the raw weight size — the running conversation (the KV cache, <a href="../frontier/#kv">ch 10b</a>) also lives in memory and grows with context length, which is why the bars above budget some extra. And Apple Silicon is a quiet star here: because its memory is unified, a Mac with 64&nbsp;GB can run models that would need several graphics cards on a PC.</p>
+  </div>
+</section>
+
+<!-- ─────────────── D · THE STACK ─────────────── -->
+<section class="chapter" id="stack">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">fourth ·</span><h2>The stack: what actually runs the model</h2></div>
+    <p>You don't wire up the transformer yourself — a small ecosystem of tools does it for you. Four are worth knowing, from easiest to most powerful:</p>
+    <div class="notes-grid" style="margin-top:18px">
+      <div class="note-card"><h4>Ollama</h4>The simplest way in. One command downloads, quantizes, and runs a model, and manages them like Docker images. Cross-platform, and it exposes a local API. <em>Start here.</em></div>
+      <div class="note-card"><h4>LM Studio</h4>A friendly desktop app with a chat window and a model browser — the same idea as Ollama, with a graphical interface instead of a terminal.</div>
+      <div class="note-card"><h4>llama.cpp</h4>The engine humming underneath most local tools. It's the C++ project that made models run fast on ordinary CPUs, consumer GPUs, and Apple's Metal — and it defined <b>GGUF</b>, the quantized file format everything uses.</div>
+      <div class="note-card"><h4>vLLM</h4>The production option. When you need to serve a model to many users at once, vLLM squeezes far more throughput out of a GPU. Overkill for a laptop; the right call for a service.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── E · DO IT ─────────────── -->
+<section class="chapter" id="doit">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">fifth ·</span><h2>Do it: a running model in five minutes</h2></div>
+    <p>Here is the whole path with <b>Ollama</b>, from nothing to a private model answering questions on your own machine. Match the model to what the calculator above said your hardware can hold.</p>
+
+    <div class="term" style="line-height:1.9">
+      <span style="color:#8a8171"># 1 · install (macOS/Linux — or download the app on Windows)</span><br>
+      curl -fsSL https://ollama.com/install.sh | sh<br><br>
+      <span style="color:#8a8171"># 2 · pull and run a model — this one is ~5 GB, fits 8 GB machines</span><br>
+      ollama run <b style="color:#b5d19b">qwen3:8b</b><br><br>
+      <span style="color:#8a8171"># 3 · that's it. type and chat. it's running locally, offline.</span><br>
+      &gt;&gt;&gt; explain what a knowledge graph is, briefly<br><br>
+      <span style="color:#8a8171"># 4 · optional: use it from your own code — OpenAI-compatible API</span><br>
+      curl http://localhost:11434/v1/chat/completions -d '{<br>
+      &nbsp;&nbsp;"model": "qwen3:8b",<br>
+      &nbsp;&nbsp;"messages": [{"role":"user","content":"Hello"}]<br>
+      }'
+    </div>
+    <p class="margin-note" style="margin-top:14px">← Step 4 is the quiet superpower: any app written for the OpenAI API can point at <code>localhost</code> and run entirely on your own model, for free.</p>
+    <p>To browse what's available, <code>ollama list</code> shows what you've downloaded and <a href="https://ollama.com/library" target="_blank" rel="noopener">ollama.com/library</a> lists the rest. Pulling a bigger variant is just a bigger tag — <code>qwen3:14b</code>, <code>gemma3:27b</code>, <code>deepseek-r1:32b</code> — bounded only by the memory the calculator warned you about.</p>
+  </div>
+</section>
+
+<!-- ─────────────── F · WHICH MODEL ─────────────── -->
+<section class="chapter" id="pick">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">last ·</span><h2>Which model should you run?</h2></div>
+    <p>A rough map from hardware to a sensible starting point. When in doubt, pick a <b>4-bit</b> build one size below your ceiling — the headroom keeps it responsive as the conversation grows.</p>
+    <div class="notes-grid" style="margin-top:18px">
+      <div class="note-card"><h4>8 GB — a modest laptop</h4>Small models, 4-bit: <em>Gemma 3&nbsp;4B</em>, <em>Qwen3&nbsp;4–8B</em>, <em>Llama 3&nbsp;8B</em>. Genuinely useful for writing, summarizing, and code help.</div>
+      <div class="note-card"><h4>16 GB</h4>Mid-size models shine: <em>Qwen3&nbsp;14B</em>, <em>Gemma 3&nbsp;12B</em>. A clear step up in reasoning and reliability.</div>
+      <div class="note-card"><h4>24 GB — RTX 3090 / 4090</h4>The sweet spot for enthusiasts: <em>Qwen3&nbsp;32B</em>, <em>DeepSeek-R1&nbsp;32B</em>, <em>Gemma 3&nbsp;27B</em>, quantized. Approaching frontier quality on one card.</div>
+      <div class="note-card"><h4>64–128 GB — Apple Silicon</h4>Unified memory runs what PCs can't: <em>70B</em>-class models comfortably, and smaller mixture-of-experts models whole. The best value in local AI right now.</div>
+    </div>
+    <p style="margin-top:22px">And that closes the loop of this whole guide. The same ideas that make Claude and ChatGPT work — tokens, the transformer, the engine-room tricks, post-training — are sitting in a file you can download tonight and run on the machine in front of you. The frontier is closed; the foundation is open.</p>
+
+    <div class="pager">
+      <a class="pcard prev" href="../epilogue/"><div class="plabel">← back to</div><div class="ptitle">The epilogue</div></a>
+      <a class="pcard next" href="../"><div class="plabel">home →</div><div class="ptitle">Start of the guide</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="foot-hand">Every visualization here is a live model, running in your browser as you interact with it.</p>
+    <p class="foot-meta">Designed and built by <a href="https://bpachter.github.io/">Benjamin Pachter</a>, drawing on production experience architecting and orchestrating enterprise data ecosystems across a wide range of industries. Every simulation runs live in the browser — no charting libraries, no frameworks.</p>
+    <div class="foot-links">
+      <a href="https://bpachter.github.io/">portfolio</a>
+      <a href="https://bpachter.github.io/entropy/">entropy — the physics sibling</a>
+      <a href="https://github.com/bpachter">github</a>
+      <a href="https://www.linkedin.com/in/benjamin-pachter-9582bb12b/">linkedin</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* VRAM-fit calculator — plain DOM, no dependencies. Weight memory = params × bytes/param,
+   plus ~20% headroom for the KV cache and runtime. Hardware tiers shown as fit/overflow bars. */
+(function () {
+  var TIERS = [
+    { name: "Laptop iGPU / 8 GB", gb: 8 },
+    { name: "RTX 4070 / 16 GB", gb: 16 },
+    { name: "RTX 3090·4090 / 24 GB", gb: 24 },
+    { name: "Mac · 64 GB unified", gb: 64 },
+    { name: "Mac · 128 GB unified", gb: 128 },
+  ];
+  var sizeIn = document.getElementById("in-vram-size");
+  var sizeOut = document.getElementById("o-vram-size");
+  var seg = document.getElementById("seg-vram");
+  var need = document.getElementById("vram-need");
+  var summary = document.getElementById("vram-summary");
+  var bars = document.getElementById("vram-bars");
+  if (!sizeIn || !seg || !bars) return;
+
+  // build the bar rows once
+  TIERS.forEach(function (t, i) {
+    var row = document.createElement("div");
+    row.className = "mem-bar";
+    row.innerHTML =
+      '<div class="lbl">' + t.name + "</div>" +
+      '<div class="bar" data-i="' + i + '" style="width:0"></div>' +
+      '<div class="val" data-v="' + i + '"></div>';
+    bars.appendChild(row);
+  });
+
+  function bytesPer() {
+    var on = seg.querySelector('[aria-pressed="true"]');
+    return on ? parseFloat(on.getAttribute("data-b")) : 0.5;
+  }
+  function render() {
+    var params = parseInt(sizeIn.value, 10);
+    var gbNeeded = params * bytesPer() * 1.2; // +20% headroom
+    sizeOut.textContent = params + "B";
+    need.textContent = "~" + (gbNeeded < 10 ? gbNeeded.toFixed(1) : Math.round(gbNeeded)) + " GB";
+    var fits = TIERS.filter(function (t) { return gbNeeded <= t.gb; });
+    summary.textContent = fits.length
+      ? "runs on " + fits[0].name.split(" /")[0].split(" ·")[0]
+        + (fits.length > 1 ? " and up" : "")
+      : "too big for a single machine here";
+    TIERS.forEach(function (t, i) {
+      var bar = bars.querySelector('[data-i="' + i + '"]');
+      var val = bars.querySelector('[data-v="' + i + '"]');
+      var frac = Math.min(gbNeeded / t.gb, 1);
+      bar.style.width = Math.max(frac * 100, 3) + "%";
+      var ok = gbNeeded <= t.gb;
+      bar.style.background = ok ? "var(--leaf)" : "var(--bad)";
+      val.textContent = ok ? "fits" : "overflows";
+      val.style.color = ok ? "var(--leaf-deep)" : "var(--bad)";
+    });
+  }
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    seg.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+    b.setAttribute("aria-pressed", "true");
+    render();
+  });
+  sizeIn.addEventListener("input", render);
+  render();
+})();
+</script>
+<script src="../js/chat.js"></script>
+</body>
+</html>

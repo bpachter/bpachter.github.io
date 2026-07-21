@@ -257,6 +257,29 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .note-card .pin { position: absolute; }
 .note-card em { color: var(--leaf-deep); font-style: normal; font-weight: 700; }
 
+/* build-an-llm — five-stage build ladder (numbered, rail-connected) */
+.ladder-page { margin-top: 24px; display: flex; flex-direction: column; }
+.build-step { display: flex; gap: 18px; align-items: flex-start; padding-bottom: 24px; position: relative; }
+.build-step:last-child { padding-bottom: 0; }
+/* vertical rail linking the badges; masked where each opaque badge sits */
+.build-step::before { content: ""; position: absolute; left: 18px; top: 4px; bottom: 0; width: 2px; background: var(--line); z-index: 0; }
+.build-step:last-child::before { display: none; }
+.bs-n {
+  position: relative; z-index: 1; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--leaf-soft); border: 1.5px solid var(--leaf); color: var(--leaf-deep);
+  font-family: 'Karla', sans-serif; font-weight: 700; font-size: 16px; line-height: 1;
+}
+.build-step > div { min-width: 0; padding-top: 6px; font-size: 15.5px; line-height: 1.62; color: var(--ink-soft); }
+.build-step > div b { color: var(--ink); }
+@media (max-width: 640px) {
+  .build-step { gap: 14px; }
+  .build-step::before { left: 16px; }
+  .bs-n { width: 34px; height: 34px; font-size: 15px; }
+  .build-step > div { font-size: 15px; padding-top: 5px; }
+}
+
 /* experts (MoE) */
 .moe-box { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 8px 0 2px; }
 .moe-token { font-family: 'Fraunces', serif; font-weight: 600; background: var(--gold); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 3px 14px; font-size: 16px; }
@@ -356,6 +379,7 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
   font-family: 'Karla', monospace; font-size: 14px; line-height: 1.6;
   background: #2f2c26; color: #e8e2d4; border-radius: 12px;
   padding: 12px 16px; margin-top: 12px; min-height: 44px;
+  overflow-x: auto;
 }
 .term .bad { color: #e8a091; } .term .good { color: #b5d19b; }
 .loop-log { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
@@ -577,6 +601,9 @@ footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0
   .widget { padding: 18px 16px 16px; }
   .controls { gap: 12px 14px; }
   .ctl { min-width: 110px; }
+  .seg button { padding: 6px 10px; font-size: 13px; }
+  #seg-vram { display: flex; width: 100%; }
+  #seg-vram button { flex: 1; min-width: 0; }
   .mem-bar { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; }
   .mem-bar .lbl { width: auto; text-align: left; }
   .mem-bar .bar { grid-column: 1 / -1; }
