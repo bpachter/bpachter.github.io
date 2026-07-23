@@ -49,6 +49,20 @@ rebuilt from my own notes with live widgets — Entropy's sibling, but cream ins
   annotations that draw themselves in on scroll, friendly serif display type.
 - Stack: zero dependencies — one HTML + CSS + JS, all sims hand-written.
 
+## 3.5 Drawdown — *the market is asleep on natural gas*
+
+**Status: IN BUILD (2026-07-23) → `/drawdown/`**
+
+Independent mini-model of the US gas balance 2026–2035: AI data centers + contracted LNG
+exports drain working storage below the historical record starting ~2028; the forward curve
+hasn't noticed; performance-per-watt becomes the hyperscaler metric. Financial-terminal
+aesthetic. Three movements: scrolly explainer → scenario simulator → Capitalism-Lab-hard
+"you run US energy policy" game ("nobody has beaten 2030 yet"). Own model built from EIA
+history, LNG project pipeline, and multi-source DC forecasts; the Chronometer/ILTB podcast
+thesis is one preset scenario, cited but not load-bearing. Full spec: `drawdown/SPEC.md`.
+Absorbs part of idea #1's grid/interconnection angle (gas as marginal price-setter,
+time-to-power, BYOG).
+
 ## 4. Orbital Mechanics Piece — *Kessler syndrome or constellation coverage*
 
 **Status: staged**

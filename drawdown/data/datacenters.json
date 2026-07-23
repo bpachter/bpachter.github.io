@@ -1,0 +1,346 @@
+{
+  "retrieved": "2026-07-23",
+  "scope": "US data-center electricity demand forecasts through 2030-2031 and conversion factors to translate that load into US natural gas demand",
+  "forecasts": [
+    {
+      "source": "LBNL / DOE - United States Data Center Energy Usage Report: 2025 Update",
+      "published": "2026-06 (IT shipment data through Q3 2025, assumptions as of Dec 2025)",
+      "us_only": true,
+      "metric_basis": "annual electricity consumption (TWh); GW is grid interconnection capacity assuming ~50% average utilization",
+      "values": {
+        "2024_actual_twh": 192,
+        "2024_share_of_us_electricity_pct": 4.7,
+        "2028_reference_twh": 464,
+        "2030_reference_twh": 649,
+        "2030_low_twh": 521,
+        "2030_high_twh": 843,
+        "2030_share_of_us_electricity_pct": 11.8,
+        "2030_share_range_pct": [9.5, 15.3],
+        "2030_interconnection_capacity_gw": 148,
+        "capacity_additions_gw_per_year_2024_2030": 17.4,
+        "capacity_cagr_pct_2024_2030": 22
+      },
+      "notes": "Reference Case 649 TWh in 2030; sensitivity scenarios: Consolidated Deployment 578 TWh, High ASIC 664 TWh, Low Accelerator Lifetime 590 TWh, High Inference Energy 782 TWh; Compounded Uncertainty range 521-843 TWh. Data centers responsible for ~33% of all US load growth 2024-2030 under NERC LTRA forecast. Predecessor 2024 report (Dec 2024): 176 TWh in 2023 (4.4%); 2028 range 325-580 TWh (6.7-12.0% of US electricity, 74-132 GW at 50% utilization)."
+    },
+    {
+      "source": "EPRI - Powering Intelligence 2026 (Updated U.S. Data Center Scenarios)",
+      "published": "2026-02-26",
+      "us_only": true,
+      "metric_basis": "annual consumption (TWh) built up from state-level project pipeline; GW is IT capacity",
+      "values": {
+        "2024_actual_twh_range": [177, 192],
+        "current_share_of_us_electricity_pct": "4-5",
+        "2030_low_twh": 380,
+        "2030_high_twh": 790,
+        "2030_share_range_pct": [9, 17],
+        "2030_it_capacity_gw_range": [56, 132]
+      },
+      "notes": "60% above EPRI's 2024 forecast (which saw 4.6-9.1% of US electricity by 2030) due to surge in announced/under-construction projects. Virginia data-center share could reach 41-59% of state electricity by 2030."
+    },
+    {
+      "source": "Goldman Sachs Research",
+      "published": "2026-05-20 (update); 175%-growth figure from GS Research Feb 2025",
+      "us_only": true,
+      "metric_basis": "power demand (GW) and share of US peak summer power demand",
+      "values": {
+        "2025_gw": 31,
+        "2025_share_of_peak_pct": 4.1,
+        "2026_gw": 41,
+        "2026_share_of_peak_pct": 5.3,
+        "2027_gw": 66,
+        "2027_share_of_peak_pct": 8.5,
+        "2030_growth_vs_2023_pct": 175
+      },
+      "notes": "US data-center power demand projected to more than double from 31 GW (2025) to 66 GW (2027). Earlier GS work projected data-center power demand up ~175% by 2030 vs 2023 levels (roughly 84 GW-class outcome). No explicit 2030 GW point in the May 2026 public article."
+    },
+    {
+      "source": "BloombergNEF",
+      "published": "2026-07 update (prior forecast 2025-12)",
+      "us_only": true,
+      "metric_basis": "data-center power demand (GW) and share of US electricity consumption",
+      "values": {
+        "2030_share_of_us_electricity_pct": 12,
+        "2035_gw_current_forecast": 194,
+        "2035_gw_prior_forecast_dec2025": 106,
+        "2035_share_of_us_electricity_pct": 20,
+        "pjm_2030_data_center_capacity_gw": 31
+      },
+      "notes": "July 2026 update raised 2035 US demand to 194 GW, 83% above the December 2025 forecast of 106 GW, reflecting ~150 new tracked projects (nearly a quarter over 500 MW each). Implies roughly 90-110 GW-class demand by 2030 on the new trajectory (BNEF does not publish the exact 2030 GW point publicly)."
+    },
+    {
+      "source": "McKinsey & Company",
+      "published": "2024-09 (widely cited through 2025-2026)",
+      "us_only": true,
+      "metric_basis": "annual consumption (TWh) and capacity (GW)",
+      "values": {
+        "2023_twh": 147,
+        "2023_share_pct": 3.7,
+        "2024_gw": 25,
+        "2030_twh": 606,
+        "2030_share_of_us_electricity_pct": 11.7,
+        "2030_gw": "80+"
+      },
+      "notes": "US data-center demand grows from ~25 GW (2024) to more than 80 GW by 2030; 147 TWh (2023) to ~606 TWh (2030), 11.7% of total US power demand."
+    },
+    {
+      "source": "Deloitte - Can US infrastructure keep up with the AI economy?",
+      "published": "2025-06-24",
+      "us_only": true,
+      "metric_basis": "power demand capacity (GW)",
+      "values": {
+        "2024_gw": 33,
+        "2035_gw_high": 176,
+        "ai_2024_gw": 4,
+        "ai_2035_gw": 123
+      },
+      "notes": "Total US data-center demand 33 GW (2024) to as much as 176 GW (2035); AI portion grows ~30x from 4 GW to 123 GW (70% of total by 2035). Interpolated 2030 is roughly 90-100 GW on their published curve."
+    },
+    {
+      "source": "Grid Strategies - National Load Growth Report 2025 (Strategic Industries series)",
+      "published": "2025-12",
+      "us_only": true,
+      "metric_basis": "utility/RTO peak load growth forecasts (GW) aggregated nationally",
+      "values": {
+        "utility_forecast_peak_load_growth_2030_gw": 166,
+        "of_which_data_centers_gw": 90,
+        "grid_strategies_own_view_data_center_growth_2030_gw": 65
+      },
+      "notes": "Aggregate utility forecasts show +166 GW US peak load by 2030, ~55% (about 90 GW) tied to data centers; Grid Strategies believes utility figures are somewhat overstated and market-based data-center growth by 2030 is likelier ~65 GW."
+    },
+    {
+      "source": "IEA - Energy and AI",
+      "published": "2025-04",
+      "us_only": false,
+      "metric_basis": "annual consumption (TWh); US figures broken out from global",
+      "values": {
+        "us_2024_twh": 183,
+        "us_2030_twh_base": 430,
+        "global_2030_twh": 945
+      },
+      "notes": "US data centers consumed ~183 TWh in 2024 (>4% of US electricity). IEA's US 2030 projection (~430 TWh) is the low outlier among major forecasts; LBNL's 2025 Update explicitly flags it as substantially below their 649 TWh Reference Case."
+    },
+    {
+      "source": "SemiAnalysis (public newsletter figures)",
+      "published": "2025-2026 (US Grid Constraints and Onsite Gas Deep Dive posts)",
+      "us_only": true,
+      "metric_basis": "critical IT power (GW), behind-the-meter focus",
+      "values": {
+        "confirmed_btm_critical_it_gw_by_2030": 26,
+        "btm_share_of_new_ai_capacity_additions_2028_pct": 50,
+        "btm_share_of_capacity_added_2025_pct": 7
+      },
+      "notes": "Cumulative confirmed behind-the-meter critical IT capacity reaches ~26 GW by end-2030 (likely higher with unannounced projects); BTM becomes the primary power source for ~half of new AI data-center capacity additions by 2028, up from under 7% of 2025 additions."
+    },
+    {
+      "source": "EIA - Annual Energy Outlook 2026 / STEO commentary",
+      "published": "2026-04-08 (AEO2026); STEO monthly through mid-2026",
+      "us_only": true,
+      "metric_basis": "long-run server consumption (BkWh) and total US electricity demand",
+      "values": {
+        "server_consumption_2050_bkwh_range": [446, 818],
+        "total_us_electricity_growth_rate_pct_per_year": "0.9-1.6",
+        "2026_total_us_power_demand_bkwh": 4283
+      },
+      "notes": "EIA frames data centers as the dominant driver of long-term US electricity growth but publishes server-only consumption, not an all-in data-center 2030 GW point. STEO has US power consumption at record highs in 2025 and 2026, led by commercial-sector (data-center) sales; commercial sales overtake residential in 2027 for the first time on record."
+    }
+  ],
+  "actuals": {
+    "as_of": "2025-2026",
+    "us_data_center_consumption_2024_twh": 192,
+    "us_data_center_share_2024_pct": 4.7,
+    "us_data_center_consumption_2025_twh_est": 240,
+    "us_data_center_consumption_2025_note": "2025 TWh is an interpolation on the LBNL 2025-Update Reference Case (192 TWh in 2024 to 464 TWh in 2028); LBNL treats 2024 as the last fully historical year. EPRI puts 2024 at 177-192 TWh.",
+    "us_data_center_power_demand_2025_gw": 31,
+    "us_data_center_power_demand_2026_gw": 41,
+    "share_of_peak_summer_demand_2025_pct": 4.1,
+    "share_of_peak_summer_demand_2026_pct": 5.3,
+    "gw_source": "Goldman Sachs Research, May 2026",
+    "current_share_of_us_electricity_pct": "about 4.7-5.5% of US consumption in 2025, on track for 6%+ in 2026"
+  },
+  "conversion_factors": {
+    "method": "MMcf/d per GW running 24/7 = heat_rate_mmbtu_per_mwh x 24,000 MWh/day / 1,037 Btu per cf (EIA average heat content of consumed natural gas, i.e. 1,037 MMBtu per MMcf)",
+    "example_math": "1 GW at 6.4 MMBtu/MWh -> 6.4 x 24,000 = 153,600 MMBtu/day / 1,037 = ~148 MMcf/d",
+    "gas_heat_content_btu_per_cf": 1037,
+    "technologies": [
+      {
+        "technology": "H-class combined-cycle gas turbine (new build, e.g. GE Vernova 7HA)",
+        "heat_rate_mmbtu_per_mwh": [6.1, 6.4],
+        "implied_mmcfd_per_gw_24x7": [141, 148],
+        "note": "Best-in-class new CCGT, ~53-56% HHV efficiency. Homer City's disclosed ~665,000 MMBtu/day for ~4.4 GW works out to 6.3 MMBtu/MWh and ~146 MMcf/d per GW, corroborating this band."
+      },
+      {
+        "technology": "Aeroderivative / simple-cycle peaker (LM2500/LM6000-class, frame simple cycle)",
+        "heat_rate_mmbtu_per_mwh": [9.0, 10.0],
+        "implied_mmcfd_per_gw_24x7": [208, 231],
+        "note": "Fast-deploy bridging power widely used at BTM data-center sites (xAI, Stargate Abilene). Rarely run at 24/7 baseload long-term, but many data-center bridge units do run at high capacity factors."
+      },
+      {
+        "technology": "Reciprocating gas gensets (Wartsila/Jenbacher/Caterpillar class)",
+        "heat_rate_mmbtu_per_mwh": [8.0, 9.0],
+        "implied_mmcfd_per_gw_24x7": [185, 208],
+        "note": "~38-42% efficiency; favored for fast delivery and load-following at off-grid campuses."
+      },
+      {
+        "technology": "Solid-oxide fuel cells (Bloom Energy)",
+        "claimed_electrical_efficiency_pct": 54,
+        "heat_rate_mmbtu_per_mwh": 6.3,
+        "implied_mmcfd_per_gw_24x7": 146,
+        "note": "Bloom claims ~54% point-of-use electrical efficiency (vs 35-40% simple-cycle), i.e. 3.412/0.54 = ~6.3 MMBtu/MWh -> ~146 MMcf/d per GW, matching the widely cited ~150 MMcf/d per GW figure. Oracle MSA up to 2.8 GW (Apr 2026), AEP up to 1 GW, Brookfield partnership announced 2026."
+      }
+    ],
+    "recommended_single_factor": {
+      "mmcfd_per_gw_24x7": 150,
+      "bcfd_per_gw_24x7": 0.15,
+      "rationale": "New efficient generation (H-class CCGT or Bloom SOFC, heat rate ~6.3 MMBtu/MWh) at 100% capacity factor gives ~145-148 MMcf/d per GW; independently corroborated by Homer City's disclosed 665,000 MMBtu/day for 4.4 GW (~146 MMcf/d per GW). Use 0.15 Bcf/d per GW as base; a fleet-average mix with peakers/recips runs 0.17-0.20 Bcf/d per GW."
+    }
+  },
+  "gas_share_estimates": [
+    {
+      "source": "IEA - Energy and AI",
+      "published": "2025-04",
+      "estimate": "Natural gas is already the largest source of electricity for US data centers at >40% share (2024). To 2030, renewables meet nearly half of incremental global data-center demand; gas-fired generation expands ~175 TWh globally, concentrated in the US, where gas remains the largest single supply source through 2030."
+    },
+    {
+      "source": "SemiAnalysis",
+      "published": "2025-12 to 2026",
+      "estimate": "Behind-the-meter generation (predominantly gas turbines, recips, and fuel cells) supplies ~50% of new AI data-center capacity additions by 2028, up from <7% of 2025 additions; ~26 GW of confirmed BTM critical IT capacity by end-2030."
+    },
+    {
+      "source": "East Daley Analytics",
+      "published": "2025-2026",
+      "estimate": "~81 GW of new gas-fired power capacity tied to data-center demand by 2030 across ~290 tracked projects, implying 4.2-6.1 Bcf/d of incremental US gas demand."
+    },
+    {
+      "source": "S&P Global Ratings / Commodity Insights",
+      "published": "2024-10 (ratings), updated commentary 2025-2026",
+      "estimate": "Base case ~+3 Bcf/d of US gas demand from data centers by 2030, upside approaching 6 Bcf/d depending on infrastructure buildout pace."
+    },
+    {
+      "source": "Kinder Morgan",
+      "published": "2024-08 (reiterated on earnings calls through 2026)",
+      "estimate": "Incremental gas demand from data centers of 3-6 Bcf/d by 2030; dedicated/co-located gas generation seen as the best-fit supply given grid constraints."
+    },
+    {
+      "source": "Enverus Intelligence Research",
+      "published": "2025-2026",
+      "estimate": "Behind-the-meter projects ~40% of announced off-grid installed capacity; implies ~1.3 Bcf/d of incremental gas demand by 2030 (about half in ERCOT and PJM) - the conservative end of published estimates."
+    },
+    {
+      "consensus_note": "Published incremental US gas demand from data centers by 2030 clusters at 3-6 Bcf/d (East Daley 4.2-6.1; S&P base 3, upside 6; Kinder Morgan 3-6; Enverus 1.3 as low outlier). At 0.15 Bcf/d per GW, that range implies roughly 20-40 GW of gas-served data-center load."
+    }
+  ],
+  "btm_projects": [
+    {
+      "name": "Fermi America 'Project Matador' HyperGrid",
+      "location": "Amarillo, TX (Texas Tech University System land)",
+      "gw": 17.0,
+      "gas_gw": 11.0,
+      "fuel": "natural gas (11 GW permitted/filed) + 4.4 GW nuclear (4x AP1000) + solar/battery",
+      "status": "6 GW gas air permit approved by TCEQ Feb 2026; additional 5 GW permit filed Mar 2026; project delays reported mid-2026"
+    },
+    {
+      "name": "Homer City Energy Campus",
+      "location": "Homer City, PA (retired coal plant site)",
+      "gw": 4.4,
+      "fuel": "natural gas CCGT (7x GE Vernova 7HA.02)",
+      "status": "under construction; first power expected 2027; ~665,000 MMBtu/day (~640 MMcf/d) of pipeline gas contracted"
+    },
+    {
+      "name": "Pacifico Energy 'GW Ranch'",
+      "location": "Pecos County, TX (Permian Basin)",
+      "gw": 7.65,
+      "fuel": "natural gas, off-grid",
+      "status": "announced/development; billed as largest power project in the US"
+    },
+    {
+      "name": "FO Permian Partners off-grid campus",
+      "location": "Permian Basin, TX",
+      "gw": 5.0,
+      "fuel": "natural gas, off-grid",
+      "status": "announced 2026"
+    },
+    {
+      "name": "Chevron / Engine No. 1 / GE Vernova (Microsoft offtake)",
+      "location": "West Texas",
+      "gw": 2.5,
+      "gw_note": "2.5 GW initial, up to 4 GW",
+      "fuel": "natural gas (7x GE Vernova 7HA slot-reserved turbines), CCS-ready",
+      "status": "FID targeted early 2026; in-service targeted end-2027; Microsoft confirmed as partner Mar 2026"
+    },
+    {
+      "name": "xAI Colossus 1/2/3",
+      "location": "Memphis, TN / Southaven, MS",
+      "gw": 1.2,
+      "gw_note": "1.2 GW permanent self-generation permitted for Colossus 2 (MDEQ); ~0.4 GW+ of mobile turbines at Colossus 1; ~59 turbines reported on site 2026",
+      "fuel": "natural gas (aeroderivative and mobile turbines)",
+      "status": "operating; ongoing Clean Air Act permitting litigation"
+    },
+    {
+      "name": "Stargate Abilene (Crusoe/Lancium for OpenAI-Oracle)",
+      "location": "Abilene, TX",
+      "gw": 1.2,
+      "fuel": "grid (ERCOT) plus onsite gas turbines (GE Vernova aeroderivative bridge units ~360 MW)",
+      "status": "first buildings energized 2025; second 1.2 GW Vantage-built Stargate campus under construction 50 miles north (started Sep 2025)"
+    },
+    {
+      "name": "Meta 'Hyperion' / Entergy Louisiana CCGTs",
+      "location": "Richland Parish, LA",
+      "gw": 2.2,
+      "fuel": "natural gas CCGT (3 new Entergy units; grid-side but dedicated to the campus)",
+      "status": "approved by Louisiana PSC 2025; in service 2028-2029"
+    },
+    {
+      "name": "ExxonMobil gas + CCS data-center power",
+      "location": "US Gulf Coast (site TBD)",
+      "gw": 1.5,
+      "fuel": "natural gas with >90% carbon capture, off-grid",
+      "status": "announced Dec 2024; advanced talks with power providers and tech firms through 2026"
+    },
+    {
+      "name": "Bloom Energy fuel-cell fleet deals (Oracle MSA; AEP)",
+      "location": "multiple US sites",
+      "gw": 3.8,
+      "gw_note": "Oracle master services agreement up to 2.8 GW (Apr 2026) + AEP up to 1 GW",
+      "fuel": "natural gas solid-oxide fuel cells (~54% efficient)",
+      "status": "framework agreements; deployments ramping; Bloom targeting 2 GW/yr manufacturing capacity; $25B Brookfield commitment Jul 2026"
+    }
+  ],
+  "sources": {
+    "lbnl_2025_update": "https://eta.lbl.gov/publications/united-states-data-center-energy-2025",
+    "lbnl_2025_update_pdf": "https://www.rtoinsider.com/wp-content/uploads/2026/06/data-center-energy-usage-2025-update.pdf",
+    "lbnl_2024_report": "https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf",
+    "epri_powering_intelligence_2026": "https://powering-intelligence.epri.com/",
+    "epri_2026_press_release": "https://www.epri.com/about/media-resources/press-release/trb5wwt7oemdbkaamxrccqkq2ktteae8",
+    "goldman_sachs_may2026": "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027",
+    "bnef_106gw_dec2025": "https://www.utilitydive.com/news/us-data-center-power-demand-could-reach-106-gw-by-2035-bloombergnef/806972/",
+    "bnef_194gw_jul2026": "https://www.tomshardware.com/tech-industry/data-centers/bnef-nearly-doubles-its-us-data-center-power-forecast-to-194gw",
+    "mckinsey_2030": "https://www.mckinsey.com/featured-insights/week-in-charts/ais-power-binge",
+    "deloitte_jun2025": "https://www.deloitte.com/us/en/insights/industry/power-and-utilities/data-center-infrastructure-artificial-intelligence.html",
+    "grid_strategies_2025_report": "https://gridstrategiesllc.com/wp-content/uploads/Grid-Strategies-National-Load-Growth-Report-2025.pdf",
+    "iea_energy_and_ai": "https://www.iea.org/reports/energy-and-ai/energy-supply-for-ai",
+    "semianalysis_btm": "https://newsletter.semianalysis.com/p/us-grid-constraints-towards-40gw",
+    "semianalysis_onsite_gas": "https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power",
+    "eia_aeo2026": "https://www.eia.gov/outlooks/aeo/",
+    "eia_server_energy": "https://www.eia.gov/todayinenergy/detail.php?id=67704",
+    "east_daley_gas_forecast": "https://eastdaley.com/burner-tip-posts/data-centers-could-add-6-bcf-d-to-gas-demand-eda-forecast",
+    "sp_ratings_gas_2030": "https://spglobal.com/ratings/en/research/articles/241022-data-centers-more-gas-will-be-needed-to-feed-u-s-growth-13290987",
+    "kinder_morgan_3to6bcfd": "https://www.spglobal.com/energy/en/news-research/latest-news/natural-gas/081624-grid-challenges-make-dedicated-gas-generation-best-option-for-data-centers-kinder-morgan",
+    "enverus_btm": "https://www.enverus.com/newsroom/off-the-grid-on-the-gas/",
+    "rbccm_gas_datacenters_may2026": "https://www.rbccm.com/en/insights/2026/05/natural-gas-powers-the-data-center-boom",
+    "fermi_america": "https://naturalgasintel.com/news/permian-natural-gas-supply-ai-demand-in-focus-as-fermi-america-faces-project-delay/",
+    "pacifico_fo_permian": "https://www.datacenterdynamics.com/en/news/fo-permian-partners-unveils-5gw-off-grid-gas-power-solution-for-texas-data-centers/",
+    "texas_btm_38gw": "https://www.texastribune.org/2026/02/02/texas-permian-basin-power-plant-project-data-centers/",
+    "chevron_west_texas": "https://www.datacenterdynamics.com/en/news/chevron-selects-west-texas-for-first-natural-gas-plant-to-power-data-centers-report/",
+    "xai_colossus": "https://www.datacenterdynamics.com/en/news/musks-xai-gets-go-ahead-for-41-natural-gas-turbines-in-mississippi-to-power-colossus-data-centers/",
+    "bloom_oracle_aep": "https://www.utilitydive.com/news/aep-bloom-energy-fuel-cell-data-center/733150/",
+    "bloom_efficiency": "https://www.bloomenergy.com/blog/the-ai-revolution-how-fuel-cells-are-solving-the-data-center-power-challenge/"
+  },
+  "notes": [
+    "Definitional caution: forecasts mix three metrics - annual consumption (TWh), average power demand (GW), IT/nameplate capacity (GW), and requested grid interconnection capacity (GW). LBNL assumes ~50% average utilization of interconnection capacity, so 649 TWh (74 GW average load) maps to ~148 GW of interconnection requests in 2030.",
+    "2030 US forecast convergence: consumption estimates cluster at 380-850 TWh (IEA ~430 low outlier; EPRI 380-790; LBNL 521-843, reference 649; McKinsey ~606). Capacity-basis estimates for 2030 span ~65 GW (Grid Strategies market view) to ~148 GW (LBNL interconnection), with utility filings at ~90 GW of data-center peak growth.",
+    "Texas alone had an estimated ~38 GW of behind-the-meter data-center generation in development as of early 2026 (Texas Tribune/DCD reporting).",
+    "Announced BTM pipelines exceed what published gas-demand forecasts assume gets built; East Daley's 81 GW of DC-linked gas capacity by 2030 is a tracker of projects, not a realization forecast.",
+    "Gas math sanity check: Homer City contracts ~665,000 MMBtu/day for ~4.4 GW = 6.3 MMBtu/MWh heat rate = ~146 MMcf/d per GW, essentially identical to Bloom SOFC at claimed 54% efficiency. This makes ~0.15 Bcf/d per 24/7 GW the most defensible single conversion for new efficient capacity.",
+    "All Bcf/d incremental-demand estimates (3-6 Bcf/d by 2030) are small against ~107 Bcf/d total US gas demand but large against power-sector gas burn growth; timing risk is concentrated in 2027-2029 turbine delivery slots."
+  ]
+}

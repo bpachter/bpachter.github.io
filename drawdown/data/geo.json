@@ -1,0 +1,155 @@
+{
+  "retrieved": "2026-07-23",
+  "notes": "Geographic dataset for the Drawdown US natural gas system map. Point coordinates are site-verified where possible (4 decimals); entries with coords_approx:true are best-effort placements. Basin rings and pipeline paths are ILLUSTRATIVE region shades and flow corridors, not survey geometry. Capacities and production are approximate nameplate/public figures as of mid-2026.",
+  "lng_terminals": [
+    { "name": "Sabine Pass LNG", "lat": 29.7383, "lon": -93.8748, "state": "LA", "status": "operating", "capacity_bcfd": 4.5, "note": "Cheniere, 6 trains (~30 mtpa); largest US export terminal" },
+    { "name": "Corpus Christi LNG (incl Stage 3)", "lat": 27.8917, "lon": -97.2817, "state": "TX", "status": "operating", "capacity_bcfd": 3.5, "note": "Cheniere; Stage 3 midscale trains ramping through 2026" },
+    { "name": "Freeport LNG", "lat": 28.9389, "lon": -95.3092, "state": "TX", "status": "operating", "capacity_bcfd": 2.1, "note": "Quintana Island, 3 trains (~15 mtpa)" },
+    { "name": "Cameron LNG", "lat": 29.9670, "lon": -93.3330, "state": "LA", "status": "operating", "capacity_bcfd": 1.8, "note": "Hackberry LA, 3 trains (~13.9 mtpa)" },
+    { "name": "Cove Point LNG", "lat": 38.3878, "lon": -76.4117, "state": "MD", "status": "operating", "capacity_bcfd": 0.75, "note": "Berkshire Hathaway Energy, ~5.75 mtpa" },
+    { "name": "Elba Island LNG", "lat": 32.0831, "lon": -80.9925, "state": "GA", "status": "operating", "capacity_bcfd": 0.35, "note": "Kinder Morgan, 10 midscale units (~2.5 mtpa)" },
+    { "name": "Calcasieu Pass LNG", "lat": 29.7781, "lon": -93.3442, "state": "LA", "status": "operating", "capacity_bcfd": 1.5, "note": "Venture Global; commercial ops since April 2025 (~10-12 mtpa)" },
+    { "name": "Plaquemines LNG", "lat": 29.5530, "lon": -89.7850, "state": "LA", "status": "operating", "capacity_bcfd": 2.6, "note": "Venture Global; exporting since Dec 2024, Phase 1+2 ramping to ~20 mtpa" },
+    { "name": "Golden Pass LNG", "lat": 29.7611, "lon": -93.9222, "state": "TX", "status": "operating", "capacity_bcfd": 2.4, "note": "QatarEnergy/ExxonMobil; first cargo April 2026, Trains 2-3 complete 2026-27 (~18 mtpa)" },
+    { "name": "Port Arthur LNG", "lat": 29.7950, "lon": -93.9350, "state": "TX", "status": "under-construction", "capacity_bcfd": 1.8, "coords_approx": true, "note": "Sempra Phase 1 (~13.5 mtpa), first LNG expected 2027; Phase 2 FID'd 2025" },
+    { "name": "Rio Grande LNG", "lat": 25.9930, "lon": -97.2670, "state": "TX", "status": "under-construction", "capacity_bcfd": 2.3, "coords_approx": true, "note": "NextDecade, Brownsville Ship Channel; Trains 1-3 (~17.6 mtpa) plus T4-T5 expansion FIDs" },
+    { "name": "CP2 LNG", "lat": 29.7900, "lon": -93.3480, "state": "LA", "status": "under-construction", "capacity_bcfd": 2.8, "coords_approx": true, "note": "Venture Global, adjacent to Calcasieu Pass (~20 mtpa); FID 2025" },
+    { "name": "Commonwealth LNG", "lat": 29.7660, "lon": -93.3560, "state": "LA", "status": "fid", "capacity_bcfd": 1.25, "coords_approx": true, "note": "Caturus; FID May 2026 (~9.5 mtpa), west bank of Calcasieu Pass, ops target 2030" },
+    { "name": "Delfin FLNG (offshore)", "lat": 29.1500, "lon": -93.4000, "state": "LA (offshore)", "status": "fid", "capacity_bcfd": 0.6, "coords_approx": true, "note": "Floating LNG deepwater port ~40 mi off Cameron LA; FLNG 1 FID June 2026 (4.4 mtpa), up to 3 vessels (~13.2 mtpa total)" },
+    { "name": "Woodside Louisiana LNG", "lat": 30.0450, "lon": -93.3300, "state": "LA", "status": "under-construction", "capacity_bcfd": 2.2, "coords_approx": true, "note": "Formerly Driftwood (Tellurian); Woodside FID April 2025, foundation ~16.5 mtpa, permitted to 27.6 mtpa" },
+    { "name": "Texas LNG", "lat": 26.0080, "lon": -97.2200, "state": "TX", "status": "pre-fid", "capacity_bcfd": 0.53, "coords_approx": true, "note": "Glenfarne, Brownsville (~4 mtpa); fully subscribed, LNTP issued July 2026, FID imminent" },
+    { "name": "Lake Charles LNG", "lat": 30.1100, "lon": -93.2900, "state": "LA", "status": "pre-fid", "capacity_bcfd": 2.2, "note": "Energy Transfer (~16.5 mtpa) at former Trunkline import site; development suspended Dec 2025" }
+  ],
+  "btm_projects": [
+    { "name": "Fermi America Project Matador", "lat": 35.3200, "lon": -101.4800, "state": "TX", "gw": 11.0, "gas_gw": 6.0, "status": "under-construction", "coords_approx": true, "note": "Amarillo/Carson County, adjacent to DOE Pantex. 11 GW private 'HyperGrid' (gas + nuclear + renewables); first 6 GW of gas preliminarily permitted Nov 2025, first ~1 GW targeted late 2026" },
+    { "name": "Homer City Energy Campus", "lat": 40.5136, "lon": -79.1964, "state": "PA", "gw": 4.5, "gas_gw": 4.5, "status": "under-construction", "note": "Former Homer City coal plant; 7x GE Vernova 7HA.02 turbines, ~$10B+, power from 2027; largest planned US gas-powered DC campus in the East" },
+    { "name": "Pacifico Energy GW Ranch", "lat": 31.1400, "lon": -102.8800, "state": "TX", "gw": 7.65, "gas_gw": 7.65, "status": "permitted", "coords_approx": true, "note": "Pecos County, ~17 mi north of Fort Stockton; TCEQ air permit for up to 7.65 GW gas approved Feb 2026 — largest permitted DC campus in US; first power target 2027" },
+    { "name": "Chevron West Texas Power Campus", "lat": 31.8500, "lon": -102.3500, "state": "TX", "gw": 2.5, "gas_gw": 2.5, "status": "announced", "coords_approx": true, "note": "Chevron + Engine No. 1 + GE Vernova; Permian site, starts 2.5 GW expandable to 5 GW; Microsoft in exclusivity talks (Apr 2026). Exact county not disclosed" },
+    { "name": "FO Permian Partners Campus", "lat": 31.9500, "lon": -102.1000, "state": "TX", "gw": 5.0, "gas_gw": 5.0, "status": "announced", "coords_approx": true, "note": "Midland County; 5+ GW off-grid gas power across 3,200-acre platform, announced Mar 2026" },
+    { "name": "Stargate Abilene (Crusoe / Lancium)", "lat": 32.4942, "lon": -99.8009, "state": "TX", "gw": 1.2, "gas_gw": 0.36, "status": "operating", "note": "OpenAI/Oracle flagship Stargate site at Lancium Clean Campus; 1.2 GW across 8 buildings (phase 2 completing mid-2026), ~360 MW behind-the-meter gas turbines" },
+    { "name": "xAI Colossus (Memphis)", "lat": 35.0600, "lon": -90.1520, "state": "TN", "gw": 1.5, "gas_gw": 1.0, "status": "operating", "note": "Colossus 1 (former Electrolux plant) plus Colossus 2 expansion; mix of onsite gas turbines and dedicated generation. Campus totals evolving rapidly" },
+    { "name": "Meta Hyperion (Richland Parish)", "lat": 32.3500, "lon": -91.6700, "state": "LA", "gw": 5.0, "gas_gw": 2.3, "status": "under-construction", "coords_approx": true, "note": "Meta's largest DC (~$10B, scalable to 5 GW) near Holly Ridge; powered by ~2.3 GW of new dedicated Entergy CCGTs — grid-served but purpose-built gas" },
+    { "name": "Williams Socrates (New Albany)", "lat": 40.0810, "lon": -82.7590, "state": "OH", "gw": 0.4, "gas_gw": 0.4, "status": "under-construction", "coords_approx": true, "note": "Two 200 MW off-grid gas plants in New Albany business park serving a Meta-affiliated DC; in service late 2026; ~$1.6B" },
+    { "name": "Vantage Frontier (Shackelford County)", "lat": 32.5500, "lon": -99.1700, "state": "TX", "gw": 1.4, "gas_gw": 1.0, "status": "under-construction", "coords_approx": true, "note": "~$25B OpenAI Stargate site announced late 2025; ~1.4 GW campus with substantial onsite gas generation planned. Gas share approximate" }
+  ],
+  "basins": [
+    {
+      "name": "Appalachia (Marcellus + Utica)",
+      "production_bcfd": 36.5,
+      "ring": [[-81.6, 41.3], [-80.2, 42.0], [-78.6, 42.0], [-76.8, 41.6], [-76.2, 40.4], [-77.8, 39.5], [-79.6, 38.6], [-81.3, 38.9], [-82.2, 40.0], [-81.6, 41.3]]
+    },
+    {
+      "name": "Permian",
+      "production_bcfd": 27.0,
+      "ring": [[-104.9, 33.0], [-103.0, 33.4], [-101.8, 32.9], [-101.5, 31.8], [-102.3, 30.6], [-103.9, 30.5], [-104.9, 31.7], [-104.9, 33.0]]
+    },
+    {
+      "name": "Haynesville",
+      "production_bcfd": 17.0,
+      "ring": [[-94.9, 33.0], [-93.2, 33.1], [-92.6, 32.4], [-93.0, 31.5], [-94.2, 31.2], [-95.0, 31.9], [-94.9, 33.0]]
+    },
+    {
+      "name": "Eagle Ford",
+      "production_bcfd": 4.7,
+      "ring": [[-100.4, 28.4], [-99.3, 28.9], [-98.2, 29.4], [-97.0, 29.5], [-96.2, 29.0], [-97.3, 28.2], [-98.9, 27.9], [-100.4, 28.4]]
+    },
+    {
+      "name": "Anadarko",
+      "production_bcfd": 5.5,
+      "ring": [[-101.0, 36.6], [-99.0, 36.6], [-97.6, 36.0], [-97.8, 35.0], [-99.3, 34.6], [-101.0, 35.2], [-101.0, 36.6]]
+    },
+    {
+      "name": "Bakken",
+      "production_bcfd": 3.6,
+      "ring": [[-104.8, 48.9], [-102.0, 48.9], [-101.2, 48.2], [-101.6, 47.2], [-103.5, 46.8], [-104.8, 47.6], [-104.8, 48.9]]
+    },
+    {
+      "name": "DJ (Denver-Julesburg)",
+      "production_bcfd": 4.5,
+      "ring": [[-105.3, 41.0], [-103.6, 41.0], [-103.0, 40.3], [-103.6, 39.5], [-104.9, 39.6], [-105.3, 40.2], [-105.3, 41.0]]
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "Appalachia to Gulf (TETCO / Columbia Gulf southbound)",
+      "capacity_bcfd": 5.0,
+      "notes": "Illustrative corridor, not a survey route. Reversed/expanded southbound paths feeding Gulf LNG demand.",
+      "path": [[-80.3, 40.3], [-83.0, 38.0], [-86.5, 35.0], [-89.5, 32.0], [-91.0, 30.3]]
+    },
+    {
+      "name": "Appalachia to Mid-Atlantic (MVP + Transco Zone 5)",
+      "capacity_bcfd": 2.0,
+      "notes": "Illustrative corridor, not a survey route. MVP to Transco Station 165, feeding Southeast/NoVA load.",
+      "path": [[-80.5, 39.5], [-80.0, 37.8], [-79.4, 37.0], [-77.5, 38.9]]
+    },
+    {
+      "name": "Appalachia to NYC / New England (Leidy / TGP-Algonquin)",
+      "capacity_bcfd": 3.5,
+      "notes": "Illustrative corridor, not a survey route. NE PA takeaway toward NYC and constrained New England.",
+      "path": [[-77.9, 41.3], [-75.5, 41.1], [-74.1, 40.8], [-71.1, 42.4]]
+    },
+    {
+      "name": "Permian to Gulf Coast (Whistler / Matterhorn corridor)",
+      "capacity_bcfd": 10.0,
+      "notes": "Illustrative corridor, not a survey route. Combined Waha-to-Agua-Dulce/Katy takeaway (Whistler, Matterhorn, PHP, GCX and expansions).",
+      "path": [[-103.3, 31.3], [-100.0, 29.9], [-97.9, 27.9], [-96.5, 28.9], [-95.8, 29.8]]
+    },
+    {
+      "name": "Haynesville to Gulf (Gulf Run / LEAP to Gillis)",
+      "capacity_bcfd": 6.0,
+      "notes": "Illustrative corridor, not a survey route. North Louisiana south to the Gillis hub and LNG corridor.",
+      "path": [[-93.8, 32.5], [-93.3, 31.3], [-93.0, 30.3], [-93.3, 29.8]]
+    },
+    {
+      "name": "Canada to Midwest (Alliance / Northern Border)",
+      "capacity_bcfd": 4.0,
+      "notes": "Illustrative corridor, not a survey route. WCSB imports into the Chicago market area.",
+      "path": [[-103.9, 49.0], [-99.5, 47.0], [-95.5, 44.5], [-88.2, 41.8]]
+    },
+    {
+      "name": "Rockies to Midwest (REX)",
+      "capacity_bcfd": 2.6,
+      "notes": "Illustrative corridor, not a survey route. Rockies Express mainline; Zone 3 now flows bidirectionally with Appalachian gas moving west.",
+      "path": [[-108.8, 41.7], [-102.0, 40.2], [-94.5, 39.2], [-88.0, 39.5], [-80.9, 39.9]]
+    },
+    {
+      "name": "Gulf Coast to Atlantic Seaboard (Transco mainline)",
+      "capacity_bcfd": 10.0,
+      "notes": "Illustrative corridor, not a survey route. Transco mainline through the Southeast to NoVA and NYC; stylized system-level figure.",
+      "path": [[-95.0, 29.7], [-90.5, 31.0], [-84.4, 33.7], [-80.0, 35.2], [-77.4, 38.9], [-74.0, 40.6]]
+    }
+  ],
+  "demand_centers": [
+    { "name": "Henry Hub (Erath, LA)", "lat": 29.9640, "lon": -92.0350, "kind": "hub" },
+    { "name": "Katy Hub (TX)", "lat": 29.7858, "lon": -95.8245, "kind": "hub" },
+    { "name": "Chicago Citygate", "lat": 41.8781, "lon": -87.6298, "kind": "citygate" },
+    { "name": "New England (Boston / Algonquin Citygate)", "lat": 42.3601, "lon": -71.0589, "kind": "citygate" },
+    { "name": "New York City (Transco Zone 6 NY)", "lat": 40.7128, "lon": -74.0060, "kind": "citygate" },
+    { "name": "Northern Virginia (Ashburn Data Center Alley)", "lat": 39.0438, "lon": -77.4874, "kind": "dc-cluster" },
+    { "name": "Atlanta Citygate", "lat": 33.7490, "lon": -84.3880, "kind": "citygate" },
+    { "name": "Phoenix (Metro DC Cluster)", "lat": 33.4484, "lon": -112.0740, "kind": "dc-cluster" }
+  ],
+  "sources": [
+    "https://www.eia.gov/todayinenergy/detail.php?id=67564",
+    "https://www.goldenpasslng.com/newsroom/first-lng-export-cargo-departs-golden-pass-lng",
+    "https://caturus.com/caturus-announces-final-investment-decision-for-9-5-mtpa-commonwealth-lng-export-facility-in-cameron-la/",
+    "https://www.globenewswire.com/news-release/2026/06/03/3306350/0/en/delfin-midstream-announces-5-billion-final-investment-decision-for-first-flng-vessel.html",
+    "https://www.ogj.com/pipelines-transportation/lng/news/55388908/texas-lng-advances-pre-fid-project-with-limited-notice-to-proceed",
+    "https://pgjonline.com/news/2025/december/energy-transfer-eyes-early-2026-fid-for-lake-charles-lng-project",
+    "https://www.datacenterdynamics.com/en/news/fermi-america-receives-first-natural-gas-turbines-for-up-to-11gw-data-center-campus-in-amarillo-texas/",
+    "https://www.prnewswire.com/news-releases/fermi-america-and-the-state-of-texas-announce-preliminary-approval-for-first-6-gw-of-one-of-the-worlds-largest-clean-natural-gas-facilities-on-project-matadors-11-gw-private-hypergrid-campus-302603582.html",
+    "https://www.homercityredevelopment.com/project-overview",
+    "https://www.utilitydive.com/news/homer-city-gas-fired-power-station-data-center-firstenergy/744332/",
+    "https://www.kcbd.com/2026/02/01/texas-approves-largest-permitted-data-center-campus-us/",
+    "https://www.texastribune.org/2026/02/02/texas-permian-basin-power-plant-project-data-centers/",
+    "https://eastdaley.com/daley-note/chevron-to-build-data-center-power-campus-in-permian-supporting-new-basin-demand",
+    "https://www.datacenterdynamics.com/en/news/fo-permian-partners-unveils-5gw-off-grid-gas-power-solution-for-texas-data-centers/",
+    "https://www.datacenterfrontier.com/hyperscale/article/55276169/crusoe-adds-45-gw-natural-gas-to-fuel-ai-expands-abilene-data-center-to-12-gw",
+    "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts",
+    "https://www.williams.com/expansion-project/socrates-power-solution-facilities/",
+    "https://www.power-eng.com/gas/williams-pushes-deeper-into-power-generation-as-data-center-demand-accelerates/",
+    "https://naturalgasintel.com/news/eia-sees-haynesville-overtaking-permian-in-2027-natural-gas-growth-as-henry-hub-tops-4/",
+    "https://gascompressionmagazine.com/2026/02/16/us-natural-gas-production-to-reach-record-highs-in-2026-and-2027/",
+    "https://nominatim.openstreetmap.org/"
+  ]
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DRAWDOWN — US gas balance terminal</title>
+<meta name="description" content="A terminal for the US natural gas balance 2026–2035: AI data centers, contracted LNG exports, and the storage drawdown the forward curve isn't pricing. Independent model, public data, playable.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ BOOT ═══ -->
+<div id="boot">
+  <div class="boot-inner">
+    <div class="boot-mark">DRAWDOWN</div>
+    <div class="boot-sub">US NATURAL GAS BALANCE TERMINAL · v2</div>
+    <div class="boot-lines" id="bootlines"></div>
+    <div class="boot-bar"><i id="bootbar"></i></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand" id="brand" title="go to TERMINAL">
+      <div>
+        <div class="bmark">DRAWDOWN</div>
+        <div class="bsub">GAS BALANCE TERMINAL</div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-route="terminal"><span class="tno">F1</span> TERMINAL</button>
+      <button class="tab" data-route="brief"><span class="tno">F2</span> BRIEF</button>
+      <button class="tab" data-route="model"><span class="tno">F3</span> MODEL</button>
+      <button class="tab" data-route="data"><span class="tno">F4</span> DATA</button>
+      <button class="tab" data-route="atlas"><span class="tno">F5</span> ATLAS</button>
+      <a class="tab ext" href="operator.html" target="_blank" rel="noopener"><span class="tno">F6</span> OPERATOR <span class="arr">↗</span></a>
+      <span class="tab-ind" id="tab-ind"></span>
+    </nav>
+    <div class="top-right">
+      <div class="clockbox">
+        <div class="c1" id="clock">--:--:--</div>
+        <div class="c2" id="clockdate">UTC</div>
+      </div>
+      <div class="syslamp" title="model calibrated"></div>
+    </div>
+  </header>
+
+  <div class="tape" id="tape" aria-hidden="true">
+    <div class="tape-inner" id="tapeInner"><span class="q"><b>DRAWDOWN/2.0</b> LOADING MARKET DATA…</span></div>
+  </div>
+
+  <main id="viewport"></main>
+
+  <div class="cmd-out" id="cmdout"></div>
+  <div class="cmdbar">
+    <span class="prompt">dd&gt;</span>
+    <input id="cmd" autocomplete="off" spellcheck="false"
+      placeholder='command — try "help", "go atlas", "preset p0", "brief 5"'>
+    <span class="cmdhint">/ FOCUS · ⌘K PALETTE · F1–F6</span>
+  </div>
+
+  <footer class="statusbar" id="statusbar">
+    <span><b>MODEL</b> <span class="ok">CALIBRATED</span> 2026-07-23</span>
+    <span><b>SPOT</b> $2.86 MODEL / $2.80 ACTUAL</span>
+    <span><b>OCT-26 PEAK</b> 3,970 / EIA 3,966</span>
+    <span><b>SEASONAL AMP</b> 1,943 / 1,944</span>
+    <span><b>DATA</b> EIA · FERC · 96 SOURCES</span>
+    <span><a href="https://bpachter.github.io/">BEN PACHTER</a> · NOT INVESTMENT ADVICE · <a href="engine.js">VIEW ENGINE</a></span>
+  </footer>
+
+</div>
+
+<div id="toasts"></div>
+<div id="palette"><div class="pal"><input id="pal-input" placeholder="type a command or destination…" autocomplete="off" spellcheck="false"><div class="pal-list" id="pal-list"></div></div></div>
+
+<script src="engine.js"></script>
+<script src="charts.js"></script>
+<script src="motion.js"></script>
+<script src="atlas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

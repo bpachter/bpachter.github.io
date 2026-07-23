@@ -1,0 +1,254 @@
+{
+  "meta": {
+    "title": "US natural gas price-spike episodes vs storage conditions",
+    "purpose": "Calibration dataset for a convex price-response function: price as a function of Lower 48 working-gas storage deviation from the 5-year average.",
+    "retrieved": "2026-07-23",
+    "units": {
+      "prices": "USD per MMBtu (nominal, EIA Henry Hub spot unless noted)",
+      "storage": "Bcf, Lower 48 working gas (EIA Weekly Natural Gas Storage Report)",
+      "storage_dev_pct": "percent deviation from the trailing 5-year average for the same week"
+    },
+    "method_notes": [
+      "Monthly average Henry Hub prices are from EIA's official monthly spot series (rngwhhdM).",
+      "Storage deviations are the figures EIA published in the Natural Gas Weekly Update / Weekly Natural Gas Storage Report for the stated week; entries flagged approx are estimated from EIA articles rather than an exact WNGSR line.",
+      "Key lesson encoded in this data: MONTHLY AVERAGE price tracks the storage deficit (convex), while DAILY spikes are dominated by short-lived demand/supply shocks (freeze-offs, hurricanes) and can hit extreme levels even with storage in surplus (e.g., Jan 2026 record $30.72 with storage +6% pre-storm)."
+    ]
+  },
+  "episodes": [
+    {
+      "id": "polar_vortex_2014",
+      "name": "Winter 2014 polar vortex",
+      "dates": "2014-01-01 to 2014-03-31",
+      "henry_hub_peak_spot": { "value": 8.15, "date": "2014-02-10", "note": "By Feb 5 HH hit $7.90, its highest since Sep 24, 2008 (EIA NGW)." },
+      "henry_hub_monthly_avg": { "2014-01": 4.71, "2014-02": 6.00, "2014-03": 4.90 },
+      "regional_spikes": {
+        "transco_zone6_ny": { "value": 120.75, "note": "record daily average, late Jan 2014" },
+        "algonquin_citygate": { "value": 77.60, "note": "record; Jan-Feb 2014 Algonquin AVERAGED $23.42/MMBtu" },
+        "chicago_citygate": { "value": 41.96, "date": "2014-01-27", "note": "record high" },
+        "opal_rockies": { "value": 30.18, "note": "then all-time high (early Feb 2014)" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2014-01-31", "working_gas_bcf": 1923, "dev_vs_5yr_bcf": -556, "dev_vs_5yr_pct": -22.4 },
+        "end_of_season": { "week_ending": "2014-03-28", "working_gas_bcf": 822, "dev_vs_5yr_bcf": -992, "dev_vs_5yr_pct": -54.7, "note": "11-year low; 783 Bcf (48.8%) below the 5-year MINIMUM" }
+      },
+      "cause": "Repeated arctic outbreaks drove record heating demand and record seasonal withdrawals (~3 Tcf), with Northeast pipeline constraints producing $100+ regional blowouts."
+    },
+    {
+      "id": "bomb_cyclone_2018",
+      "name": "January 2018 bomb cyclone (Winter Storm Grayson)",
+      "dates": "2018-01-01 to 2018-01-08",
+      "henry_hub_peak_spot": { "value": 6.88, "date": "2018-01-03", "note": "fell back to $3.11 by Jan 10 (EIA NGW)" },
+      "henry_hub_monthly_avg": { "2018-01": 3.87 },
+      "regional_spikes": {
+        "transco_zone6_ny": { "value": 140.06, "date": "2018-01-04", "note": "all-time-record daily average; intraday trades reported up to $175/MMBtu (NGI)" },
+        "algonquin_citygate": { "value": 82.75, "date": "2018-01-05" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2018-01-05", "working_gas_bcf": 2767, "dev_vs_5yr_bcf": -382, "dev_vs_5yr_pct": -12.9, "note": "then-record weekly withdrawal of 359 Bcf" }
+      },
+      "cause": "Explosive East Coast cyclogenesis spiked demand to record ~134 Bcf/d against constrained Northeast pipelines; national benchmark barely moved on a monthly basis because storage was only moderately short."
+    },
+    {
+      "id": "uri_2021",
+      "name": "February 2021 Winter Storm Uri",
+      "dates": "2021-02-10 to 2021-02-20",
+      "henry_hub_peak_spot": { "value": 23.86, "date": "2021-02-17", "note": "up from $3.76 on Feb 10; then-record in EIA daily series" },
+      "henry_hub_monthly_avg": { "2021-02": 5.35 },
+      "regional_spikes": {
+        "ogt_oklahoma": { "value": 1192, "note": "Oklahoma intrastate next-day gas traded from ~$3 to ~$1,200/MMBtu, the most extreme North American gas print on record" },
+        "houston_ship_channel": { "value": 400, "note": "roughly 100x normal (AIChE/CEP)" },
+        "waha": { "value": 206.19, "date": "2021-02-16", "note": "all-time record for the hub (EIA NGW)" },
+        "socal_citygate": { "value": 26.93, "date": "2021-02-17" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2021-02-19", "working_gas_bcf": 1943, "dev_vs_5yr_bcf": -161, "dev_vs_5yr_pct": -7.7, "note": "338 Bcf withdrawal, 2nd-largest ever; record 156 Bcf draw in South Central region" }
+      },
+      "cause": "Deep freeze into Texas froze wellheads and gathering systems (largest monthly US production decline on record) exactly as heating/power demand peaked; physical scarcity on intrastate systems produced 3-4 digit prices despite only a ~8% national storage deficit."
+    },
+    {
+      "id": "post_invasion_2022",
+      "name": "2022 post-Russia-invasion run",
+      "dates": "2022-03-01 to 2022-09-30 (peak late August)",
+      "henry_hub_peak_spot": { "value": 9.85, "date": "2022-08-22", "note": "highest since 2008" },
+      "henry_hub_monthly_avg": { "2022-04": 6.60, "2022-05": 8.14, "2022-06": 7.70, "2022-07": 7.28, "2022-08": 8.81, "2022-09": 7.88, "year_2022": 6.45 },
+      "storage": {
+        "start_of_refill": { "week_ending": "2022-04-01", "dev_vs_5yr_bcf": -285, "dev_vs_5yr_pct": -17 },
+        "peak_deficit": { "week_ending": "2022-08-12", "dev_vs_5yr_bcf": -367, "note": "largest deficit of the refill season" },
+        "mid_episode": { "week_ending": "2022-08-19", "working_gas_bcf": 2579, "dev_vs_5yr_bcf": -353, "dev_vs_5yr_pct": -12.0 }
+      },
+      "european_analog": {
+        "ttf_peak": { "value_eur_mwh": 340, "date": "2022-08-26", "note": "TTF settled ~EUR 339-343/MWh (~USD 100/MMBtu at 3.412 MMBtu/MWh and ~parity FX) - a near-total storage-security panic price; TTF weekly average was $77.60/MMBtu in the Aug 18-24 week (EIA NGW)" }
+      },
+      "cause": "Record LNG exports pulling US gas into a Europe scrambling to replace Russian pipeline supply, a persistent 12-17% US storage deficit, and a hot summer kept Henry Hub at $7-10 for months - a storage/depletion-driven (not weather-shock) episode."
+    },
+    {
+      "id": "elliott_2022",
+      "name": "December 2022 Winter Storm Elliott",
+      "dates": "2022-12-21 to 2022-12-26",
+      "henry_hub_peak_spot": { "value": 7.20, "date": "2022-12-12", "note": "December 2022 daily high came in pre-storm cold; during Elliott the national benchmark stayed in the $5-7 range while regional cash blew out" },
+      "henry_hub_monthly_avg": { "2022-12": 5.53 },
+      "regional_spikes": {
+        "new_england": { "value": 35, "date": "2022-12-24" },
+        "western_hubs": { "value_premium_over_hh": 48, "date": "2022-12-21", "note": "several western hubs averaged >$48/MMBtu ABOVE Henry Hub" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2022-12-23", "working_gas_bcf": 3112, "dev_vs_5yr_bcf": -210, "dev_vs_5yr_pct": -6.3, "approx": true, "note": "213 Bcf withdrawal (EIA storage dashboard); deviation approximated from dashboard scatter (~-200 to -215 Bcf)" }
+      },
+      "cause": "A continent-scale flash freeze days before Christmas cut production >15 Bcf/d (Appalachia -27% or more) while demand spiked, forcing grid emergencies in the East; effects faded within a week so the monthly average barely registered."
+    },
+    {
+      "id": "katrina_rita_2005",
+      "name": "2005 Hurricanes Katrina/Rita",
+      "dates": "2005-08-29 to 2005-12-31",
+      "henry_hub_peak_spot": { "value": 14.84, "date": "2005-09-23", "approx": true, "note": "Louisiana-average cash $13.45 on Sep 28 while Henry Hub itself was shut in by Rita; daily spot prints of $15+ reported post-Rita; NYMEX front-month hit an intraday record $15.78 on Dec 13, 2005" },
+      "henry_hub_monthly_avg": { "2005-09": 11.75, "2005-10": 13.42, "2005-11": 10.30, "2005-12": 13.05 },
+      "storage": {
+        "mid_episode": { "week_ending": "2005-09-23", "working_gas_bcf": 2885, "dev_vs_5yr_bcf": 68, "dev_vs_5yr_pct": 2.4, "note": "storage was ABOVE the 5-year average during the spike" }
+      },
+      "cause": "Back-to-back hurricanes shut in up to ~77% of Gulf of Mexico gas output (~8-10 Bcf/d; 140+ Bcf cumulative by late Sep), a pure pre-shale supply shock: prices tripled to $13-15 with storage in surplus, showing that flow scarcity, not inventory, set the price."
+    },
+    {
+      "id": "peak_2000_2001",
+      "name": "Winter 2000-01 price peak (pre-shale scarcity + California crisis)",
+      "dates": "2000-11-01 to 2001-02-28",
+      "henry_hub_peak_spot": { "value": 10.49, "date": "2000-12-22", "approx": true },
+      "henry_hub_monthly_avg": { "2000-11": 5.52, "2000-12": 8.90, "2001-01": 8.17, "2001-02": 5.61 },
+      "regional_spikes": {
+        "california_border": { "value": 69, "note": "daily spot reached $69/MMBtu (then a national record) during the California power crisis; CA daily prices AVERAGED ~$15 (FRBSF)" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2000-12-29", "dev_vs_5yr_pct": -17, "approx": true, "note": "record-cold Nov-Dec drove the largest net withdrawals then measured; stocks entered winter at their lowest level since the 1970s and sat at record seasonal lows (~15-20% below normal) through Dec-Jan (GAO-03-46)" }
+      },
+      "cause": "Flat pre-shale production ran into demand growth and record November-December cold with storage already at record lows - the first demonstration of the modern convex price response to inventory scarcity."
+    },
+    {
+      "id": "peak_2008",
+      "name": "Mid-2008 price peak (commodity supercycle)",
+      "dates": "2008-06-01 to 2008-07-31",
+      "henry_hub_peak_spot": { "value": 13.31, "date": "2008-07-02" },
+      "henry_hub_monthly_avg": { "2008-06": 12.69, "2008-07": 11.09 },
+      "storage": {
+        "mid_episode": { "week_ending": "2008-06-27", "working_gas_bcf": 2118, "dev_vs_5yr_bcf": -57, "dev_vs_5yr_pct": -2.7 }
+      },
+      "cause": "$145 oil, global LNG pull, and pre-shale supply anxiety carried gas to $13+ with storage only ~3% below normal - evidence that the pre-shale price LEVEL was a regime effect, not a storage-deviation effect."
+    },
+    {
+      "id": "jan_2025_cold",
+      "name": "Mid-January 2025 arctic outbreak",
+      "dates": "2025-01-17 to 2025-01-22",
+      "henry_hub_peak_spot": { "value": 10.07, "date": "2025-01-17", "note": "highest since January 2024; back to $3.89 by Jan 22" },
+      "henry_hub_monthly_avg": { "2025-01": 4.13 },
+      "regional_spikes": {
+        "transco_zone6_ny": { "value": 97.90, "date": "2025-01-17", "note": "3rd-highest nominal price since Feb 1998" },
+        "algonquin_citygate": { "value": 18.99, "date": "2025-01-22" },
+        "fgt_citygate_florida": { "value": 15.44, "date": "2025-01-22" }
+      },
+      "storage": {
+        "mid_episode": { "week_ending": "2025-01-17", "working_gas_bcf": 2892, "dev_vs_5yr_bcf": 21, "dev_vs_5yr_pct": 0.7, "note": "223 Bcf withdrawal; storage still slightly ABOVE the 5-year average" }
+      },
+      "cause": "Sharp but brief national cold snap (including the Gulf Coast snow event): multi-day daily-price spike with essentially normal storage, so the monthly average stayed near $4."
+    },
+    {
+      "id": "fern_2026",
+      "name": "January 2026 Winter Storm Fern - all-time Henry Hub daily record",
+      "dates": "2026-01-20 to 2026-01-31",
+      "henry_hub_peak_spot": { "value": 30.72, "date": "2026-01-23", "note": "all-time nominal daily record in EIA/LSEG data, surpassing Uri's $23.86; NGI assessed a record $30.565 on Jan 26, Argus $28.00 on Jan 26; $8.15 on Jan 22 and $9.03 on Jan 28 bookended the blowout" },
+      "henry_hub_monthly_avg": { "2026-01": 7.72, "2026-02": 3.62, "2026-03": 3.04, "2025-12": 4.26, "note": "Jan 2026 avg +81% vs Dec; highest monthly average since 2022" },
+      "storage": {
+        "pre_storm": { "week_ending": "2026-01-23", "working_gas_bcf": 2823, "dev_vs_5yr_bcf": 143, "dev_vs_5yr_pct": 5.3, "note": "storage was in SURPLUS before the storm (about +6% mid-January)" },
+        "record_draw_week": { "week_ending": "2026-01-30", "working_gas_bcf": 2463, "net_change_bcf": -360, "dev_vs_5yr_pct": -1.1, "approx_level": true, "note": "360 Bcf withdrawal - largest in WNGSR history (89% / ~170 Bcf above the 5-yr avg draw); level derived as 2,823 - 360" },
+        "deepest_deficit": { "period": "2026-02", "dev_vs_5yr_pct": -5.6 },
+        "end_of_season": { "date": "2026-03-31", "working_gas_bcf": 1890, "dev_vs_5yr_pct": 3.0, "note": "season withdrawals 2,048 Bcf, +5% vs 5-yr avg; deficit fully rebuilt by end of winter" }
+      },
+      "cause": "Extreme cold, snow and ice from New Mexico to New England pushed res/comm demand 29% above the 5-year average while freeze-offs cut production up to ~17 Bcf/d (rivaling Uri), on top of record ~20 Bcf/d LNG exports; the record daily print occurred with storage in surplus, then prices collapsed to $3.62 (Feb) and $3.04 (Mar) as the deficit peaked at only ~6%."
+    }
+  ],
+  "regimes": {
+    "pre_shale_2000_2008": {
+      "avg_nominal_usd_mmbtu": 6.03,
+      "avg_real_2025_usd_mmbtu": 10.0,
+      "annual_averages": { "2000": 4.31, "2001": 3.96, "2002": 3.38, "2003": 5.47, "2004": 5.89, "2005": 8.69, "2006": 6.73, "2007": 6.97, "2008": 8.86 },
+      "note": "Structurally scarce: flat conventional production, oil-linked pricing psychology; $10-15 peaks occurred with storage near normal."
+    },
+    "shale_era_2012_2024": {
+      "avg_nominal_usd_mmbtu": 3.21,
+      "avg_real_2025_usd_mmbtu": 4.0,
+      "annual_averages": { "2012": 2.75, "2013": 3.73, "2014": 4.37, "2015": 2.62, "2016": 2.52, "2017": 2.99, "2018": 3.15, "2019": 2.56, "2020": 2.03, "2021": 3.89, "2022": 6.45, "2023": 2.53, "2024": 2.19 },
+      "note": "Supply-elastic: shale caps the monthly price response; even -20% storage deficits produced $6-9, not $13-15. 2024 was the record-low annual average; 2025 averaged $3.52. Real values use approximate CPI-U deflation to 2025 dollars.",
+      "annual_2025": 3.52,
+      "emerging_note": "2025-2026: record LNG exports (~20+ Bcf/d) and data-center power demand are re-tightening the regime; Jan 2026 monthly avg $7.72 was the highest since 2022 and the $30.72 daily print was an all-time record."
+    }
+  },
+  "price_vs_storage": {
+    "description": "Observation pairs for curve fitting: x = Lower 48 working-gas deviation from the 5-year average (fraction, + = surplus) in/near the price month; y = monthly average Henry Hub spot ($/MMBtu, nominal). regime: 'shale' or 'pre_shale'. Entries with approx=true use EIA-article-derived rather than exact WNGSR deviations.",
+    "observations": [
+      { "period": "2012-04", "storage_dev_pct": 60.5,  "hh_monthly_avg": 1.95,  "regime": "shale", "note": "post-warm-winter glut (week ending 2012-03-30: +934 Bcf)" },
+      { "period": "2016-03", "storage_dev_pct": 51.9,  "hh_monthly_avg": 1.73,  "regime": "shale", "note": "record surplus (2,468 Bcf, +843)" },
+      { "period": "2020-06", "storage_dev_pct": 18.0,  "hh_monthly_avg": 1.63,  "regime": "shale", "approx": true, "note": "COVID demand collapse" },
+      { "period": "2023-06", "storage_dev_pct": 15.0,  "hh_monthly_avg": 2.18,  "regime": "shale", "approx": true },
+      { "period": "2024-02", "storage_dev_pct": 20.0,  "hh_monthly_avg": 1.72,  "regime": "shale", "approx": true, "note": "warm winter surplus; near-record-low real prices" },
+      { "period": "2025-01", "storage_dev_pct": 0.7,   "hh_monthly_avg": 4.13,  "regime": "shale", "note": "week ending 2025-01-17: 2,892 Bcf, +21" },
+      { "period": "2025-12", "storage_dev_pct": 6.0,   "hh_monthly_avg": 4.26,  "regime": "shale", "approx": true, "note": "surplus but LNG-tight forward market" },
+      { "period": "2026-02", "storage_dev_pct": -5.6,  "hh_monthly_avg": 3.62,  "regime": "shale", "note": "deepest post-Fern deficit; price already mean-reverting" },
+      { "period": "2022-12", "storage_dev_pct": -6.3,  "hh_monthly_avg": 5.53,  "regime": "shale", "approx": true, "note": "Winter Storm Elliott month" },
+      { "period": "2021-02", "storage_dev_pct": -7.7,  "hh_monthly_avg": 5.35,  "regime": "shale", "note": "Uri month (daily peak $23.86)" },
+      { "period": "2022-09", "storage_dev_pct": -11.0, "hh_monthly_avg": 7.88,  "regime": "shale", "approx": true },
+      { "period": "2022-08", "storage_dev_pct": -12.0, "hh_monthly_avg": 8.81,  "regime": "shale", "note": "peak refill-season deficit -367 Bcf (wk 2022-08-12); TTF ~$100/MMBtu analog" },
+      { "period": "2018-01", "storage_dev_pct": -12.9, "hh_monthly_avg": 3.87,  "regime": "shale", "note": "bomb cyclone; brief shock, deficit not yet priced as persistent" },
+      { "period": "2022-04", "storage_dev_pct": -17.0, "hh_monthly_avg": 6.60,  "regime": "shale", "note": "post-invasion, start of refill season" },
+      { "period": "2014-02", "storage_dev_pct": -22.4, "hh_monthly_avg": 6.00,  "regime": "shale", "note": "polar vortex mid-winter (week ending 2014-01-31)" },
+      { "period": "2014-03", "storage_dev_pct": -54.7, "hh_monthly_avg": 4.90,  "regime": "shale", "outlier": "end-of-season deficit; forward market already pricing the injection-season rebuild, so monthly price relaxed despite the deepest deficit on record" },
+      { "period": "2026-01", "storage_dev_pct": -1.1,  "hh_monthly_avg": 7.72,  "regime": "shale", "outlier": "Fern demand shock: monthly avg (and record $30.72 daily) driven by flow scarcity with storage near normal" },
+      { "period": "2005-10", "storage_dev_pct": 2.4,   "hh_monthly_avg": 13.42, "regime": "pre_shale", "outlier": "Katrina/Rita supply shock with storage in surplus" },
+      { "period": "2008-07", "storage_dev_pct": -2.7,  "hh_monthly_avg": 11.09, "regime": "pre_shale", "note": "commodity supercycle; storage near normal" },
+      { "period": "2001-01", "storage_dev_pct": -17.0, "hh_monthly_avg": 8.17,  "regime": "pre_shale", "approx": true, "note": "record-low seasonal storage, pre-shale scarcity" }
+    ],
+    "suggested_fit": {
+      "form": "P = a * exp(-b * dev), dev = fractional deviation from 5-yr average (surplus positive)",
+      "shale_era_fit": { "a": 4.15, "b": 1.95, "r_squared": 0.66, "n": 15, "excluded": ["2026-01 (demand shock)", "2014-03 (end-of-season relaxation)"] },
+      "piecewise_slopes": { "surplus_side_b": 1.13, "deficit_side_b": 1.72, "note": "log-price slope is ~50% steeper on the deficit side - convexity beyond a single exponential" },
+      "guidance": [
+        "Fit on shale-era monthly observations only; add ~+$6-7 level shift (or a multiplicative ~2.5x) for pre-shale-style regimes.",
+        "Apply the curve to MID-WINTER deficits; end-of-season deficits (Mar 2014) under-price because the market discounts the coming rebuild.",
+        "Overlay a separate short-duration demand-shock term for daily/weekly spikes: freeze-off events produced daily prints of 3x-8x the monthly average ($23.86 Uri, $30.72 Fern) largely independent of the storage state.",
+        "Regional basis (Transco Z6/Algonquin $78-175; Texas intrastate $200-1,200) is a pipeline-constraint phenomenon, not a storage phenomenon - model separately."
+      ]
+    }
+  },
+  "sources": [
+    "https://www.eia.gov/dnav/ng/hist/rngwhhdM.htm",
+    "https://www.eia.gov/dnav/ng/hist/rngwhhdD.htm",
+    "https://www.eia.gov/dnav/ng/hist/rngwhhdA.htm",
+    "https://www.eia.gov/todayinenergy/detail.php?id=19551",
+    "https://www.eia.gov/naturalgas/review/winterlookback/2013/",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2014/02_06/index.cfm",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2014/04_03/index.cfm",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2018/01_11/index.cfm",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2021/02_25",
+    "https://www.eia.gov/todayinenergy/detail.php?id=46916",
+    "https://www.eia.gov/todayinenergy/detail.php?id=47896",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2022/08_25/index.cfm",
+    "https://www.eia.gov/todayinenergy/detail.php?id=54719",
+    "https://www.eia.gov/todayinenergy/detail.php?id=55119",
+    "https://www.eia.gov/naturalgas/storage/dashboard-api/archives/20221229_natural_gas_storage_dashboard.pdf",
+    "https://www.eia.gov/todayinenergy/detail.php?id=61563",
+    "https://www.yesenergy.com/blog/winter-storm-elliots-impact-on-the-north-american-energy-market",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2005/09_29/index.cfm",
+    "https://www.everycrsreport.com/reports/RL33124.html",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2008/07_03/index.cfm",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2012/04_05/index.cfm",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2016/03_31/index.cfm",
+    "https://www.frbsf.org/research-and-insights/publications/economic-letter/2001/02/economic-impact-of-rising-natural-gas-prices/",
+    "https://www.gao.gov/assets/gao-03-46.pdf",
+    "https://www.eia.gov/naturalgas/weekly/archivenew_ngwu/2025/01_23/index.cfm",
+    "https://www.eia.gov/todayinenergy/detail.php?id=67046",
+    "https://www.eia.gov/todayinenergy/detail.php?id=67124",
+    "https://www.eia.gov/todayinenergy/detail.php?id=67524",
+    "https://www.eia.gov/pressroom/releases/press583.php",
+    "https://naturalgasintel.com/news/january-2026-arctic-blast-broke-natural-gas-price-records-from-gulf-coast-to-northeast/",
+    "https://www.aiche.org/resources/publications/cep/2021/october/che-context-impact-winter-storm-uri-on-texas-petrochemical-industry",
+    "https://www.kgou.org/energy/2022-01-25/the-winter-gas-bill-from-hell-oklahomans-face-paying-1-4-billion-over-snow-storm",
+    "https://www.euronews.com/my-europe/2022/08/30/energy-crisis-how-a-dutch-market-sets-gas-prices-for-the-whole-of-europe",
+    "https://energyedge.com/natural-gas-weekly-storage-report-1-29-2026/"
+  ]
+}
