@@ -14,6 +14,9 @@ img="$(cd "$here/.." && pwd)/img"
 mkdir -p "$img"
 echo "Target: $img"
 
+# NOTE: fetches full-res ORIGINALS. Committed attractor/img files are web-optimized
+# derivatives (downscaled; WMAP re-encoded to plate-cmb.jpg). Images are already in
+# git — re-run only to refresh sources, then re-optimize before committing.
 # "Commons filename|output name|longest-edge px"
 targets=(
   "Webb's First Deep Field.jpg|hero-real.jpg|2200"

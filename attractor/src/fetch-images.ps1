@@ -48,6 +48,12 @@ $imgDir = Join-Path (Split-Path -Parent $PSScriptRoot) 'img'
 if (-not (Test-Path $imgDir)) { New-Item -ItemType Directory -Path $imgDir | Out-Null }
 Write-Host "Target: $imgDir`n" -ForegroundColor Cyan
 
+# NOTE: this fetches full-resolution ORIGINALS. The committed attractor/img files
+# are web-optimized derivatives (hero + panoramas downscaled to <=2400px, JPEG q82;
+# the WMAP map re-encoded from PNG to plate-cmb.jpg at ~384 KB vs 2.5 MB). The images
+# are already in git, so you rarely need this — re-run only to refresh sources, then
+# re-optimize (or `git checkout attractor/img`) before committing.
+#
 # file  = exact Wikimedia Commons filename (Special:FilePath resolves + resizes it)
 # out   = filename the site's HTML already expects
 # width = longest-edge downscale (keeps the repo light; originals are huge)
