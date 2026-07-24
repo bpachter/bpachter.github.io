@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Bubble — The Great Attractor, part IV</title>
+<meta name="description" content="Why the night sky is black, the ladder of instruments that see what eyes cannot, the wall of first light around every observer, and how 13.8-billion-year-old light arrives from 46 billion light-years away." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b12'/%3E%3Cpath d='M4 8 C13 10 19 12 24 15.4' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 16 C12 16 18 16 23 16' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 24 C13 22 19 20 24 16.6' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='16' r='3.2' fill='%23f0c96c'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="m-topbar"><button class="nav-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="m-brand" href="../">attractor<span>.</span></a></header>
+<div class="nav-backdrop" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../">attractor<span>.</span></a>
+  <nav class="side-nav" aria-label="Chapters">
+    <div class="side-book">The Great Attractor</div>
+      <details class="nav-sec">
+        <summary>I · The Setting<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../setting/#ch1"><span class="n">01</span>The hole</a>
+          <a href="../setting/#ch2"><span class="n">02</span>The web</a>
+          <a href="../setting/#ch3"><span class="n">03</span>Two forces</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>II · The Evidence<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../evidence/#ch4"><span class="n">04</span>The locals</a>
+          <a href="../evidence/#ch5"><span class="n">05</span>First light</a>
+          <a href="../evidence/#ch6"><span class="n">06</span>The flow</a>
+          <a href="../evidence/#ch7"><span class="n">07</span>Zone of Avoidance</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>III · The Picture<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../picture/#ch8"><span class="n">08</span>Laniakea</a>
+          <a href="../picture/#ch9"><span class="n">09</span>Emptier holes</a>
+          <a href="../picture/#ch10"><span class="n">10</span>The suburb</a>
+        </div>
+      </details>
+      <details class="nav-sec active" open>
+        <summary>IV · The Bubble<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="#ch11"><span class="n">11</span>The black sky</a>
+          <a href="#ch12"><span class="n">12</span>Deeper than seeing</a>
+          <a href="#ch13"><span class="n">13</span>The wall of first light</a>
+          <a href="#ch14"><span class="n">14</span>The impossible distance</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>V · The Bang<span class="chev"></span></summary>
+        <div class="sec-links">
+          <span class="soon"><span class="n">15</span>Einstein's blunder<i>soon</i></span>
+          <span class="soon"><span class="n">16</span>Measuring the sky<i>soon</i></span>
+          <span class="soon"><span class="n">17</span>The redshift<i>soon</i></span>
+          <span class="soon"><span class="n">18</span>Everywhere at once<i>soon</i></span>
+        </div>
+      </details>
+    <div class="side-book">Elsewhere</div>
+      <a class="side-link" href="https://bpachter.github.io/gradient/">Gradient</a>
+      <a class="side-link portfolio" href="https://bpachter.github.io/">← Portfolio</a>
+  </nav>
+</aside>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part IV</div>
+    <h1>The Bubble</h1>
+    <p class="part-sub">The edge of seeing: why the sky is black, the ladder of machines that see what eyes cannot, the wall of light around every observer — and the paradox of light older than the distance it crossed.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 11 · THE BLACK SKY ─────────────── -->
+<section class="chapter reveal" id="ch11">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">11 ·</span><h2>The black sky</h2></div>
+    <p>Parts I through III mapped our neighborhood. This part asks a sneakier question: what are the limits of <em>mapping itself</em>? Start with the oldest riddle in the book. If the universe is enormous — possibly infinite — and filled with stars, then every line of sight should eventually land on one, and the night sky should blaze like a wall of sun. It doesn't. You look up, and between the stars there is blackness.</p>
+    <p class="margin-note">← Astronomers call this <em>Olbers' paradox</em>, after a 19th-century astronomer who worried about it properly. The black sky is genuinely informative: it tells you the universe has not existed forever in a steady state.</p>
+    <p>The resolution has two parts. First, the universe has a <b>finite age</b> — light from beyond a certain distance simply hasn't had time to arrive. That draws a horizon around every observer: your <b>observable universe</b>, a sphere roughly <b>46.5 billion light-years</b> in radius, centered exactly on you. It is an edge of <em>perception</em>, not an edge of the world — beyond it the universe continues, perhaps without end. Nobody knows.</p>
+    <p>Second — and this is the part the widget below makes visceral — the light that <em>is</em> arriving from great distances doesn't arrive as light your eyes can use. Space stretches while the wave is in transit, and the wave stretches with it: ripples on a pond, flattening as they spread. Drag the slider and watch a wave that left its source as visible light slide out of your eyes' reach.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">A wave, stretched in transit</span><span class="fig-hint">slide the stretch · chips jump</span></div>
+      <canvas id="w-pond" class="plain" style="height:300px"></canvas>
+      <div class="fig-controls">
+        <div class="ctl" style="flex:1 1 260px"><label for="pond-z">stretch</label><input type="range" id="pond-z" min="0" max="1000" value="0" style="flex:1; width:auto" /></div>
+        <span class="readout" id="pond-read"></span>
+      </div>
+      <div class="fig-controls">
+        <button class="btn pond-chip" data-s="1.02">a nearby galaxy</button>
+        <button class="btn pond-chip" data-s="11">a deep JWST galaxy</button>
+        <button class="btn pond-chip" data-s="1120">the wall (×1100)</button>
+      </div>
+      <div class="fig-cap">The wave leaves the source tight and bright, and arrives longer than it left — <b>stretched by the expansion itself</b>, not by motion through space. Past ×1.8 your eye gives up; by ×1100 (the stretch the first light has suffered) a wave that left as a warm ~1 μm glow arrives near 1 mm: microwaves.</div>
+    </div>
+
+    <div class="takeaway">The sky is black for a reason you can now say precisely: <b>seeing has an edge</b>. Time draws a horizon at 46.5 billion light-years, and expansion drags the far universe's light out of the visible long before it gets to you.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 12 · DEEPER THAN SEEING ─────────────── -->
+<section class="chapter reveal" id="ch12">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">12 ·</span><h2>Deeper than seeing</h2></div>
+    <p>If the far universe's light still arrives — just stretched — then blackness is an <em>instrument problem</em>, and instrument problems have instrument solutions. This is the actual reason we build machines like the <b>James Webb Space Telescope</b>: not to see farther in the ordinary sense, but to see <b>lower</b> — to catch waves that have slid beneath the range your retina evolved for.</p>
+    <p>Each step down the ladder is a step back in time. Night-vision equipment reads the near infrared, a hand's-breadth below sight. JWST reads deep into the mid-infrared and with it can photograph nearly every generation of galaxy that has ever existed — the transcript of the universe's adolescence. But even JWST bottoms out. The very oldest light has stretched past infrared entirely, down to millimeter waves — and for that band we build a different kind of eye altogether: the microwave instruments that photographed the CMB in Part II.</p>
+    <p class="margin-note">← One ladder, one sky, different depths of past. Astronomy is the only field where the choice of camera is a choice of era.</p>
+    <p>Slide the same stretch as before and watch the ladder work: each machine lights up as the arriving wavelength enters its range.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">The instrument ladder</span><span class="fig-hint">slide · watch who catches it</span></div>
+      <canvas id="w-ladder" class="plain" style="height:360px"></canvas>
+      <div class="fig-controls">
+        <div class="ctl" style="flex:1 1 260px"><label for="lad-z">stretch</label><input type="range" id="lad-z" min="0" max="1000" value="0" style="flex:1; width:auto" /></div>
+      </div>
+      <div class="fig-controls"><span class="readout" id="lad-read"></span></div>
+      <div class="fig-cap">Light that departed at 550 nm (green-yellow, mid-visible) slides down the spectrum as the stretch grows. The brackets are real instrument ranges, drawn to honest orders of magnitude; the far-infrared rung is the space-telescope territory that missions like Herschel covered.</div>
+    </div>
+
+    <div class="takeaway">The blackness between the stars is not empty — it is <b>full of light your eyes can't cash</b>. Every rung down the instrument ladder converts more of that blackness back into universe.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 13 · THE WALL OF FIRST LIGHT ─────────────── -->
+<section class="chapter reveal" id="ch13">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">13 ·</span><h2>The wall of first light</h2></div>
+    <p>Follow the ladder to its bottom rung and you reach the floor of seeing itself. In chapter 05 the CMB was a <em>map</em> — the blueprint of the web written on the sky. Here is its second identity: it is the <b>wall</b>. The universe was opaque for its first ~380,000 years; no instrument, however clever, will ever photograph past the moment the fog cleared, because before that moment light could not travel. The CMB is not just the oldest light we <em>have</em> seen. It is the oldest light there <em>is</em> to see.</p>
+    <p>So your observable universe has a physical boundary made of light: a shell at the edge of vision, wrapping the sky in every direction. Inside it, everything you can ever know. And at the exact center of the shell — by construction, not by cosmic favoritism — sits the observer. You are the center of <em>your</em> universe. So is everyone else, of theirs.</p>
+    <p class="margin-note">← Why does the first light <em>surround</em> us instead of shining from one spot? Hold that question — it is the key that unlocks chapter 18.</p>
+    <p>Orbit your bubble below. Then press the button and meet a second observer — note where <em>their</em> wall reaches.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">Your bubble — and someone else's</span><span class="fig-hint">drag to orbit</span></div>
+      <canvas id="w-bubble" style="height:460px"></canvas>
+      <div class="fig-controls">
+        <button class="btn" id="bub-other">someone else's bubble</button>
+        <div class="legend">
+          <span class="k"><span class="dot sky"></span>galaxies inside</span>
+          <span class="k"><span class="dot gold"></span>the wall — first light</span>
+          <span class="k"><span class="dot teal"></span>observers</span>
+        </div>
+      </div>
+      <div class="fig-cap">Every observer sits at the center of an equal sphere of knowable space. A distant galaxy's bubble <b>spills past ours</b> — it contains sky we will never see, and excludes sky we take for granted. "The universe" and "the observable universe" are different objects; only one of them is 93 billion light-years across.</div>
+    </div>
+
+    <div class="takeaway">The CMB is the <b>inside surface of the knowable</b> — a wall of first light at the edge of every observer's bubble. Yours is centered on you. That's not a compliment; it's geometry.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 14 · THE IMPOSSIBLE DISTANCE ─────────────── -->
+<section class="chapter reveal" id="ch14">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">14 ·</span><h2>The impossible distance</h2></div>
+    <p>Now the paradox this part has been building toward. The light of the wall is <b>13.8 billion years old</b> — that's how long it traveled. But the matter that emitted it is <em>now</em> about <b>46.5 billion light-years away</b>. Hold those two numbers together: light, moving at the absolute speed limit, apparently covering three times more distance than its travel time allows. Something has to give.</p>
+    <p>What gives is the assumption hiding in "covering distance": that the road holds still while you drive it. It doesn't. <b>Space itself expands while the light is in transit</b> — the road stretches under the photon's feet. Relativity's speed limit is strict about matter and light moving <em>through</em> space; it says nothing about space itself, which is free to stretch as fast as it likes, and at great enough separations does so faster than light. Nothing is breaking the rules. The rules were always about the runners, never the track.</p>
+    <p class="margin-note">← When the first light departed, its source was only ~40 <em>million</em> light-years from here. Watch the first readout of the sim — that fact hides in it.</p>
+    <p>The classic picture is an ant crawling along a stretching rubber band. The photon below crawls at exactly the speed of light, never faster — and the band stretches anyway. Watch the two numbers split apart: the photon's honest odometer, and where its starting point has ended up.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">A photon on a stretching band</span><span class="fig-hint">play · watch the odometer split</span></div>
+      <canvas id="w-band" class="plain" style="height:320px"></canvas>
+      <div class="fig-controls">
+        <button class="btn primary" id="band-play">play</button>
+        <button class="btn" id="band-reset">reset</button>
+      </div>
+      <div class="fig-controls"><span class="readout" id="band-read"></span></div>
+      <div class="fig-cap">A toy matter-only universe (scale factor ∝ t^⅔) — it lands the source at ~40 Gly; the full expansion history, with its early radiation era and late dark-energy push, gives <b>46.5</b>. Same phenomenon, gentler math. The tick labels are proper distances: watch the whole grid grow while the photon crawls.</div>
+    </div>
+
+    <div class="takeaway">13.8 billion years of travel, 46.5 billion light-years of separation — no contradiction: <b>the photon kept the speed limit while the road stretched</b>. Expansion is the one thing in physics allowed to outrun light.</div>
+    <p style="margin-top:18px">Which leaves the deepest questions of all: who worked all this out — and what, exactly, banged? <b>Part V</b> rewinds a century: a fudge factor Einstein regretted, a smudge of light that doubled the size of reality, the redshift that set the universe in motion, and the reason the Big Bang happened <em>everywhere at once</em> — including exactly where you are sitting now.</p>
+    <div class="spec-box"><span class="tag">status</span>Part V · The Bang is in progress — the finale. The sidebar lights up when it ships.</div>
+  </div>
+</section>
+
+<div class="wrap">
+  <nav class="foot-nav">
+    <a href="../picture/"><span class="dir">← Part III</span><span class="t">The Picture</span></a>
+    <div class="soon-foot next"><span class="dir">Next — soon</span><span class="t">Part V · The Bang</span></div>
+  </nav>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap-wide">
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Schematic figures, honest ratios, no survey data harmed.
+  </div>
+</footer>
+
+<script src="../js/nav.js"></script>
+<script src="../js/bubble.js"></script>
+</body>
+</html>
