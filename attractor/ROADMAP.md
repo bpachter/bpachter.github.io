@@ -20,14 +20,19 @@ Dark-only by design: space has no light mode.
    Widget: *tug-of-war sim* — mass + separation sliders, release & watch
    merge or runaway recession; crossover marker.
 
-### Part II · The Evidence — `evidence/`  (session 2)
-4. **The Locals** — Local Group; MW–Andromeda(–Triangulum) merger clock
-   (~4–5 Gyr, with the modern uncertainty stated honestly).
-5. **First Light** — the CMB; pannable sphere; the Cold Spot and its theories.
-6. **The Flow** — peculiar velocities; we move ~600 km/s against the CMB frame.
-   HERO widget: *flow-field* — galaxies advected along streamlines into basins.
-7. **Zone of Avoidance** — drag the Milky Way's dust aside; X-ray/IR reveal
-   of the Norma cluster region.
+### Part II · The Evidence — `evidence/`  ✅ session 2
+4. **The locals** — Local Group; MW–Andromeda(–Triangulum) merger clock
+   (~4–5 Gyr, Gaia-era ~50% collision odds stated honestly).
+   Widget: *merger clock* — scrub 0→10 Gyr; approach, tidal tails, Milkdromeda.
+5. **First light** — the CMB; pannable sphere; the Cold Spot and its theories
+   (supervoid leading; exotica labeled fringe). ΔT ~ 1 part in 100,000.
+6. **The flow** — peculiar velocities; we move ~600 km/s against the CMB frame
+   (measured from the CMB dipole — ties to ch 5). Named by the Seven Samurai
+   (Lynden-Bell et al., 1988). HERO widget: *flow-field* — galaxies advected
+   along streamlines into basins; Shapley + Dipole Repeller teased at edges.
+7. **Zone of Avoidance** — the galactic plane hides ~20% of the extragalactic
+   sky, and the Attractor sits behind it. Drag the Milky Way band aside, or
+   switch to infrared eyes; the Norma cluster (ACO 3627, 1996) is the reveal.
 
 ### Part III · The Picture — `picture/`  (session 3)
 8. **Laniakea** — watershed of gravity; the Attractor as drain-point; Shapley
@@ -36,6 +41,56 @@ Dark-only by design: space has no light mode.
    density-slider comparison. Underdense ≠ empty.
 10. **The Suburb** — perspective ending; galactic habitability speculation,
     clearly labeled as speculation.
+
+### Part IV · The Bubble — `bubble/`  (session 4) — the edge of seeing
+11. **The black sky** — why space looks black; the observable universe is a
+    93-Gly sphere centered on the observer (46.5 Gly radius — an edge of
+    *perception*, not of the universe). Widget: *ripples on the pond* — a wave
+    stretches as it travels; slide distance and watch it leave the visible band.
+12. **Deeper than seeing** — the EM ladder: eye → night vision → JWST infrared
+    → microwave instruments. Widget: *spectrum slide* — drag a galaxy away and
+    its light slides down the spectrum; instruments light up as they catch it.
+13. **The wall of first light** — the CMB as the *edge* of the bubble (surface
+    of last scattering, ~380,000 yr). Complementary lens to ch 5: there it's a
+    map/blueprint; here it's the wall. Widget: *the bubble in 3-D* — orbitable
+    observer-centered sphere, galaxies inside, CMB shell at the horizon.
+14. **The impossible distance** — 13.8-Gyr-old light arriving from what is now
+    46.5 Gly away; space expands under the photon. Widget: *ant on a rubber
+    band* — photon crawls at c while the band stretches; dual readout (distance
+    the photon traveled vs where its source is NOW).
+
+### Part V · The Bang — `bang/`  (session 5) — how we found out
+15. **Einstein's blunder** — static universe + cosmological constant to balance
+    gravity; the instability; the vindication as dark energy. Widget: *balance
+    toy* — tune Λ to perfectly balance gravity, nudge it, watch it run away
+    (the actual instability argument, playable).
+16. **Measuring the sky** — Henrietta Leavitt's Cepheid period–luminosity law
+    (credit her by name), Hubble + Andromeda: the "nebula" that was a galaxy.
+    Widget: *Cepheid pulse-meter* — time a star's pulse → luminosity → distance.
+17. **The redshift** — Doppler (ambulance) vs cosmological redshift (space
+    stretches the wave in transit); Slipher's receding nebulae; the Hubble
+    diagram. Widget: *build the Hubble diagram* — measure galaxies, plot v vs d,
+    watch the slope (H₀) emerge. GUARDRAIL: Hubble's data showed *expansion*;
+    ACCELERATION was the 1998 Type Ia supernova teams (Perlmutter, Riess,
+    Schmidt — 2011 Nobel). Do not credit acceleration to Hubble.
+18. **Everywhere at once** — the Big Bang was not an explosion at a point: run
+    the expansion backward and it gets hot and dense EVERYWHERE; the CMB
+    surrounds us because it happened *here* too. Inflation: ≥10²⁶× in a sliver
+    of a second (grain of sand → ~galaxy scale, "at least"). Widget: *the
+    infinite grid* — expanding lattice of dots; click ANY dot to re-center:
+    every observer sees everyone else receding. The misconception-killer.
+
+## Extra guardrails for Parts IV–V (fixes over the second source video)
+- Radius of the observable universe: **46.5 billion ly** (video garbles "46 12").
+- "Space is infinite" → **unknown**: the observable universe is finite; the
+  whole universe may be infinite or finite-but-larger. Say "possibly infinite."
+- CMB emitted at **~380,000 yr** (not 400,000).
+- Cepheid distance method: **Leavitt's law** — name her, not just Hubble.
+- Hubble/Slipher: expansion. **Acceleration: 1998 supernovae** (see ch 17).
+- "Nothing moves through space faster than light, but space itself can stretch
+  faster" — correct framing; keep it.
+- The video's "first light at the very limits of our bubble" is the surface of
+  last scattering — slightly inside the particle horizon; fine at our altitude.
 
 ## Science guardrails (fixes over the source video)
 - Great Attractor region mass ≈ **10¹⁶ M☉** (the video self-contradicts:
