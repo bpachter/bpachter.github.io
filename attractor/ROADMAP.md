@@ -34,7 +34,7 @@ Dark-only by design: space has no light mode.
    sky, and the Attractor sits behind it. Drag the Milky Way band aside, or
    switch to infrared eyes; the Norma cluster (ACO 3627, 1996) is the reveal.
 
-### Part III · The Picture — `picture/`  (session 3)
+### Part III · The Picture — `picture/`  ✅ session 3
 8. **Laniakea** — watershed of gravity; the Attractor as drain-point; Shapley
    beyond it; the Dipole Repeller behind us — squeezed between push and pull.
 9. **Emptier Holes** — Boötes ("60 galaxies where 2,000 belong") vs KBC;
