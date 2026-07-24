@@ -70,21 +70,31 @@
 </aside>
 
 <section class="hero">
-  <canvas id="hero-cv" aria-hidden="true"></canvas>
+  <div class="hero-media" aria-hidden="true">
+    <img class="hero-bg" src="img/bg-cluster.jpg" alt="" />
+    <img class="hero-photo" src="img/hero-real.jpg" alt="" onerror="this.remove()" onload="var c=document.getElementById('hero-credit');if(c)c.textContent='Webb\u2019s First Deep Field \u00b7 SMACS 0723 \u00b7 NASA, ESA, CSA, STScI'" />
+  </div>
+  <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="hero-credit" id="hero-credit"></div>
   <div class="wrap-wide">
-    <div class="hero-eyebrow">An interactive tour of your cosmic address</div>
+    <div class="hero-eyebrow">The Great Attractor · an interactive tour of your cosmic address</div>
     <h1>You are moving at 600&nbsp;km/s toward <span class="g">something we've never seen</span>.</h1>
     <p class="hero-lede">Right now — you, the Earth, the Sun, the entire Milky Way — are streaming through space at about <b>600 kilometers every second</b>, toward a point in the sky hidden behind our own galaxy. This is the story of your real address: the giant hole you live in, the web outside it, the two forces fighting over everything, and the mass that is quietly reeling us in.</p>
+    <div class="hero-features">
+      <div class="hf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-1.5-8 0v13c3-1.5 6-1.5 8 0 2-1.5 5-1.5 8 0V6c-3-1.5-6-1.5-8 0Z"/><path d="M12 6v13"/></svg><div><b>Scroll to read</b><span>the figures move in step with the story</span></div></div>
+      <div class="hf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 8-6 1.6L9.6 19 5 3Z"/></svg><div><b>Reach in and play</b><span>drag, click, and the physics responds live</span></div></div>
+      <div class="hf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg><div><b>See it, don't solve it</b><span>every idea is a picture you can poke, not a formula</span></div></div>
+    </div>
     <div class="hero-ctas">
-      <a class="cta" href="setting/">Begin — Part I · The Setting</a>
-      <a class="cta ghost" href="#parts">The plan ↓</a>
+      <a class="cta" href="setting/">Begin — Part I · The Setting →</a>
+      <a class="cta ghost" href="#parts">or browse all five parts ↓</a>
     </div>
   </div>
 </section>
 
 <section class="parts" id="parts">
   <div class="wrap-wide">
-    <div class="parts-head">Five parts · eighteen chapters · every figure computed live in your browser</div>
+    <div class="parts-head">Five parts · eighteen chapters · every interactive figure computed live in your browser</div>
     <div class="part-grid">
       <a class="part-card reveal" href="setting/">
         <div class="pk">Part I</div>
@@ -156,11 +166,11 @@
 
 <footer class="site-foot">
   <div class="wrap-wide">
-    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Every visualization is computed live in your browser — honest shapes and honest ratios, not survey data. Dark-only by design: space has no light mode.
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Every interactive figure is computed live in your browser — honest shapes and honest ratios, not survey data. The photographs are real telescope imagery, credited where they appear. Dark-only by design: space has no light mode.
+    <span class="credits">Telescope imagery, where shown: <b>Webb’s First Deep Field</b> / SMACS 0723 (NASA, ESA, CSA, STScI · CC BY 4.0) · <b>Hubble eXtreme Deep Field</b> (NASA, ESA &amp; the HUDF09 Team · CC BY 4.0) · <b>WMAP</b> nine-year CMB (NASA / WMAP Science Team · public domain) · <b>Milky Way panorama</b> (ESO / S. Brunier · CC BY 4.0) · <b>Andromeda</b> (Adam Evans · CC BY 2.0). Section backgrounds are original artwork generated for this site.</span>
   </div>
 </footer>
 
 <script src="js/nav.js"></script>
-<script src="js/landing.js"></script>
 </body>
 </html>
