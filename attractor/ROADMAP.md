@@ -42,7 +42,7 @@ Dark-only by design: space has no light mode.
 10. **The Suburb** — perspective ending; galactic habitability speculation,
     clearly labeled as speculation.
 
-### Part IV · The Bubble — `bubble/`  (session 4) — the edge of seeing
+### Part IV · The Bubble — `bubble/`  ✅ session 4 — the edge of seeing
 11. **The black sky** — why space looks black; the observable universe is a
     93-Gly sphere centered on the observer (46.5 Gly radius — an edge of
     *perception*, not of the universe). Widget: *ripples on the pond* — a wave
@@ -59,7 +59,7 @@ Dark-only by design: space has no light mode.
     band* — photon crawls at c while the band stretches; dual readout (distance
     the photon traveled vs where its source is NOW).
 
-### Part V · The Bang — `bang/`  (session 5) — how we found out
+### Part V · The Bang — `bang/`  ✅ session 5 — how we found out — SITE COMPLETE
 15. **Einstein's blunder** — static universe + cosmological constant to balance
     gravity; the instability; the vindication as dark energy. Widget: *balance
     toy* — tune Λ to perfectly balance gravity, nudge it, watch it run away

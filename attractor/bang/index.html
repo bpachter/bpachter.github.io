@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Bang — The Great Attractor, part V</title>
+<meta name="description" content="Einstein's blunder you can nudge, Leavitt's pulsing lighthouses, a Hubble diagram you build yourself, and the finale: the Big Bang happened everywhere at once — including here." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b12'/%3E%3Cpath d='M4 8 C13 10 19 12 24 15.4' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 16 C12 16 18 16 23 16' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 24 C13 22 19 20 24 16.6' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='16' r='3.2' fill='%23f0c96c'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="m-topbar"><button class="nav-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="m-brand" href="../">attractor<span>.</span></a></header>
+<div class="nav-backdrop" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../">attractor<span>.</span></a>
+  <nav class="side-nav" aria-label="Chapters">
+    <div class="side-book">The Great Attractor</div>
+      <details class="nav-sec">
+        <summary>I · The Setting<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../setting/#ch1"><span class="n">01</span>The hole</a>
+          <a href="../setting/#ch2"><span class="n">02</span>The web</a>
+          <a href="../setting/#ch3"><span class="n">03</span>Two forces</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>II · The Evidence<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../evidence/#ch4"><span class="n">04</span>The locals</a>
+          <a href="../evidence/#ch5"><span class="n">05</span>First light</a>
+          <a href="../evidence/#ch6"><span class="n">06</span>The flow</a>
+          <a href="../evidence/#ch7"><span class="n">07</span>Zone of Avoidance</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>III · The Picture<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../picture/#ch8"><span class="n">08</span>Laniakea</a>
+          <a href="../picture/#ch9"><span class="n">09</span>Emptier holes</a>
+          <a href="../picture/#ch10"><span class="n">10</span>The suburb</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>IV · The Bubble<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="../bubble/#ch11"><span class="n">11</span>The black sky</a>
+          <a href="../bubble/#ch12"><span class="n">12</span>Deeper than seeing</a>
+          <a href="../bubble/#ch13"><span class="n">13</span>The wall of first light</a>
+          <a href="../bubble/#ch14"><span class="n">14</span>The impossible distance</a>
+        </div>
+      </details>
+      <details class="nav-sec active" open>
+        <summary>V · The Bang<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="#ch15"><span class="n">15</span>Einstein's blunder</a>
+          <a href="#ch16"><span class="n">16</span>Measuring the sky</a>
+          <a href="#ch17"><span class="n">17</span>The redshift</a>
+          <a href="#ch18"><span class="n">18</span>Everywhere at once</a>
+        </div>
+      </details>
+    <div class="side-book">Elsewhere</div>
+      <a class="side-link" href="https://bpachter.github.io/gradient/">Gradient</a>
+      <a class="side-link portfolio" href="https://bpachter.github.io/">← Portfolio</a>
+  </nav>
+</aside>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part V · The finale</div>
+    <h1>The Bang</h1>
+    <p class="part-sub">How we found out — a fudge factor its author regretted, a smudge that doubled reality, the redshift that set everything moving, and the beginning that happened everywhere at once. Including here.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 15 · EINSTEIN'S BLUNDER ─────────────── -->
+<section class="chapter reveal" id="ch15">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">15 ·</span><h2>Einstein's blunder</h2></div>
+    <p>In 1917, Einstein pointed his brand-new general relativity at the universe as a whole, and it told him something he refused to believe: a universe full of matter cannot just <em>sit there</em>. Gravity pulls everything toward everything; a static cosmos should be collapsing. But the astronomy of 1917 said the universe <em>was</em> static — an unmoving sea of stars. So Einstein reached into his equations and added a term: the <b>cosmological constant</b>, Λ — a built-in repulsion of empty space, tuned to exactly cancel gravity.</p>
+    <p>The problem isn't that the balance is impossible. It's that the balance is a <b>pencil standing on its tip</b>. Nudge the universe a hair bigger and repulsion (which grows with size) outruns gravity (which weakens with size) — runaway expansion. A hair smaller and gravity wins — collapse. Perfect balance survives nothing. Try it below: tune Λ, run it, and when you achieve perfect stillness, press <em>nudge</em>.</p>
+    <p class="margin-note">← The famous "biggest blunder of my life" quote reaches us secondhand through George Gamow, so enjoy it as anecdote. The regret was real either way.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">The balance — a universe on a pencil tip</span><span class="fig-hint">tune Λ · run · nudge</span></div>
+      <canvas id="w-balance" class="plain" style="height:340px"></canvas>
+      <div class="fig-controls">
+        <div class="ctl"><label for="bal-l">Λ — the fudge factor</label><input type="range" id="bal-l" min="850" max="1150" value="1000" /></div>
+        <button class="btn primary" id="bal-run">run</button>
+        <button class="btn" id="bal-nudge">nudge</button>
+      </div>
+      <div class="fig-controls"><span class="readout" id="bal-read"></span></div>
+      <div class="fig-cap">The toy solves Einstein's actual problem: pull ∝ 1/R², push ∝ Λ·R. The slider's center is the exact static solution — and the <b>nudge</b> button is the whole argument against it. Note which way a nudged balance runs: outward, forever, accelerating. Hold that thought for twelve years and one chapter.</div>
+    </div>
+
+    <div class="takeaway">Einstein invented a repulsive term to keep the universe still, and the stillness was <b>unstable</b>. He was wrong about the universe and right about the term — the strangest half-credit in physics. Λ returns in 1998 wearing its modern name: <b>dark energy</b>.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 16 · MEASURING THE SKY ─────────────── -->
+<section class="chapter reveal" id="ch16">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">16 ·</span><h2>Measuring the sky</h2></div>
+    <p>While theorists argued, the sky held a quieter mystery: the <b>nebulae</b> — bright smudges scattered between the stars, assumed to be clouds of dust inside our galaxy. The biggest was Andromeda. Deciding what the smudges were required the hardest measurement in astronomy: <em>distance</em>. A dim light might be a candle nearby or a lighthouse far away; a telescope alone cannot tell.</p>
+    <p>The key was found at Harvard by <b>Henrietta Swan Leavitt</b> — hired as a human "computer" to catalog star brightnesses, at a wage history should be embarrassed by. Studying thousands of pulsing stars called <b>Cepheids</b>, she discovered in 1912 that their rhythm is a label: <b>the slower the pulse, the brighter the star truly is</b>. That changes everything. Time the pulse and you know the true wattage; compare with how dim it looks and the inverse-square law hands you the distance. A pulsing clock is a lighthouse that tells you its own candlepower.</p>
+    <p class="margin-note">← Leavitt's law is the first rung of the cosmic distance ladder. Nearly every distance in this site stands on it.</p>
+    <p>In 1923, Edwin Hubble found a Cepheid inside the Andromeda smudge and timed it. Time the three below yourself — and notice what all three answers agree on.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">The pulse-meter — Leavitt's law at work</span><span class="fig-hint">pick a star · read the pipeline</span></div>
+      <canvas id="w-cepheid" class="plain" style="height:380px"></canvas>
+      <div class="fig-controls">
+        <button class="btn cep-chip">star A · quick pulse</button>
+        <button class="btn cep-chip">star B · steady pulse</button>
+        <button class="btn cep-chip">star C · slow pulse</button>
+      </div>
+      <div class="fig-controls"><span class="readout" id="cep-read"></span></div>
+      <div class="fig-cap">Three different clocks, one verdict: <b>≈2.5 million light-years</b>. The entire Milky Way is only ~0.1 million light-years wide — so the smudge cannot be a dust cloud inside it. It is another galaxy. In one measurement the universe went from one galaxy to, we now know, hundreds of billions.</div>
+    </div>
+
+    <div class="takeaway"><b>Leavitt's law</b> turned pulsing stars into labeled lighthouses, and Hubble used one to prove the nebulae were island universes. Reality doubled overnight, and kept doubling.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 17 · THE REDSHIFT ─────────────── -->
+<section class="chapter reveal" id="ch17">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">17 ·</span><h2>The redshift</h2></div>
+    <p>Meanwhile in Arizona, <b>Vesto Slipher</b> had spent a decade doing something nobody had thought worthwhile: taking spectra of the nebulae. Starting in 1912 he found their light shifted — almost always toward the red. You know the sound version: an ambulance drops in pitch as it passes, because receding sources stretch their waves. Slipher's galaxies read like a highway of departures.</p>
+    <p>One caution this site has earned the right to make: for distant galaxies the stretch isn't really the ambulance effect — chapter 11 showed you the honest mechanism. The wave is stretched <b>in transit, by the expansion of space itself</b>. Same observable, deeper cause. Then Hubble did the decisive thing: he combined Slipher-style velocities with Leavitt-style distances, and in 1929 the pattern fell out — <b>the farther the galaxy, the faster it recedes</b>. A straight line through the sky. Build it yourself below.</p>
+    <p class="margin-note">← Credit where due: Hubble's data showed <em>expansion</em>. The <em>acceleration</em> of expansion was found in 1998, by two teams timing exploding stars — Perlmutter, Schmidt and Riess took the 2011 Nobel for it. That discovery is what resurrected Λ.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">Build the Hubble diagram</span><span class="fig-hint">measure galaxies · watch the slope appear</span></div>
+      <canvas id="w-hubble" class="plain" style="height:400px"></canvas>
+      <div class="fig-controls">
+        <button class="btn primary" id="hub-next">measure a galaxy</button>
+        <button class="btn" id="hub-all">measure all</button>
+        <button class="btn" id="hub-reset">reset</button>
+      </div>
+      <div class="fig-controls"><span class="readout" id="hub-read"></span></div>
+      <div class="fig-cap">Each measurement takes a distance (Leavitt's ladder) and a speed (the redshift) and plots one point. The scatter is real physics — peculiar velocities, the very flows of Part II. The slope is <b>Hubble's constant</b>, ≈70 km/s per megaparsec — and its two best modern measurements disagree, which is the <em>Hubble tension</em> chapter 09 flagged. Hubble's own 1929 diagram reached ~2 Mpc with heroic scatter; be glad you get the clean version.</div>
+    </div>
+
+    <div class="takeaway">Slipher's redshifts + Leavitt's distances = Hubble's line: <b>v = H₀ · d</b>. The universe is expanding — and the static cosmos, fudge factor and all, was dead. What exploded? Turn to the last chapter.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 18 · EVERYWHERE AT ONCE ─────────────── -->
+<section class="chapter reveal" id="ch18">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">18 ·</span><h2>Everywhere at once</h2></div>
+    <p>Here is the picture school probably gave you: a cosmic egg floating in blackness, detonating, debris flying outward into empty space. It is wrong in the most instructive way possible. An explosion has a center and an edge. The universe has neither. Chapter 13 left you a loaded question — <em>why does the first light surround us instead of shining from one spot?</em> — and this is the answer: <b>because the beginning happened everywhere</b>. Every point in space, including the one your chair occupies, was once hot, dense, and glowing. The CMB wraps the sky because the fire was never somewhere else.</p>
+    <p>Run the film backward and expansion doesn't converge on a point — it converges on a <em>condition</em>: everything closer to everything, everywhere, without a middle. Run it forward and every galaxy sees the same thing: all the others receding, faster with distance — Hubble's law emerging from pure geometry, no center required. The grid below is the whole argument. <b>Click any dot</b> to crown it the center of the universe. Notice how much that changes: nothing.</p>
+    <p class="margin-note">← And the first sliver of a second? Inflation: space stretching by a factor of at least ~10²⁶ almost instantly — a grain of sand to roughly a galaxy, as a lower bound. It is the leading account of why the universe is so smooth; its details are still being fought over honestly.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">The bang — a moment, not a place</span><span class="fig-hint">click any dot · run it backward</span></div>
+      <canvas id="w-grid" class="plain" style="height:420px"></canvas>
+      <div class="fig-controls">
+        <button class="btn primary" id="grid-back">⟲ run it backward</button>
+        <div class="legend">
+          <span class="k"><span class="dot teal"></span>the center (anyone)</span>
+          <span class="k"><span class="dot faint"></span>everyone else — receding</span>
+        </div>
+      </div>
+      <div class="fig-controls"><span class="readout" id="grid-read"></span></div>
+      <div class="fig-cap">An unbounded lattice with no privileged dot: pick any center and the arrows point away from <b>it</b>, faster with distance — every observer measures the same Hubble law and writes home about their own centrality. Backward, density rises everywhere at once. "Where did the Big Bang happen?" has a real answer: <b>here</b>. Also everywhere else.</div>
+    </div>
+
+    <div class="takeaway">The Big Bang was not an explosion <em>in</em> space; it was the beginning <b>of</b> space's stretching, everywhere at once, no center, no edge. The proof surrounds you nightly: a wall of first light in every direction.</div>
+
+    <p style="margin-top:26px">And that closes the loop this site opened with a single sentence. You are moving at 600 km/s toward something you have never seen — and now you know the whole of it: <em>what</em> pulls (a watershed's drain, dressed as a monster), <em>through what</em> you fall (a thin, quiet, comfortable hole), <em>how far seeing reaches</em> (46.5 billion light-years, to a wall of first light), and <em>where it all began</em> (here — and everywhere else, all at once). Eighteen chapters ago that sentence was a threat. It was always just your address.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <nav class="foot-nav">
+    <a href="../bubble/"><span class="dir">← Part IV</span><span class="t">The Bubble</span></a>
+    <a class="next" href="../" style="text-align:right"><span class="dir">The end</span><span class="t">Back to the beginning</span></a>
+  </nav>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap-wide">
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Schematic figures, honest ratios, no survey data harmed.
+  </div>
+</footer>
+
+<script src="../js/nav.js"></script>
+<script src="../js/bang.js"></script>
+</body>
+</html>
