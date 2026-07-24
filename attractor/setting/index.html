@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Setting — The Great Attractor, part I</title>
+<meta name="description" content="A pull-back from 1 AU to the two-billion-light-year hole we live in, a cosmic web you can spin in 3-D, and the tug-of-war between gravity and dark energy." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b12'/%3E%3Cpath d='M4 8 C13 10 19 12 24 15.4' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 16 C12 16 18 16 23 16' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 24 C13 22 19 20 24 16.6' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='16' r='3.2' fill='%23f0c96c'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="m-topbar"><button class="nav-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="m-brand" href="../">attractor<span>.</span></a></header>
+<div class="nav-backdrop" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../">attractor<span>.</span></a>
+  <nav class="side-nav" aria-label="Chapters">
+    <div class="side-book">The Great Attractor</div>
+      <details class="nav-sec active" open>
+        <summary>I · The Setting<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="#ch1"><span class="n">01</span>The hole</a>
+          <a href="#ch2"><span class="n">02</span>The web</a>
+          <a href="#ch3"><span class="n">03</span>Two forces</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>II · The Evidence<span class="chev"></span></summary>
+        <div class="sec-links">
+          <span class="soon"><span class="n">04</span>The locals<i>soon</i></span>
+          <span class="soon"><span class="n">05</span>First light<i>soon</i></span>
+          <span class="soon"><span class="n">06</span>The flow<i>soon</i></span>
+          <span class="soon"><span class="n">07</span>Zone of Avoidance<i>soon</i></span>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>III · The Picture<span class="chev"></span></summary>
+        <div class="sec-links">
+          <span class="soon"><span class="n">08</span>Laniakea<i>soon</i></span>
+          <span class="soon"><span class="n">09</span>Emptier holes<i>soon</i></span>
+          <span class="soon"><span class="n">10</span>The suburb<i>soon</i></span>
+        </div>
+      </details>
+    <div class="side-book">Elsewhere</div>
+      <a class="side-link" href="https://bpachter.github.io/gradient/">Gradient</a>
+      <a class="side-link portfolio" href="https://bpachter.github.io/">← Portfolio</a>
+  </nav>
+</aside>
+
+<header class="part-hero">
+  <div class="wrap">
+    <div class="hero-kicker">Part I</div>
+    <h1>The Setting</h1>
+    <p class="part-sub">Where you actually live: a pull-back from your street to a two-billion-light-year hole, the web that space is woven from, and the two forces that built all of it.</p>
+  </div>
+</header>
+
+<!-- ─────────────── 01 · THE HOLE ─────────────── -->
+<section class="chapter reveal" id="ch1">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">01 ·</span><h2>The hole</h2></div>
+    <p>You live on a planet orbiting an ordinary star, about twenty-six thousand light-years out in the quiet suburbs of the Milky Way. That part of your address you already knew. Here is the part you probably didn't: the Milky Way itself sits near the middle of an enormous <b>underdense region of space</b> — a hole, roughly <b>two billion light-years across</b>, called the <b>KBC void</b>, after Keenan, Barger and Cowie, the astronomers who mapped it in 2013.</p>
+    <p class="margin-note">← Light needs about two billion years to cross it. That's nearly half the age of the Earth.</p>
+    <p>The idea that we live in the middle of a giant hole sounds unsettling, maybe even lonely. Hold that feeling — because two things about it turn out to be wrong in interesting ways. The hole is not as empty as the word "void" suggests (that's chapter 09), and living in one may be quietly convenient (that's chapter 10). It might even help explain a real crack in modern cosmology — why local measurements of the universe's expansion keep disagreeing with the prediction from the early universe, the famous <em>Hubble tension</em>.</p>
+    <p>But first you should feel the scale of the thing. The figure below starts at your doorstep — a field of view one astronomical unit wide, the distance from the Earth to the Sun — and pulls back <b>fourteen orders of magnitude</b>, one smooth zoom, to the edge of the hole. Everything is drawn to honest relative distance. Let it run, or grab the slider.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">The pull-back — fourteen orders of magnitude</span><span class="fig-hint">slider zooms · chips jump</span></div>
+      <canvas id="w-scale" class="plain" style="height:420px"></canvas>
+      <div class="fig-controls">
+        <div class="ctl" style="flex:1 1 260px"><label for="scale-z">zoom</label><input type="range" id="scale-z" min="0" max="1000" value="0" style="flex:1; width:auto" /><span class="val" id="scale-read">field of view</span></div>
+      </div>
+      <div class="fig-controls">
+        <button class="btn z-chip" data-z="-2.8">solar system</button>
+        <button class="btn z-chip" data-z="1.75">the neighbors</button>
+        <button class="btn z-chip" data-z="5.35">the galaxy</button>
+        <button class="btn z-chip" data-z="6.9">the Local Group</button>
+        <button class="btn z-chip" data-z="8.8">the web</button>
+        <button class="btn z-chip" data-z="9.42">the hole</button>
+      </div>
+      <div class="fig-cap">Every dot is computed, not photographed. Notice the galaxy sits <b>off-center</b> at the middle zooms — that's real: you live 26,000 light-years from its core. The dashed violet ring at the end is the KBC underdensity; the denser sprinkle of galaxies beyond it is the rest of the web.</div>
+    </div>
+
+    <div class="takeaway"><b>Your full address:</b> Earth → Sun → Milky Way (suburbs) → Local Group → the KBC underdensity. The last line of it is two billion light-years wide, and you sit near the middle.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 02 · THE WEB ─────────────── -->
+<section class="chapter reveal" id="ch2">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">02 ·</span><h2>The web</h2></div>
+    <p>Zoom out far enough and the universe stops being a blanket of stars. On the largest scales, matter is arranged into a <b>three-dimensional web</b>: long filaments of galaxies, sheets and walls, dense knots where filaments meet — and in between, the voids. This is not a poetic flourish; it is what galaxy surveys actually map, out to billions of light-years.</p>
+    <p>The web is what gravity does with time and slightly uneven starting material. The infant universe was almost — but not perfectly — smooth. Regions born with a little extra matter pulled harder, so they collected more; regions born a little light kept losing what they had. Run that "rich get richer" rule for 13.8 billion years and the winners become filaments and knots while the losers empty out into voids.</p>
+    <p class="margin-note">← People love to note it looks like a brain's wiring. The resemblance is structural, not functional: both are networks grown by reinforcing the connections that matter. The universe is not thinking. Probably.</p>
+    <p>Below is a web grown live in your browser by exactly that logic: sprinkle galaxies at random, let every void push outward, and filaments appear on the boundaries on their own. Drag it to orbit. Two locations are marked — the brightest knot, and a set of three faint dots keeping each other company inside a void. That trio is us.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">A cosmic web you can spin</span><span class="fig-hint">drag to orbit</span></div>
+      <canvas id="w-web" style="height:460px"></canvas>
+      <div class="fig-controls">
+        <button class="btn" id="web-voids">show the voids</button>
+        <div class="legend">
+          <span class="k"><span class="dot sky"></span>galaxies on filaments</span>
+          <span class="k"><span class="dot gold"></span>a great attractor</span>
+          <span class="k"><span class="dot teal"></span>you</span>
+        </div>
+      </div>
+      <div class="fig-cap">Grown by void-repulsion: random points, six relaxation steps pushing out of every void, filaments emerge at the boundaries — a crude browser-sized version of the same logic that grew the real web. Toggle the voids to see the negative space doing the sculpting.</div>
+    </div>
+
+    <div class="takeaway">The web is the map of a 13.8-billion-year competition: <b>voids empty out, filaments thread between them, knots collect the winnings</b> — and everything left in between flows along the threads toward the knots.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 03 · TWO FORCES ─────────────── -->
+<section class="chapter reveal" id="ch3">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">03 ·</span><h2>Two forces</h2></div>
+    <p>Two opposing forces carved that web, and the whole rest of this story is their fight. The first you know personally. <b>Gravity</b> is the pull of mass on mass: it scales up with the amount of matter and fades with the square of distance, but it never quite reaches zero — the Sun holds Neptune, the Milky Way holds the Sun, and the Milky Way and Andromeda, two and a half million light-years apart, hold <em>each other</em>.</p>
+    <p>The second force is stranger. <b>Dark energy</b> is the name we give to whatever is making the expansion of the universe <em>accelerate</em> — a discovery from the late 1990s that won a Nobel Prize and broke everyone's intuition. It behaves less like a force reaching across space and more like a property of space itself: every stretch of emptiness pushes things apart a little, so the <em>farther</em> two objects are, the more expanding space sits between them and the harder they are shoved apart. Next door it's nothing. Across a void it wins.</p>
+    <p class="margin-note">← Gravity: strong up close, fades with distance. Dark energy: nothing up close, grows with distance. Every pair of galaxies runs this exact contest.</p>
+    <p>So every pair of galaxies in the sky is running the same tug-of-war. Close together and heavy: gravity wins, they fall toward each other, and eventually they are one galaxy. Far apart and light: expansion wins, and they recede from each other forever, faster and faster. In between there is a <b>crossover distance</b> — inside it you are bound; outside it you are gone. Set up the contest yourself and hit release.</p>
+
+    <div class="fig">
+      <div class="fig-head"><span class="fig-title">Gravity vs dark energy — the tug-of-war</span><span class="fig-hint">set the contest · release</span></div>
+      <canvas id="w-tug" class="plain" style="height:340px"></canvas>
+      <div class="fig-controls">
+        <div class="ctl"><label for="tug-sep">separation</label><input type="range" id="tug-sep" min="0.5" max="12" step="0.1" value="2.5" /><span class="val" id="tug-sep-v">2.5 Mly</span></div>
+        <div class="ctl"><label for="tug-mass">combined mass</label><input type="range" id="tug-mass" min="0.5" max="10" step="0.1" value="2" /><span class="val" id="tug-mass-v">2.0 galaxies</span></div>
+        <button class="btn primary" id="tug-go">release</button>
+        <button class="btn" id="tug-reset">reset</button>
+      </div>
+      <div class="fig-controls"><span class="readout" id="tug-read"></span></div>
+      <div class="fig-cap">A toy integrator with honest shape: pull ∝ mass ÷ distance², push ∝ distance, calibrated so two Milky-Way-ish galaxies bind within a few million light-years — the real ballpark of the Local Group's edge. The default setup is us and Andromeda: release it and watch our actual long-term forecast.</div>
+    </div>
+
+    <div class="takeaway">Every structure that exists — galaxies, clusters, superclusters — is a place where <b>gravity got there first</b>, before expansion could carry the raw material out of reach. The web is a map of everywhere gravity won.</div>
+    <p style="margin-top:18px">Which raises the question this whole site is about: on the largest scale that still has a grip on us — which side are we on? Something out there is winning the tug-of-war for our entire corner of the universe, and pulling every galaxy around us toward one point in the sky. <b>Part II</b> follows the evidence: the collision we're already falling into, the oldest light in existence, the flow of a thousand galaxies — and the fifth of the sky we cannot search.</p>
+    <div class="spec-box"><span class="tag">status</span>Part II · The Evidence is in progress — the sidebar will light up when it ships.</div>
+  </div>
+</section>
+
+<div class="wrap">
+  <nav class="foot-nav">
+    <a href="../"><span class="dir">← Home</span><span class="t">The Great Attractor</span></a>
+    <div class="soon-foot next"><span class="dir">Next — soon</span><span class="t">Part II · The Evidence</span></div>
+  </nav>
+</div>
+
+<footer class="site-foot">
+  <div class="wrap-wide">
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Schematic figures, honest ratios, no survey data harmed.
+  </div>
+</footer>
+
+<script src="../js/nav.js"></script>
+<script src="../js/setting.js"></script>
+</body>
+</html>

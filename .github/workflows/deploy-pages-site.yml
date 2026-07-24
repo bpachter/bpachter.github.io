@@ -11,8 +11,12 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'case-studies.html'
+      - 'BPachterResume.pdf'
       - 'assets/**'
       - 'gradient/**'
+      - 'attractor/**'
+      - 'drawdown/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -37,21 +41,29 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build Gradient (TypeScript → per-page bundles)
+      - name: Build Gradient + Attractor (TypeScript → per-page bundles)
         run: |
           npm install -g typescript@5.6.3
           bash gradient/build.sh
+          bash attractor/build.sh
 
       - name: Assemble Pages artifact
         run: |
           rm -rf _site
           mkdir -p _site
           cp index.html _site/index.html
+          if [ -f case-studies.html ]; then cp case-studies.html _site/case-studies.html; fi
+          if [ -f BPachterResume.pdf ]; then cp BPachterResume.pdf _site/BPachterResume.pdf; fi
           if [ -d assets ]; then cp -r assets _site/assets; fi
           if [ -d gradient ]; then
             cp -r gradient _site/gradient
             rm -rf _site/gradient/src _site/gradient/build.sh _site/gradient/.gitignore
           fi
+          if [ -d attractor ]; then
+            cp -r attractor _site/attractor
+            rm -rf _site/attractor/src _site/attractor/build.sh _site/attractor/ROADMAP.md
+          fi
+          if [ -d drawdown ]; then cp -r drawdown _site/drawdown; fi
           touch _site/.nojekyll
 
       - name: Upload artifact

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Great Attractor — an interactive tour of your cosmic address</title>
+<meta name="description" content="You are moving at 600 km/s toward something we've never seen. An interactive tour of the void we live in, the cosmic web, gravity vs dark energy, and the hidden mass reeling us in." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b12'/%3E%3Cpath d='M4 8 C13 10 19 12 24 15.4' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 16 C12 16 18 16 23 16' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M4 24 C13 22 19 20 24 16.6' stroke='%232dd4bf' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='16' r='3.2' fill='%23f0c96c'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<header class="m-topbar"><button class="nav-burger" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><a class="m-brand" href="./">attractor<span>.</span></a></header>
+<div class="nav-backdrop" aria-hidden="true"></div>
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="./">attractor<span>.</span></a>
+  <nav class="side-nav" aria-label="Chapters">
+    <div class="side-book">The Great Attractor</div>
+      <details class="nav-sec active" open>
+        <summary>I · The Setting<span class="chev"></span></summary>
+        <div class="sec-links">
+          <a href="setting/#ch1"><span class="n">01</span>The hole</a>
+          <a href="setting/#ch2"><span class="n">02</span>The web</a>
+          <a href="setting/#ch3"><span class="n">03</span>Two forces</a>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>II · The Evidence<span class="chev"></span></summary>
+        <div class="sec-links">
+          <span class="soon"><span class="n">04</span>The locals<i>soon</i></span>
+          <span class="soon"><span class="n">05</span>First light<i>soon</i></span>
+          <span class="soon"><span class="n">06</span>The flow<i>soon</i></span>
+          <span class="soon"><span class="n">07</span>Zone of Avoidance<i>soon</i></span>
+        </div>
+      </details>
+      <details class="nav-sec">
+        <summary>III · The Picture<span class="chev"></span></summary>
+        <div class="sec-links">
+          <span class="soon"><span class="n">08</span>Laniakea<i>soon</i></span>
+          <span class="soon"><span class="n">09</span>Emptier holes<i>soon</i></span>
+          <span class="soon"><span class="n">10</span>The suburb<i>soon</i></span>
+        </div>
+      </details>
+    <div class="side-book">Elsewhere</div>
+      <a class="side-link" href="https://bpachter.github.io/gradient/">Gradient</a>
+      <a class="side-link portfolio" href="https://bpachter.github.io/">← Portfolio</a>
+  </nav>
+</aside>
+
+<section class="hero">
+  <canvas id="hero-cv" aria-hidden="true"></canvas>
+  <div class="wrap-wide">
+    <div class="hero-eyebrow">An interactive tour of your cosmic address</div>
+    <h1>You are moving at 600&nbsp;km/s toward <span class="g">something we've never seen</span>.</h1>
+    <p class="hero-lede">Right now — you, the Earth, the Sun, the entire Milky Way — are streaming through space at about <b>600 kilometers every second</b>, toward a point in the sky hidden behind our own galaxy. This is the story of your real address: the giant hole you live in, the web outside it, the two forces fighting over everything, and the mass that is quietly reeling us in.</p>
+    <div class="hero-ctas">
+      <a class="cta" href="setting/">Begin — Part I · The Setting</a>
+      <a class="cta ghost" href="#parts">The plan ↓</a>
+    </div>
+  </div>
+</section>
+
+<section class="parts" id="parts">
+  <div class="wrap-wide">
+    <div class="parts-head">Three parts · ten chapters · every figure computed live in your browser</div>
+    <div class="part-grid">
+      <a class="part-card reveal" href="setting/">
+        <div class="pk">Part I</div>
+        <h3>The Setting</h3>
+        <p>Where you actually live: a pull-back from your street to a two-billion-light-year hole, the web that space is woven from, and the two forces that built it.</p>
+        <div class="chs">
+          <div><span>01</span>The hole</div>
+          <div><span>02</span>The web</div>
+          <div><span>03</span>Two forces</div>
+        </div>
+      </a>
+      <div class="part-card soon reveal">
+        <div class="badge">in progress</div>
+        <div class="pk">Part II</div>
+        <h3>The Evidence</h3>
+        <p>How we know: the collision we're falling into, the oldest light in existence, the flow of a thousand galaxies — and the fifth of the sky we cannot search.</p>
+        <div class="chs">
+          <div><span>04</span>The locals</div>
+          <div><span>05</span>First light</div>
+          <div><span>06</span>The flow</div>
+          <div><span>07</span>Zone of Avoidance</div>
+        </div>
+      </div>
+      <div class="part-card soon reveal">
+        <div class="badge">in progress</div>
+        <div class="pk">Part III</div>
+        <h3>The Picture</h3>
+        <p>What it means: Laniakea and its drain-point, the emptiest place we know of, and why living in the suburbs of the universe might be the luckiest thing about you.</p>
+        <div class="chs">
+          <div><span>08</span>Laniakea</div>
+          <div><span>09</span>Emptier holes</div>
+          <div><span>10</span>The suburb</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="numbers">
+  <div class="wrap-wide">
+    <div class="num-grid">
+      <div class="num reveal"><div class="v">600 km/s</div><div class="l">our speed against the universe's rest frame — measured, not guessed</div></div>
+      <div class="num reveal"><div class="v g">~10¹⁶ suns</div><div class="l">the mass concentrated around the Great Attractor region</div></div>
+      <div class="num reveal"><div class="v v">2 billion ly</div><div class="l">width of the KBC underdensity the Milky Way sits inside</div></div>
+      <div class="num reveal"><div class="v">≈200 million ly</div><div class="l">distance to the Attractor — hidden behind the disk of our own galaxy</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="wrap-wide">
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a>. Every visualization is computed live in your browser — honest shapes and honest ratios, not survey data. Dark-only by design: space has no light mode.
+  </div>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>
