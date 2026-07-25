@@ -47,12 +47,12 @@ $targets = @(
   @{ out = 'plate-bullet.jpg';     width = 1800; files = @('1e0657 scale.jpg','Bullet cluster.jpg','1E0657-558.jpg') }
   @{ out = 'plate-antennae.jpg';   width = 1800; files = @('Antennae galaxies xl.jpg','Antennae Galaxies reloaded.jpg','The Antennae Galaxies.jpg') }
   @{ out = 'plate-pillars.jpg';    width = 1800; files = @('Pillars of Creation (NIRCam Image).jpg','Pillars of Creation (NIRCam and MIRI Image).jpg','Pillars 2014 HST denoise.jpg') }
-  @{ out = 'plate-cluster.jpg';    width = 1800; files = @('The Fornax Galaxy Cluster.jpg','Fornax Cluster.jpg','Coma Cluster.jpg') }
-  @{ out = 'plate-pandora.jpg';    width = 1800; files = @('Abell 2744.jpg',"Pandora's Cluster (Abell 2744).jpg",'Abell 2744 Hubble Frontier Fields.jpg') }
+  @{ out = 'plate-cluster.jpg';    width = 1800; files = @('ESO Fornax Galaxy Cluster.jpg','Wide-field view of the Fornax Galaxy Cluster.jpg','The Fornax Galaxy Cluster.jpg','Fornax Cluster.jpg') }
+  @{ out = 'plate-pandora.jpg';    width = 1800; files = @('Pandora’s Cluster – Abell 2744.jpg','Abell 2744.jpg','Abell 2744 Hubble Frontier Fields.jpg') }
   @{ out = 'plate-einstein.jpg';   width = 1100; files = @('Albert Einstein 1921 by F Schmutzer - restoration.jpg','Albert Einstein 1921 by F Schmutzer.jpg') }
   @{ out = 'plate-leavitt.jpg';    width = 1000; files = @('Leavitt aavso.jpg','Leavitt henrietta b1.jpg') }
   @{ out = 'plate-quasar.jpg';     width = 1600; files = @('Best image of bright quasar 3C 273.jpg','3C 273.jpg','Quasar 3C 273.jpg') }
-  @{ out = 'plate-cosmicweb.jpg';  width = 1800; files = @('Dark matter map in the COSMOS field.jpg','3D map of the large-scale distribution of dark matter.jpg','COSMOS dark matter map.jpg') }
+  @{ out = 'plate-cosmicweb.jpg';  width = 1800; files = @('Large scale structure of dark matter.jpg',"Comparison of normal matter and dark matter's large scale structure.jpg",'Dark matter map in the COSMOS field.jpg','3D map of the large-scale distribution of dark matter.jpg') }
   @{ out = 'plate-webb.jpg';       width = 1800; files = @("Webb's First Deep Field.jpg","Webb's First Deep Field (high resolution).jpg",'SMACS 0723.jpg') }
 )
 

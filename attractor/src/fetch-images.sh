@@ -22,12 +22,12 @@ targets=(
   "plate-bullet.jpg|1800|1e0657 scale.jpg|Bullet cluster.jpg|1E0657-558.jpg"
   "plate-antennae.jpg|1800|Antennae galaxies xl.jpg|Antennae Galaxies reloaded.jpg|The Antennae Galaxies.jpg"
   "plate-pillars.jpg|1800|Pillars of Creation (NIRCam Image).jpg|Pillars of Creation (NIRCam and MIRI Image).jpg|Pillars 2014 HST denoise.jpg"
-  "plate-cluster.jpg|1800|The Fornax Galaxy Cluster.jpg|Fornax Cluster.jpg|Coma Cluster.jpg"
-  "plate-pandora.jpg|1800|Abell 2744.jpg|Pandora's Cluster (Abell 2744).jpg|Abell 2744 Hubble Frontier Fields.jpg"
+  "plate-cluster.jpg|1800|ESO Fornax Galaxy Cluster.jpg|Wide-field view of the Fornax Galaxy Cluster.jpg|The Fornax Galaxy Cluster.jpg|Fornax Cluster.jpg"
+  "plate-pandora.jpg|1800|Pandora’s Cluster – Abell 2744.jpg|Abell 2744.jpg|Abell 2744 Hubble Frontier Fields.jpg"
   "plate-einstein.jpg|1100|Albert Einstein 1921 by F Schmutzer - restoration.jpg|Albert Einstein 1921 by F Schmutzer.jpg"
   "plate-leavitt.jpg|1000|Leavitt aavso.jpg|Leavitt henrietta b1.jpg"
   "plate-quasar.jpg|1600|Best image of bright quasar 3C 273.jpg|3C 273.jpg|Quasar 3C 273.jpg"
-  "plate-cosmicweb.jpg|1800|Dark matter map in the COSMOS field.jpg|3D map of the large-scale distribution of dark matter.jpg|COSMOS dark matter map.jpg"
+  "plate-cosmicweb.jpg|1800|Large scale structure of dark matter.jpg|Comparison of normal matter and dark matter's large scale structure.jpg|Dark matter map in the COSMOS field.jpg|3D map of the large-scale distribution of dark matter.jpg"
   "plate-webb.jpg|1800|Webb's First Deep Field.jpg|Webb's First Deep Field (high resolution).jpg|SMACS 0723.jpg"
 )
 
