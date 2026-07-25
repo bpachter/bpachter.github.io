@@ -8,6 +8,12 @@
 #
 #   ./attractor/src/fetch-images.sh            # fetch anything missing
 #   ./attractor/src/fetch-images.sh --force    # re-fetch even if the file exists
+#
+# NOTE: img/hero-bullet.jpg and img/bg-bullet.jpg (the landing photo + its abstract
+# fallback) are NOT generic fetch targets — hero-bullet.jpg is a hand-cropped derivative
+# of the same source as plate-bullet.jpg (reframed, scale bar cropped out), bg-bullet.jpg
+# is original artwork. To regenerate, re-fetch plate-bullet.jpg fresh and ask for a new
+# crop rather than adding hero-bullet.jpg here — a plain re-fetch restores the scale bar.
 set -uo pipefail
 
 UA='AttractorSiteBot/1.0 (+https://bpachter.github.io/attractor/; portfolio image fetch)'
@@ -18,7 +24,6 @@ echo "Target: $img"
 
 # "out|width|candidate title 1|candidate title 2|..."
 targets=(
-  "hero-singularity.jpg|2200|Black hole - Messier 87.jpg|Black hole - Messier 87 crop max res.jpg|EHT image of the M87 black hole.jpg|EHT image of the black hole in M87.jpg"
   "plate-bullet.jpg|1800|1e0657 scale.jpg|Bullet cluster.jpg|1E0657-558.jpg"
   "plate-antennae.jpg|1800|Antennae galaxies xl.jpg|Antennae Galaxies reloaded.jpg|The Antennae Galaxies.jpg"
   "plate-pillars.jpg|1800|Pillars of Creation (NIRCam Image).jpg|Pillars of Creation (NIRCam and MIRI Image).jpg|Pillars 2014 HST denoise.jpg"

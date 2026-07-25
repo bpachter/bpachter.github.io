@@ -13,8 +13,7 @@
   stays hidden until you drop the right file in.
 
   LICENSES (all free for a credited portfolio; verified by a 4-panel cross-check):
-    M87 black hole (hero) ..... CC BY 4.0 .. Event Horizon Telescope Collaboration
-    Bullet Cluster ............ Public Domain .. NASA/CXC; NASA/STScI, Magellan, ESO
+    Bullet Cluster (hero + ch3) Public Domain .. NASA/CXC; NASA/STScI, Magellan, ESO
     Antennae Galaxies ......... CC BY 4.0 .. NASA, ESA & the Hubble Heritage Team
     Pillars of Creation ....... Public Domain .. NASA, ESA, CSA, STScI
     Fornax Cluster ............ CC BY 4.0 .. ESO
@@ -25,9 +24,17 @@
     Dark-matter map (COSMOS) .. CC BY 4.0 .. NASA, ESA & R. Massey (Caltech)
     Webb's First Deep Field ... Public Domain .. NASA, ESA, CSA, STScI  (already in repo)
 
-  NOTE: fetched files are full-resolution ORIGINALS. The five images already committed
-  are web-optimized derivatives; the ones you fetch here can be slimmed the same way
+  NOTE: fetched files are full-resolution ORIGINALS. The images already committed are
+  web-optimized derivatives; the ones you fetch here can be slimmed the same way
   afterward (or just ask and they'll be optimized in-repo once pushed).
+
+  NOTE on the hero: img/hero-bullet.jpg and img/bg-bullet.jpg (the landing photo and its
+  abstract fallback) are NOT generic fetch targets — hero-bullet.jpg is a hand-cropped
+  derivative of the same Commons source as plate-bullet.jpg (reframed for a wide band,
+  with the on-image scale bar cropped out), and bg-bullet.jpg is original artwork. If you
+  ever need to regenerate the hero, re-fetch plate-bullet.jpg fresh and ask for a new crop
+  rather than adding hero-bullet.jpg as a fetch target — a plain re-fetch would restore the
+  scale bar and lose the reframing.
 #>
 
 [CmdletBinding()]
@@ -43,7 +50,6 @@ Write-Host "Target: $imgDir`n" -ForegroundColor Cyan
 
 # out = filename the HTML expects | width = longest-edge downscale | files = candidate Commons titles (tried in order)
 $targets = @(
-  @{ out = 'hero-singularity.jpg'; width = 2200; files = @('Black hole - Messier 87.jpg','Black hole - Messier 87 crop max res.jpg','EHT image of the M87 black hole.jpg','EHT image of the black hole in M87.jpg') }
   @{ out = 'plate-bullet.jpg';     width = 1800; files = @('1e0657 scale.jpg','Bullet cluster.jpg','1E0657-558.jpg') }
   @{ out = 'plate-antennae.jpg';   width = 1800; files = @('Antennae galaxies xl.jpg','Antennae Galaxies reloaded.jpg','The Antennae Galaxies.jpg') }
   @{ out = 'plate-pillars.jpg';    width = 1800; files = @('Pillars of Creation (NIRCam Image).jpg','Pillars of Creation (NIRCam and MIRI Image).jpg','Pillars 2014 HST denoise.jpg') }
