@@ -162,6 +162,12 @@ button{font:inherit}
 }
 .cmdbar input::placeholder{color:var(--ink-faint)}
 .cmdbar .cmdhint{color:var(--ink-faint);font-size:11px;letter-spacing:.08em;white-space:nowrap}
+.cmd-pal-btn{
+  flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  background:transparent;border:1px solid var(--border);color:var(--ink-dim);
+  padding:5px 10px;cursor:pointer;min-height:32px;
+}
+.cmd-pal-btn:hover{border-color:var(--green);color:var(--green)}
 .cmd-out{
   position:fixed;left:0;right:0;bottom:37px;z-index:60;
   background:var(--bg-deep);border-top:1px solid var(--border-hot);
@@ -510,4 +516,30 @@ table.ledger{width:100%;border-collapse:collapse;font-size:12.5px}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .tape-inner{animation:none;padding-left:0}
+}
+
+/* ═══════════ MOBILE ═══════════
+   The desktop topbar (brand + F1-F6 tabs + UTC clock) doesn't fit a phone
+   width without the tabs themselves being squeezed to a sliver — F-key
+   badges are also dead weight with no physical keyboard to reference.
+   Drop the clock and subtitle first (decorative), shrink tabs second. */
+@media(max-width:640px){
+  .brand{padding:0 10px}
+  .brand .bsub{display:none}
+  .top-right{padding:0 10px;gap:0}
+  .top-right .clockbox{display:none}
+  .tab{padding:0 12px;font-size:11px}
+  .tab .tno{display:none}
+  .tabs{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
+  .cmdbar .cmdhint{display:none}
+  /* on mobile this button is the ONLY way to reach the palette (no ⌘K) —
+     give it real touch-target size, not the compact desktop affordance. */
+  .cmd-pal-btn{min-height:40px;padding:0 16px;font-size:12px}
+
+  /* dense terminal buttons read fine at desktop pointer precision but are
+     under the ~40-44px touch target guideline for a finger — widen the hit
+     area without changing how they look at a glance. */
+  .seg button,.presets button,.subtab,.op-adv{
+    min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding-left:14px;padding-right:14px;
+  }
 }

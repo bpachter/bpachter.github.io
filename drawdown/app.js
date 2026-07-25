@@ -87,6 +87,7 @@
       { k: 'FERN', label: 'The $30.72 print', hint: '', run: () => Motion.toast('2026-01-23 — Winter Storm Fern: $30.72, the highest daily print ever, with storage in SURPLUS. Weather passes. Structure doesn\'t.', { tag: 'PX', kind: 'crit', ms: 8000 }) },
     ]);
     Motion.initPalette();
+    $('#cmdPalBtn').onclick = () => Motion.showPalette();
   }
 
   // ═══════════════════════════════ CHROME ═══════════════════════════════
