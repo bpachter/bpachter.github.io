@@ -91,7 +91,7 @@
   .cs-aurora .b3{width:360px;height:320px;left:42%;top:-26%;background:radial-gradient(circle,#38bdf8,transparent 70%);opacity:.3}
 
   /* case study — BMW reorder consolidation */
-  .bmw{position:relative;margin:30px 0 6px;padding:clamp(20px,2.8vw,34px)}
+  .bmw{position:relative;margin:30px 0 6px;padding:clamp(20px,2.8vw,34px);scroll-margin-top:88px}
   .bmw-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 26px}
   .bmw-title{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:24px;letter-spacing:.01em;margin:5px 0 0;color:var(--color-text)}
   .bmw-seg{display:inline-flex;border:1px solid var(--color-divider)}
@@ -239,7 +239,7 @@
         <p class="cs-lead fade" style="--i:2">A few problems worth walking through — the constraint, the redesign, and what it saved. Everything here runs live: toggle it, drag it, break it.</p>
       </section>
 
-      <figure class="bmw blueprint reveal" data-mode="legacy">
+      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-bmw">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
@@ -318,7 +318,7 @@
         <p class="ro-note">The pull-off flow is identical in both modes — what changes is where the replacement part rides. <b>~$13M saved</b> across the G05–G09 programs (X5 · X6 · X7 · XM).</p>
       </figure>
 
-      <figure class="bmw blueprint reveal fx">
+      <figure class="bmw blueprint reveal fx" id="cs-nymt">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
@@ -379,7 +379,7 @@
         <p class="ro-note">A public rebuild of the multi-factor acquisition screen I built at NYMT — a Fama-French-style composite over school &amp; crime scores, comps, rent and single-family momentum, census growth, wealth demographics, worker proximity, and multifamily fundamentals. Illustrative calibration, not the desk's; the original supported underwriting across a <b>$7B+</b> residential portfolio.</p>
       </figure>
 
-      <figure class="bmw blueprint reveal" data-mode="legacy">
+      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-deloitte">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
@@ -415,7 +415,7 @@
         <p class="ro-note">Under the hood: a <b>two-state hidden Markov model</b> (calm / stressed) drives returns; a forward filter infers P(stressed) from returns alone — the solid ribbon — while the dashed line is the <b>forward–backward smoother</b>, hindsight's answer. A <b>regime-switching Monte Carlo</b> fans futures out of today's filtered belief rather than a single σ, with the terminal distribution stacked at the cone's edge. Each regime is <b>geometric Brownian motion</b> — dS/S = μ dt + σ dW — the hidden chain just decides which (μ, σ) drives the diffusion; flip to <b>Pure GBM</b> to watch a single Brownian world thin out the left tail the regimes create. <b>Play world</b> lets the days tick in live; <b>Inject vol shock</b> drops a crisis mid-stream and lets you watch the filter catch it; <b>Reveal true regimes</b> grades the filter against a world it never saw — the hit-rate cell keeps score. Descendant of the GARCH regime lens from my Deloitte fixed-income work — schematic parameters, real math.</p>
       </figure>
 
-      <figure class="bmw blueprint reveal">
+      <figure class="bmw blueprint reveal" id="cs-duke">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>

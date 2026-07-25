@@ -57,7 +57,7 @@ jobs:
           if [ -d assets ]; then cp -r assets _site/assets; fi
           if [ -d gradient ]; then
             cp -r gradient _site/gradient
-            rm -rf _site/gradient/src _site/gradient/build.sh _site/gradient/.gitignore
+            rm -rf _site/gradient/src _site/gradient/build.sh _site/gradient/.gitignore _site/gradient/ROADMAP.md
           fi
           if [ -d attractor ]; then
             cp -r attractor _site/attractor

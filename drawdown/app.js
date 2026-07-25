@@ -797,9 +797,9 @@
     const CMDS = {
       help: () => say(`<b>commands</b> — go terminal|brief|model|data|atlas · brief 1..7 · siting · preset consensus|base|p0|soft ·
         set &lt;lever&gt; &lt;value&gt; (e.g. <b>set prodMax 134</b> — levers: ${LEVERS.map(l => l.id).join(', ')}) ·
-        operator [seed N] · sources · fern · clear · <b>⌘K</b> opens the palette`),
+        operator [N] (opens the standalone policy game, optionally with seed N) · sources · fern · clear · <b>⌘K</b> opens the palette`),
       clear: () => out.classList.remove('show'),
-      go: a => { const t = { terminal: 1, brief: 1, model: 1, data: 1, atlas: 1 }[a?.[0]]; if (t) { location.hash = '#/' + a[0]; out.classList.remove('show'); } else say('unknown module. try: terminal, brief, model, data, atlas'); },
+      go: a => { const t = { terminal: 1, brief: 1, model: 1, data: 1, atlas: 1 }[(a?.[0] || '').toLowerCase()]; if (t) { location.hash = '#/' + a[0].toLowerCase(); out.classList.remove('show'); } else say('unknown module. try: terminal, brief, model, data, atlas — or operator (opens on its own page)'); },
       siting: () => { location.hash = '#/atlas/siting'; out.classList.remove('show'); },
       brief: a => { location.hash = '#/brief/' + (parseInt(a?.[0]) || 1); out.classList.remove('show'); },
       sources: () => { location.hash = '#/data'; out.classList.remove('show'); },

@@ -632,6 +632,8 @@ input.texty:focus { outline: 3px solid rgba(138, 174, 104, 0.5); }
 .atlas-col h4 { font-family: 'Fraunces', serif; font-size: 15.5px; color: var(--ink); margin-bottom: 7px; }
 .atlas-col h4 .pn { font-family: 'Fraunces', Georgia, serif; font-size: 15px; color: var(--leaf-deep); margin-right: 7px; }
 .atlas-col a { display: block; font-size: 12.5px; padding: 2.5px 0; color: var(--ink-soft); border: none; }
+.atlas-col a.sub { display: inline; padding: 0; }
+.atlas-col .atlas-pair { font-size: 12.5px; padding: 2.5px 0; color: var(--ink-soft); }
 .atlas-col a:hover { color: var(--leaf-deep); }
 .atlas-col a .n { font-family: 'Fraunces', Georgia, serif; font-size: 13.5px; color: var(--leaf-deep); margin-right: 6px; display: inline-block; min-width: 20px; }
 @media (max-width: 860px) { .atlas { grid-template-columns: repeat(2, 1fr); } }

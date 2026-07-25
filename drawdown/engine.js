@@ -1,7 +1,8 @@
-/* DRAWDOWN engine — monthly US natural-gas balance model, 2026-01 → 2035-12.
+/* DRAWDOWN engine — monthly US natural-gas balance model, 2026-07 → 2036-06.
    Pure functions, no DOM. All units Bcf/d unless noted; storage in Bcf.
-   Calibration constants live in ENGINE.CALIB and are overwritten by
-   data/model_inputs.json at load; the fallbacks below keep the page alive offline. */
+   Calibration constants live in ENGINE.CALIB; calibrate() can merge a
+   normalized model_inputs.json bundle over them, but nothing currently
+   fetches one — CALIB below is what actually runs. */
 const ENGINE = (() => {
 
   // ───────────────────────── calibration (fallbacks; replaced by data bundle)

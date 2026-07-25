@@ -1,6 +1,6 @@
 # DRAWDOWN — the market is asleep on natural gas
 
-An independent, playable model of the US natural gas balance, 2026–2035: how AI data
+An independent, playable model of the US natural gas balance, 2026–2036: how AI data
 centers plus contracted LNG exports pull on a system that's already close to fully
 committed, why working storage is on track to leave its historical range starting around
 2028, why the forward curve hasn't priced it, and why hyperscalers will come to treat
