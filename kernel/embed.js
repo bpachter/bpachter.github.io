@@ -68,6 +68,10 @@
     // The lede paragraph sits OUTSIDE the cell (so it inherits the host page's
     // prose styling); it only needs its spacing tightened toward the cell.
     '.kc-intro{margin-bottom:-10px}',
+    '.kc-refbadge{opacity:.75;font-style:italic}',
+    '[data-kernel-cell][data-runnable="false"]{opacity:.94}',
+    '[data-kernel-cell][data-runnable="false"] .kc-src{cursor:default}',
+    '.kc-refnote{padding:10px 14px;font-family:var(--kc-mono,ui-monospace,Menlo,monospace);font-size:11px;line-height:1.55;color:var(--kc-faint,#6b7384);background:rgba(0,0,0,.14);border-top:1px solid var(--kc-line,rgba(255,255,255,.10))}',
     // Output tables are fixed-width. Let narrow screens scroll them sideways
     // instead of reflowing and destroying the column alignment.
     '@media(max-width:640px){[data-kernel-cell] .kc-out{white-space:pre;overflow-x:auto}}',
@@ -207,6 +211,11 @@
       .split(",").map(function (s) { return s.trim(); }).filter(Boolean);
     var lang = host.getAttribute("data-lang") || "python";
     var title = host.getAttribute("data-title") || "";
+    // Reference blocks: real library code that CANNOT run here (PyTorch and
+    // TensorFlow have no WebAssembly build). Shown as read-only source with an
+    // explicit note, rather than a Run button that would lie about what it does.
+    var runnable = host.getAttribute("data-runnable") !== "false";
+    var note = host.getAttribute("data-note") || "";
 
     var bar = document.createElement("div");
     bar.className = "kc-bar";
@@ -229,8 +238,15 @@
     runBtn.className = "kc-btn kc-primary";
     runBtn.textContent = "▶ run";
 
-    acts.appendChild(resetBtn);
-    acts.appendChild(runBtn);
+    if (runnable) {
+      acts.appendChild(resetBtn);
+      acts.appendChild(runBtn);
+    } else {
+      var badge = document.createElement("span");
+      badge.className = "kc-tag kc-refbadge";
+      badge.textContent = "reference · not run here";
+      acts.appendChild(badge);
+    }
     bar.appendChild(tag);
     bar.appendChild(titleEl);
     bar.appendChild(acts);
@@ -256,6 +272,22 @@
 
     host.appendChild(bar);
     host.appendChild(ta);
+
+    if (!runnable) {
+      // Read-only: no output pane, no Run. Just the real source and why it
+      // cannot execute in a browser.
+      ta.readOnly = true;
+      ta.setAttribute("aria-label", (title || "reference source") + " (read only)");
+      var refNote = document.createElement("div");
+      refNote.className = "kc-refnote";
+      refNote.textContent = note ||
+        "Real library code, shown for comparison. PyTorch and TensorFlow have no " +
+        "WebAssembly build, so this cannot run in a browser — it needs a Python " +
+        "install (and, for anything real, a GPU).";
+      host.appendChild(refNote);
+      return;
+    }
+
     host.appendChild(foot);
     host.appendChild(out);
 

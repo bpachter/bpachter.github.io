@@ -132,6 +132,141 @@
       <div class="readout"><span class="stat">accuracy <b id="perc-acc">—</b></span><span class="stat">Rule: fire if <b>w₁x + w₂y + b &gt; 0</b></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Press <b>let it learn</b>: the perceptron nudges its own weights after every mistake — the 1958 learning rule, live.</p>
     </div>
+
+    <p class="kc-intro">The widget nudges its weights after every mistake, which is an easy thing to say and an easy thing to take on faith. Here is that rule with nothing wrapped around it, run until the mistakes stop — plus the 1962 theorem that puts a hard ceiling on how long it is allowed to take. Then the same rule pointed at XOR, where it first goes round in a circle forever, and then — in three lines of arithmetic — is shown to have had no choice.</p>
+    <div data-kernel-cell data-title="the 1958 rule, run to convergence">
+    <script type="text/x-python">
+# Rosenblatt's 1958 rule, run until it stops making mistakes.
+# The whole learning algorithm is one line: when you get a point wrong,
+# add that point (times its label) to the weights. That is the entire idea.
+import random
+
+r = random.Random(37)
+def cloud(cx, cy, n, y):                  # a fixed, seeded blob of points
+    return [[(r.gauss(cx, .65), r.gauss(cy, .65), 1.0), y] for _ in range(n)]
+
+# the third coordinate is a constant 1.0, so the bias is just another weight
+DATA = cloud(-1.0, -0.6, 14, -1) + cloud(1.0, 0.6, 14, +1)
+r.shuffle(DATA)
+
+def score(w, x):
+    return w[0]*x[0] + w[1]*x[1] + w[2]*x[2]
+
+w, hist, trace = [0.0, 0.0, 0.0], [], []
+for ep in range(1, 100):
+    wrong = 0
+    for x, y in DATA:
+        if y * score(w, x) <= 0:                   # got this one wrong
+            before = tuple(w)
+            for k in range(3):
+                w[k] += y * x[k]                   # <- the rule, in full
+            wrong += 1
+            if len(trace) < 4:
+                trace.append((ep, x, y, before, tuple(w)))
+    hist.append(wrong)
+    if wrong == 0:
+        break
+
+print("the first four updates (the weights start at exactly zero)")
+for ep, x, y, b, a in trace:
+    print(f"  ep{ep} x=({x[0]:+.2f},{x[1]:+.2f}) y={y:+d} "
+          f"({b[0]:+.2f},{b[1]:+.2f},{b[2]:+.2f})"
+          f" -> ({a[0]:+.2f},{a[1]:+.2f},{a[2]:+.2f})")
+
+done = hist[-1] == 0
+print(f"\nmistakes per epoch: {' '.join(str(m) for m in hist)}")
+print(f"{'clean sweep on' if done else 'no clean sweep by'} epoch {len(hist)}"
+      f", after {sum(hist)} total updates")
+
+# ---- Novikoff, 1962: the updates have a hard ceiling ----------------------
+# If some unit vector u separates the data with margin gamma, and no point
+# sits farther from the origin than R, then a perceptron starting from zero
+# can never make more than (R/gamma)**2 updates -- whatever the order, and
+# whatever the learning rate. We plug in the separator this run happened to
+# find; the widest-margin one would give a smaller ceiling, so ours is the
+# loose version of a true statement. R and gamma are both measured in the
+# same three-coordinate space, bias included, so they are comparable.
+norm = sum(v*v for v in w) ** 0.5
+u = [v / norm for v in w]
+gamma = min(y * score(u, x) for x, y in DATA)
+R = max(sum(v*v for v in x) ** 0.5 for x, _ in DATA)
+print(f"\nNovikoff ceiling  R={R:.2f}, margin={gamma:.3f}"
+      f"  ->  at most {(R/gamma)**2:.0f} updates")
+print(f"actually needed   {sum(hist)}."
+      f"  A worst-case bound is worst-case: this data was kind.")
+
+# ---- what it settled on, drawn -------------------------------------------
+W, Hh = 54, 15
+grid = [[" "] * W for _ in range(Hh)]
+def col(x): return round((x + 2.7) / 5.4 * (W - 1))
+def row(y): return round((2.0 - y) / 4.0 * (Hh - 1))
+for c in range(W):                             # the line, column by column
+    x = -2.7 + 5.4 * c / (W - 1)
+    rr = row(-(w[0]*x + w[2]) / w[1])
+    if 0 <= rr < Hh:
+        grid[rr][c] = "."
+for rr in range(Hh):                           # and again row by row, so a
+    y = 2.0 - 4.0 * rr / (Hh - 1)              # steep line stays joined up
+    cc = col(-(w[1]*y + w[2]) / w[0])
+    if 0 <= cc < W:
+        grid[rr][cc] = "."
+for x, y in DATA:
+    cc, rr = col(x[0]), row(x[1])
+    if 0 <= cc < W and 0 <= rr < Hh:
+        grid[rr][cc] = "b" if y > 0 else "a"
+print()
+for g in grid:
+    print("  |" + "".join(g) + "|")
+print("  a = class -1    b = class +1    . = the boundary it stopped at")
+
+# ---- and now the puzzle it cannot do -------------------------------------
+XOR = [[(0., 0., 1.), -1], [(0., 1., 1.), +1],
+       [(1., 0., 1.), +1], [(1., 1., 1.), -1]]
+w2, seen, hist2, loop = [2.0, 1.0, -0.5], {}, [], None
+for ep in range(1, 500):
+    key = tuple(w2)
+    if key in seen and loop is None:
+        loop = (seen[key], ep)                  # this exact state, again
+    seen.setdefault(key, ep)
+    wrong = 0
+    for x, y in XOR:
+        if y * score(w2, x) <= 0:
+            for k in range(3):
+                w2[k] += y * x[k]
+            wrong += 1
+    hist2.append(wrong)
+
+print("\nsame rule, same four lines, on XOR -- mistakes per epoch:")
+print("  " + " ".join(str(m) for m in hist2[:16]) + " ...")
+print(f"It gets down to {min(hist2)} wrong out of 4, then drifts back up.")
+if loop is None:
+    print("No weight state repeated inside 499 epochs.")
+else:
+    a, b = loop
+    print(f"The weights at epoch {a} return exactly at epoch {b}, and"
+          f" nothing")
+    print(f"else carries over -- so epoch {a} onward is a loop of"
+          f" {sum(hist2[a-1:b-1])} mistakes")
+    print(f"per lap: {sum(hist2)} of them in 499 epochs, and never once"
+          f" a zero.")
+
+# That is this run looping. Here is why no run, no seed and no patience can
+# ever do better. Add the two augmented points labelled -1 and you get the
+# very same vector as the two labelled +1 -- so for EVERY w whatsoever, the
+# two scores on the left sum to the identical number as the two on the right.
+lo = tuple(p + q for p, q in zip(XOR[0][0], XOR[3][0]))
+hi = tuple(p + q for p, q in zip(XOR[1][0], XOR[2][0]))
+print(f"\n(0,0)+(1,1) = {lo}   and   (0,1)+(1,0) = {hi}")
+for wt in [(1.0, -2.0, 1.5), (-3.0, 0.7, 2.0), (0.25, 4.0, -0.6)]:
+    lhs = score(wt, XOR[0][0]) + score(wt, XOR[3][0])   # the two -1s
+    rhs = score(wt, XOR[1][0]) + score(wt, XOR[2][0])   # the two +1s
+    print(f"  w=({wt[0]:+.2f},{wt[1]:+.2f},{wt[2]:+.2f})   "
+          f"{lhs:+.3f} vs {rhs:+.3f}   gap {abs(lhs-rhs):.1e}")
+print("A separator needs that left sum below zero and that right sum above")
+print("it. They are the same number. No line exists, and none ever will --")
+print("Minsky and Papert, 1969. Not slow, not unlucky: impossible.")
+    </script>
+    </div>
   </div>
 </section>
 
@@ -156,6 +291,156 @@
       <div class="readout"><span class="stat">loss <b id="gd-loss">—</b></span><span class="stat">slope <b id="gd-slope">—</b></span><span id="gd-msg" class="hand" style="font-size:19px;color:var(--leaf-deep)"></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Crank the learning rate past 1.2 and press descend. Then try a tiny rate from the shallow valley — and turn noise on to escape it.</p>
     </div>
+
+    <p class="kc-intro"><b>Descend</b> is the word doing all the work above, and underneath it is a single line of arithmetic: subtract the slope, times a small number. Below, three learning rates take that identical step from the identical spot — one too timid to arrive, one that lands, one that has left the graph by step four. Then the cell works out where exactly the boundary between landing and leaving sits, walks up to it to check — and finally turns the same formula on the curve inside the widget above, which is where that <em>past 1.2</em> comes from.</p>
+    <div data-kernel-cell data-title="three learning rates, one hill">
+    <script type="text/x-python">
+# Gradient descent, with nothing hidden: it is one subtraction, in a loop.
+#     x = x - learning_rate * slope(x)
+# Three rates, one starting point, and the arithmetic left in plain sight.
+import math
+
+def f(x):  return x**4/4 - x**2 + 0.15*x + 1      # a two-valley landscape
+def fp(x): return x**3 - 2*x + 0.15               # its slope, worked out once
+
+X0, STEPS = 2.2, 60
+
+def descend(lr, x0=X0, steps=STEPS):
+    """The whole of gradient descent. Returns the path, blow-ups included."""
+    xs, x = [x0], x0
+    for _ in range(steps):
+        x = x - lr * fp(x)                        # <- that is the algorithm
+        if abs(x) > 1e12:
+            xs.append(None)                       # gone, and not coming back
+            break
+        xs.append(x)
+    return xs
+
+RATES = [0.01, 0.15, 0.70]
+paths = {lr: descend(lr) for lr in RATES}
+
+def cell(v):
+    if v is None:
+        return "      --  "
+    return f"{v:>10.2e}" if abs(v) >= 1e4 else f"{v:>10.3f}"
+
+print("f(x) = x^4/4 - x^2 + 0.15x + 1     slope = x^3 - 2x + 0.15")
+print(f"every run starts at x = {X0} and takes the identical step:")
+print("    x = x - lr * slope(x)\n")
+print(f"{'step':>4}" + "".join(f"{'lr = %.2f' % lr:>20}" for lr in RATES))
+print(f"{'':>4}" + "".join(f"{'x':>10}{'f(x)':>10}" for _ in RATES))
+for s in [0, 1, 2, 3, 4, 6, 10, 20, 40, 60]:
+    row = f"{s:>4}"
+    for lr in RATES:
+        p = paths[lr]
+        v = p[s] if s < len(p) else None
+        row += cell(v) + cell(None if v is None else f(v))
+    print(row.rstrip())
+
+# the two valley floors, located by bisecting the slope -- no descent involved
+def bisect(a, b, d=fp):
+    for _ in range(90):
+        m = (a + b) / 2
+        if d(a) * d(m) <= 0: b = m
+        else: a = m
+    return (a + b) / 2
+left, right = bisect(-2.0, -1.0), bisect(1.0, 2.0)
+print(f"\nthe two floors sit at x={left:.4f} (f={f(left):+.4f}) and "
+      f"x={right:.4f} (f={f(right):+.4f})")
+for lr in RATES:
+    end = paths[lr][-1]
+    if end is None:
+        print(f"  lr={lr:<5} passed 1e12 on step {len(paths[lr])-1}; one step"
+              f" earlier it was at {paths[lr][-2]:.2e}")
+    else:
+        near = left if abs(end - left) < abs(end - right) else right
+        print(f"  lr={lr:<5} stopped at x={end:.4f}, "
+              f"{abs(end-near):.1e} from the nearer floor")
+print("  lr=0.01 is not wrong, only patient -- it is still walking downhill.")
+print("  lr=0.15 arrived, and note where: the higher of the two valleys,")
+print("  because that is the one it happened to be standing above.")
+
+# ---- so where exactly is a step too big? ---------------------------------
+# Close to a floor the landscape is a parabola of curvature f''(x*), and one
+# step multiplies your distance from the floor by |1 - lr*f''(x*)|. That is
+# under 1 -- you get closer -- only while lr < 2/f''(x*). A closed form, and
+# an easy one to catch lying: stand 1e-6 from the floor and take real steps.
+fpp = 3*right*right - 2
+thresh = 2 / fpp
+head = "|1-lr*f''|"
+print(f"\ncurvature at x={right:.4f} is f''={fpp:.4f}, so steps shrink only")
+print(f"while lr < 2/f'' = {thresh:.4f}. From 1e-6 away, 3000 real steps:")
+print(f"  {'lr':>8}{head:>11}{'|x-x*| at step 3000':>21}")
+for lr in [0.5200, 0.5400, thresh - 0.0002, thresh + 0.0002, 0.5600]:
+    x = right + 1e-6
+    for _ in range(3000):
+        x = x - lr * fp(x)
+    d = abs(x - right)
+    print(f"  {lr:>8.4f}{abs(1 - lr*fpp):>11.4f}{d:>21.2e}"
+          f"{'  shrank' if d < 1e-6 else '  grew':>9}")
+print(f"  The flip lands between those two middle rows -- {4e-4:.4f} of")
+print(f"  learning rate apart, around the predicted {thresh:.4f}.")
+
+# past the ceiling it does not fly off: the quartic's own steepening catches
+# it, and what is left is a two-cycle straddling a floor it cannot land on
+x = right + 1e-6
+for _ in range(5000):
+    x = x - 0.56 * fp(x)
+orb = []
+for _ in range(3):
+    x = x - 0.56 * fp(x)
+    orb.append(x)
+print("  lr=0.5600 does not diverge, it gives up and orbits:")
+print(f"  {orb[0]:.6f} -> {orb[1]:.6f} -> {orb[2]:.6f} -> ... forever,")
+print(f"  straddling the floor at {right:.6f} it can no longer reach.")
+
+# and a rate can be safe in one valley and useless in the next one over
+fpp_l = 3*left*left - 2
+tail = descend(0.50, steps=400)[-40:]
+print(f"\nEasy to miss: at the other floor f''={fpp_l:.4f}, so the ceiling")
+print(f"there is only {2/fpp_l:.4f}. So lr=0.50 is stable in one valley and")
+print("not in the other. It jumps into the left basin on step 1, and 400")
+print(f"steps later is still swinging between x={min(tail):.3f} and"
+      f" x={max(tail):.3f}.")
+
+# ---- and the same formula, on the curve in the widget above --------------
+# The slider's landscape is 0.045w^2 + 1.1*sin(1.35w) -- a different curve,
+# so a different ceiling, but the same 2/f''. Its four floors are all it
+# takes to explain where the chapter's "past 1.2" comes from.
+gp  = lambda v: 0.09*v + 1.485*math.cos(1.35*v)
+gpp = lambda v: 0.09 - 2.00475*math.sin(1.35*v)
+floors, v = [], -9.0
+while v < 9.0:
+    if gp(v) * gp(v + .01) <= 0:
+        s = bisect(v, v + .01, gp)
+        if gpp(s) > 0:
+            floors.append(s)
+    v += .01
+print("\nthe widget's own curve is 0.045w^2 + 1.1 sin(1.35w). Its floors:")
+for s in floors:
+    print(f"  w={s:+.3f}   f''={gpp(s):.3f}   stable only while lr <"
+          f" {2/gpp(s):.3f}")
+print("Not one of them tolerates 1.1. That is why the chapter says to crank")
+print("the slider past 1.2 -- past there no valley on that curve can hold")
+print("the ball, whichever one you drop it in. The number is not folklore.")
+
+# ---- the landscape both valleys live on ----------------------------------
+W, H, lo, hi = 58, 13, -1.9, 2.25
+ys = [f(lo + (hi - lo) * c / (W - 1)) for c in range(W)]
+fmin, fmax = min(ys), max(ys)
+grid = [[" "] * W for _ in range(H)]
+def rowof(v): return round((fmax - v) / (fmax - fmin) * (H - 1))
+def colof(x): return round((x - lo) / (hi - lo) * (W - 1))
+for c, v in enumerate(ys):
+    grid[rowof(v)][c] = "o"
+for x, ch in [(left, "*"), (right, "*"), (X0, "S")]:
+    grid[rowof(f(x))][colof(x)] = ch
+print()
+for g in grid:
+    print(("  " + "".join(g)).rstrip())
+print("  S = where every run starts     * = the two valley floors")
+    </script>
+    </div>
   </div>
 </section>
 
@@ -176,6 +461,170 @@
       </div>
       <div class="readout"><span class="stat">loss <b id="gd3d-loss">—</b></span><span class="stat">steps <b id="gd3d-steps">0</b></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Drag to orbit the landscape. Drop balls in different spots — some valleys are deeper than others. Now toggle momentum off and drop a ball in the same place.</p>
+    </div>
+
+    <p class="kc-intro">Two claims in the paragraph above are worth checking rather than believing: that the gradient really is the steepest-uphill arrow, and that momentum really buys something. Below, the steepness is measured by hand in every compass direction before the calculus gets a look in — and steepest downhill turns out to miss the bottom of the bowl by 42 degrees. Then plain descent races Polyak's heavy ball on a stretched bowl, each at its own textbook-optimal settings. What momentum buys here is not escaping a dip — this bowl has exactly one floor — but the square root of the condition number. And when the winner takes 39 steps against a promised 30, the cell digs out why, because the obvious explanation is the wrong one.</p>
+    <div data-kernel-cell data-title="steepest downhill, and what momentum buys">
+    <script type="text/x-python">
+# The gradient is the arrow pointing steepest-uphill. Here it is, measured:
+# stand somewhere, walk a hair in every direction, and see which way rises
+# fastest -- then check that against the two numbers calculus hands you.
+import math
+
+# A stretched bowl: gentle along x, twenty times stiffer along y. Real
+# landscapes are not parabolas, but every valley floor looks like one from
+# close enough, which is why the arithmetic below keeps applying.
+M, L = 1.0, 20.0
+def f(p):    return 0.5 * (M*p[0]**2 + L*p[1]**2)
+def grad(p): return (M*p[0], L*p[1])
+
+def probe(p, deg, h=1e-5):
+    """Rise per unit step in a compass direction, measured by walking it."""
+    t = math.radians(deg)
+    d = (math.cos(t), math.sin(t))
+    up = (p[0] + h*d[0], p[1] + h*d[1])
+    dn = (p[0] - h*d[0], p[1] - h*d[1])
+    return (f(up) - f(dn)) / (2*h)
+
+P = (1.0, 1.0)
+gx, gy = grad(P)
+gnorm = math.hypot(gx, gy)
+print(f"standing at {P}, where f = {f(P):.3f}")
+print("a hair's step in each direction, and the rise it bought:\n")
+for deg in range(0, 360, 30):
+    s = probe(P, deg)
+    n = round(abs(s) / gnorm * 22)
+    bar = " "*22 + "| " + "#"*n if s >= 0 else " "*(22-n) + "#"*n + " |"
+    print(f"  {deg:>3} deg {s:>+8.3f}  {bar}".rstrip())
+
+fine = max(range(3600), key=lambda k: probe(P, k/10))
+print(f"\nsteepest over a sweep of every 0.1 deg:  {fine/10:>6.1f} deg,"
+      f" rise {probe(P, fine/10):.4f}")
+print(f"what the gradient vector ({gx:.0f}, {gy:.0f}) claims: "
+      f"{math.degrees(math.atan2(gy, gx)):>6.1f} deg,"
+      f" rise {gnorm:.4f}")
+print("Same direction, same steepness. The gradient is not a metaphor for")
+print("the steepest way up, it is a measurement of it.")
+
+to_min = math.degrees(math.atan2(-P[1], -P[0])) % 360
+downhill = math.degrees(math.atan2(-gy, -gx)) % 360
+print(f"\nNow the catch: steepest DOWNhill from here is {downhill:.1f} deg,")
+print(f"but the bottom of the bowl lies at {to_min:.1f} deg -- "
+      f"{abs(downhill-to_min):.1f} degrees apart.")
+print("Steepest down is not the same as toward the minimum. That gap is the")
+print("whole difficulty, and it widens as the bowl gets more lopsided.")
+
+# ---- plain descent, and descent with a memory -----------------------------
+# Heavy ball (Polyak, 1964): carry a velocity instead of stepping straight
+# downhill each time. Both runs below use the textbook-optimal settings for
+# this bowl, so each is doing the best it can -- this is not a stacked race.
+# Note what is and is not on trial: this bowl has exactly ONE floor, so
+# nothing here is about escaping a dip. What momentum buys is the narrow
+# valley -- the condition number -- and that is what gets measured.
+kap = L / M
+lr_gd = 2 / (L + M)
+rate_gd = (kap - 1) / (kap + 1)
+beta = ((math.sqrt(kap) - 1) / (math.sqrt(kap) + 1))**2
+lr_hb = 4 / (math.sqrt(L) + math.sqrt(M))**2
+rate_hb = math.sqrt(beta)
+TOL, START = 1e-6, math.hypot(*P)
+
+def run(lr, mom, steps=200):
+    p, v, hit, dist = list(P), [0.0, 0.0], None, [START]
+    for k in range(1, steps + 1):
+        g = grad(p)
+        for i in (0, 1):
+            v[i] = mom * v[i] - lr * g[i]       # mom=0 gives plain descent
+            p[i] += v[i]
+        dist.append(math.hypot(*p))
+        if hit is None and dist[-1] <= TOL * START:
+            hit = k
+    return hit, dist
+
+gd_hit, gd_d = run(lr_gd, 0.0)
+hb_hit, hb_d = run(lr_hb, beta)
+_, hb_long = run(lr_hb, beta, 900)
+pred = lambda r: math.log(TOL) / math.log(r)
+meas = lambda d: (d[160] / d[100]) ** (1 / 60)
+
+print(f"\nthe bowl's condition number is {kap:.0f} (stiffest curvature over"
+      f" gentlest)")
+print(f"  {'':<16}{'lr':>7}{'beta':>6}{'rate':>8}{'measured':>10}"
+      f"{'predicted':>11}{'actual':>8}")
+print(f"  {'plain descent':<16}{lr_gd:>7.4f}{0.0:>6.2f}{rate_gd:>8.4f}"
+      f"{meas(gd_d):>10.4f}{pred(rate_gd):>11.0f}{gd_hit:>8}")
+print(f"  {'heavy ball':<16}{lr_hb:>7.4f}{beta:>6.2f}{rate_hb:>8.4f}"
+      f"{meas(hb_d):>10.4f}{pred(rate_hb):>11.0f}{hb_hit:>8}")
+print("'rate' is the textbook per-step shrinkage -- (k-1)/(k+1) for plain")
+print("descent, (sqrt(k)-1)/(sqrt(k)+1) for heavy ball. 'measured' is what")
+print("the run actually did between steps 100 and 160. 'predicted' is")
+print(f"log({TOL:.0e})/log(rate); 'actual' is the step it crossed.")
+print("Plain descent does not approximate its textbook rate, it IS it:")
+print(f"  measured, steps 100-160 : {meas(gd_d):.15f}")
+print(f"  theory, (k-1)/(k+1)     : {rate_gd:.15f}")
+print(f"  difference              : {meas(gd_d) - rate_gd:.1f}"
+      f"  <- the identical double")
+
+# ---- why heavy ball seems to miss (it does not) ---------------------------
+# Heavy ball reads 0.6395 measured against 0.6345 promised, and takes 39
+# steps where 30 were predicted. The tempting story is that it spirals --
+# complex roots, rotation. That story is wrong, and one line of algebra says
+# so. Per eigenvalue lam the recursion is z^2 - (1+beta-lr*lam)z + beta = 0,
+# and at the optimal settings its discriminant is ZERO at both ends of the
+# spectrum: a repeated REAL root, critically damped, no rotation anywhere.
+print("\n  eigenvalue    discriminant           root")
+for lam in (M, L):
+    bq = 1 + beta - lr_hb * lam
+    print(f"  {lam:>9.0f}    {bq*bq - 4*beta:>+12.1e}      {bq/2:>+9.6f}")
+print(f"  Both are {rate_hb:.6f} in magnitude -- and both are repeated.")
+
+# A repeated root does not decay like rate**k. It decays like (A + B*k) *
+# rate**k: an extra straight line's worth of drag riding on the geometry.
+# Divide the geometry out and the line is impossible to miss.
+print("\n     k      |x_k|    |x_k| / rate**k")
+for k in (1, 10, 40, 80, 120, 160):
+    print(f"  {k:>4}  {hb_d[k]:>9.2e}    {hb_d[k]/rate_hb**k:>12.2f}")
+print("  Dead straight in k. So the rate is exactly what was promised and")
+print("  the extra steps are the polynomial sitting on top of it. Measure")
+print("  over a later window, where the line has flattened out, and the")
+print("  measurement walks back down onto the promise:")
+for a0, b0 in ((100, 160), (300, 360), (800, 860)):
+    rr = (hb_long[b0] / hb_long[a0]) ** (1 / (b0 - a0))
+    print(f"    steps {a0}-{b0}:  {rr:.6f}")
+print(f"    sqrt(beta) =  {rate_hb:.6f}")
+print(f"Heavy ball also ends up FARTHER from the floor after one"
+      f" step ({hb_d[1]:.2f} vs {START:.2f})")
+print("than it started -- it overshoots the stiff direction to make headway")
+print("on the gentle one. Even so, the square root is the whole prize:")
+print(f"{kap:.0f} -> {math.sqrt(kap):.2f}, and {gd_hit} steps -> {hb_hit}.")
+
+print("\nthe steep coordinate y under plain descent, first eight steps:")
+ys, y = [], P[1]
+for _ in range(8):
+    ys.append(y)
+    y -= lr_gd * L * y
+print("  " + " ".join(f"{v:+.3f}" for v in ys))
+print("  It changes sign every single step. The run is crossing the valley,")
+print("  not walking down it, and pays for the trip each time.")
+
+# ---- distance to the floor, on a log scale --------------------------------
+W, TOPD, ROWD = 56, 0.5, 0.5
+def rowof(d): return round((TOPD - math.log10(d)) / ROWD)
+H = rowof(10 ** -7.0) + 1
+grid = [[" "] * W for _ in range(H)]
+grid[rowof(TOL * START)] = ["-"] * W            # the finish line
+for series, ch in ((gd_d, "."), (hb_d, "+")):
+    for k in range(W):
+        r = rowof(series[k])
+        if 0 <= r < H:
+            grid[r][k] = ch
+print("\nhow far from the floor, log10, one column per step")
+for r, g in enumerate(grid):
+    lab = f"{TOPD - r*ROWD:>5.0f}" if (TOPD - r*ROWD) % 1 == 0 else "     "
+    print((f"{lab} |" + "".join(g)).rstrip())
+print(f"      steps 0 to {W-1}.  . = plain descent,  + = heavy ball.")
+print(f"      The dashed line is the finish: {TOL:.0e} of the start.")
+    </script>
     </div>
   </div>
 </section>

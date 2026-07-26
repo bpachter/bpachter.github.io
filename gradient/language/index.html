@@ -124,6 +124,203 @@
       <p class="widget-hint"><span class="hand">Try it →</span> Type your own words. Try something long and made-up, like <b>hyperlearnification</b>.</p>
     </div>
 
+    <p class="kc-intro">The chopper above runs on a vocabulary I typed out by hand. Here is where a real one comes from: byte-pair encoding trained from scratch on the prose of these four chapters, merging the commonest adjacent pair over and over until whole words fall out of nothing but letters. Then it meets three words that appear nowhere in its training text, and one word that tells you why models cannot count letters.</p>
+    <div data-kernel-cell data-title="byte-pair encoding, trained on this page">
+    <script type="text/x-python">
+# Byte-pair encoding, trained from scratch on the prose of chapters 05-08.
+# Every merge below was chosen by counting, not by me. No libraries.
+import re
+from collections import Counter
+
+PAGE = """
+Networks eat numbers, not words. So language models first chop text
+into tokens — not quite letters, not quite words. Common words
+survive whole; rare ones get split into reusable pieces, so
+unbelievable becomes un + believ + able and the model can handle
+words it has never seen. Every model has a fixed menu of these
+pieces, learned by merging the most frequent pairs — the reason
+models sometimes struggle to count the letters in a word: they never
+see letters, only chunks. Then each token gets a meaning. Not a
+definition — a location. Every token becomes an embedding: a list of
+hundreds of coordinates placing it in a vast space where similar
+meanings sit near each other. The astonishing part, discovered with
+word2vec in 2013, is that directions in this space mean things. The
+path from man to woman is roughly the same arrow as the path from
+king to queen. Meaning becomes geometry, and arithmetic on meaning
+becomes possible. For years, models read sentences one word at a
+time, dragging a fading memory behind them — and long sentences
+dissolved into fog. The 2017 transformer threw that out with one
+move: let every word look at every other word at once, and let the
+model learn where to look. That mechanism is attention, and it is
+the single idea behind the entire modern AI boom. Each word plays
+three roles at once. Its query asks a question — what am I looking
+for? Its key advertises what it offers. Its value is the actual
+information it hands over. Every query is compared against every
+key; strong matches earn strong weights; and each word rebuilds
+itself as a weighted blend of everyone's values. When you read the
+robot picked up the ball because it was heavy, something in you
+resolves what it means. Attention is that reflex, made mechanical.
+Because all words are seen at once, the model needs a sense of order
+— so each position gets a rhythmic stamp built from sine and cosine
+waves (newer models rotate the query and key vectors instead, a
+scheme called RoPE — it gets its own chapter in part III). One
+attention pass is a committee meeting. A transformer is dozens of
+them, stacked. Each layer runs several heads in parallel — small
+independent spotlights, each free to learn its own kind of
+relationship: one watches the previous word, one binds verbs to
+their objects, one hunts for the far-away noun a pronoun leans on,
+one keeps an eye on everything at once. Layer by layer, every word's
+vector is rebuilt as a blend of what it attended to — meaning
+refined in passes, the way a drawing goes sketch inks color. By the
+top of the tower, the vector over ball does not just mean ball; it
+means this particular ball, the one the robot picked up. Below is a
+toy tower you can hold: six words wide, four layers tall, four heads
+per layer. Here is the secret that still surprises people: a
+language model has exactly one skill. Given everything so far, it
+predicts a probability for every possible next token. That's it.
+Generation is just prediction on a loop — predict, pick one, append
+it, predict again — each new word feeding the next prediction. The
+loop is why answers stream out word by word, and why a model never
+quite knows how its own sentence will end. How you pick from those
+probabilities is a personality dial. Always take the single most
+likely token — greedy decoding — and the text turns repetitive and
+dull. Instead we sample. Temperature reshapes the whole
+distribution: cold makes the favorite dominate, hot flattens the
+field toward chaos. Top-k only lets the k best candidates into the
+draw. Top-p keeps the smallest set of words whose probabilities add
+up to p. Every chatbot you've used is these three sliders wearing a
+trench coat. The model below is real and it learned from this very
+page — every probability you see comes from counting patterns in the
+words you just read. It is a humble n-gram model, not a transformer,
+but the sampling machinery is exactly what the big models use. Watch
+the outlined bars (raw probabilities) get reshaped into the filled
+bars (after your dials) at every single step.
+"""
+
+# BPE works over word types, not the raw stream: "the" appearing 42 times is
+# one entry with a count of 42.
+counts = Counter(re.findall(r"[a-z']+", PAGE.lower()))
+# "_" marks the end of a word and rides along on the last letter, so a piece
+# that only ever ends words stays distinct from the same letters mid-word.
+corpus = {tuple(w[:-1]) + (w[-1] + "_",): n for w, n in counts.items()}
+
+CHARS = sum(len(w) * n for w, n in counts.items())
+def size(c):
+    """total tokens in the corpus, and how many distinct pieces still appear
+    in it — which is NOT the vocabulary: a piece stays in the tokenizer's
+    table forever, even after longer merges swallow every occurrence."""
+    return (sum(len(seq) * n for seq, n in c.items()),
+            len({s for seq in c for s in seq}))
+
+def pair_counts(c):
+    p = Counter()
+    for seq, n in c.items():
+        for i in range(len(seq) - 1):
+            p[seq[i], seq[i + 1]] += n
+    return p
+
+def apply_merge(c, pair):
+    a, b = pair
+    out = {}
+    for seq, n in c.items():
+        new, i = [], 0
+        while i < len(seq):
+            if i + 1 < len(seq) and seq[i] == a and seq[i + 1] == b:
+                new.append(a + b)
+                i += 2
+            else:
+                new.append(seq[i])
+                i += 1
+        out[tuple(new)] = n
+    return out
+
+tok0, alpha0 = size(corpus)
+print(f"corpus: the prose of chapters 05-08 — {sum(counts.values())} words,")
+print(f"        {len(counts)} of them distinct, {CHARS} letters in all")
+print(f"start:  every word split into single characters — {tok0} tokens")
+print(f"        drawn from an alphabet of {alpha0}\n")
+
+MERGES = 240
+SHOW = (20, 60, 120, MERGES)
+merges, curve = [], [(0, tok0, alpha0)]
+for step in range(1, MERGES + 1):
+    p = pair_counts(corpus)
+    if not p:
+        break
+    # ties broken by the pair itself, so this run is identical every time
+    best, freq = max(p.items(), key=lambda kv: (kv[1], kv[0]))
+    corpus = apply_merge(corpus, best)
+    merges.append(best)
+    t, a = size(corpus)
+    curve.append((step, t, a))
+    if step <= 8 or step in SHOW:
+        m = f"{best[0]} + {best[1]} -> {''.join(best)}"
+        print(f"  {step:>4}   {m:<34}{freq:>4}x  {t:>5} tokens left")
+
+print("\nThe early ones are the ones you would guess: the commonest letter")
+print("pairs in English, plus whole short words that show up dozens of times.")
+print("Nobody wrote 'the' into a vocabulary. Counting found it.\n")
+
+print(f"  {'merges':>7}{'tokens':>9}{'vocab':>7}{'in use':>8}"
+      f"{'chars/tok':>11}")
+for step, t, a in curve:
+    if step == 0 or step in SHOW:
+        bar = "#" * round(t / tok0 * 30)
+        print(f"  {step:>7}{t:>9}{alpha0 + step:>7}{a:>8}"
+              f"{CHARS / t:>11.2f}  {bar}")
+print(f"  vocab = the {alpha0} starting characters plus one new piece per merge;")
+print("  'in use' counts the ones still visible in the corpus — the gap is")
+print("  pieces that longer merges have since swallowed whole.")
+# sorted by (-length, then the piece itself) so the list never reshuffles
+pieces = sorted({"".join(m) for m in merges}, key=lambda s: (-len(s), s))
+print("\n  the longest pieces the merges built, in order:")
+for i in range(0, 6, 3):
+    row = "   ".join(f"{s.rstrip('_') + ('.' if s.endswith('_') else ''):<16}"
+                     for s in pieces[i:i + 3])
+    print("    " + row.rstrip())
+print("  (a trailing . means the piece only ever ends a word)\n")
+
+print("  GPT-2 carries a 50,257-piece vocabulary learned from 40 GB of web")
+print("  text, and gets English down to roughly 4 characters a token.")
+print(f"  A {alpha0 + MERGES}-piece vocabulary off ten paragraphs already reaches "
+      f"{CHARS / curve[-1][1]:.2f},")
+print(f"  over half that ratio, from a corpus {40e9 / CHARS / 1e6:.0f} million times smaller.\n")
+
+# ---- now the part that matters: a word the tokenizer has never seen ---------
+rank = {m: i for i, m in enumerate(merges)}
+
+def encode(word):
+    """Apply the learned merges to a new word, lowest rank first — exactly how
+    a real BPE tokenizer runs at inference time. GPT-2 merges every occurrence
+    of the lowest-ranked pair in one sweep; merging just the leftmost and
+    re-scanning lands in the same place, because any merge that consumes "ab"
+    had to be learned after "ab" existed and so always ranks higher."""
+    w = word.lower()
+    seq = list(w[:-1]) + [w[-1] + "_"]
+    while True:
+        cand = [(rank[seq[i], seq[i + 1]], i) for i in range(len(seq) - 1)
+                if (seq[i], seq[i + 1]) in rank]
+        if not cand:
+            return seq
+        _, i = min(cand)
+        seq[i:i + 2] = [seq[i] + seq[i + 1]]
+
+print("four words put through the merges — three never seen in training:\n")
+for w in ("hyperlearnification", "rethinking", "tokenization", "attention"):
+    seen = "seen" if w in counts else "unseen"
+    parts = " | ".join(p.rstrip("_") for p in encode(w))
+    print(f"  {w:<20} {seen:>6}   {parts}")
+
+print("\nNothing here is a dictionary lookup. A word the tokenizer has never")
+print("met still comes out as familiar pieces, because the pieces were built")
+print("from letters up. That is the whole trick — and the whole limitation.")
+print("Look at what 'attention' collapses to: one piece, one id, one row of")
+print("the embedding table. Ask the model how many t's are in it and there")
+print("are no letters there to count. It can only answer from having read")
+print("the spelling somewhere, which is exactly as reliable as it sounds.")
+    </script>
+    </div>
+
     <p>Then each token gets a meaning. Not a definition — a <b>location</b>. Every token becomes an <b>embedding</b>: a list of hundreds of coordinates placing it in a vast space where similar meanings sit near each other. The astonishing part, discovered with word2vec in 2013, is that directions in this space mean things. The path from <em>man</em> to <em>woman</em> is roughly the same arrow as the path from <em>king</em> to <em>queen</em>. Meaning becomes geometry, and arithmetic on meaning becomes possible.</p>
 
     <div class="widget" id="w-emb">
@@ -136,6 +333,177 @@
       </div>
       <div class="readout" id="emb-read"><span class="stat hand" style="font-size:16px;color:var(--ink-faint)">↑ or click any word to see its nearest neighbours</span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Run an analogy and watch the arrows walk the space — or <b>click any word</b> and the model's true nearest neighbours light up, ranked by distance. That "who sits nearby" is the entire notion of meaning here; real embeddings do it across a thousand dimensions.</p>
+    </div>
+
+    <p class="kc-intro">The picture above is a 2-D cartoon, and the analogy always lands. Here is the same arithmetic with cosine similarity written out and coordinates you can read — first in a space clean enough that <em>king − man + woman</em> is <em>exactly</em> queen, then with the idiosyncrasy real vectors carry. Somewhere in between, the famous demo starts leaning on a rule almost nobody says out loud.</p>
+    <div data-kernel-cell data-title="king - man + woman, checked honestly">
+    <script type="text/x-python">
+# king - man + woman = queen, with the fine print. Cosine similarity by hand.
+import math, random
+
+# Twelve words in a space whose axes I am naming out loud, and weighting so
+# that "human" counts for more than "royal" — the way sheer co-occurrence
+# would weight them. A real model never gets axes this clean.
+W = {"human": 1.00, "adult": 0.80, "young": 0.80, "male": 0.70,
+     "female": 0.70, "royal": 0.70, "canine": 1.00, "feline": 1.00}
+AXES = list(W)
+FEAT = {
+    "king":     ("royal", "adult", "male", "human"),
+    "queen":    ("royal", "adult", "female", "human"),
+    "prince":   ("royal", "young", "male", "human"),
+    "princess": ("royal", "young", "female", "human"),
+    "man":      ("adult", "male", "human"),
+    "woman":    ("adult", "female", "human"),
+    "boy":      ("young", "male", "human"),
+    "girl":     ("young", "female", "human"),
+    "dog":      ("adult", "canine"),
+    "puppy":    ("young", "canine"),
+    "cat":      ("adult", "feline"),
+    "kitten":   ("young", "feline"),
+}
+WORDS = list(FEAT)
+JUNK = 16      # dimensions for everything else a learned vector picks up
+
+def clean(w, weights=W):
+    return [weights[a] if a in FEAT[w] else 0.0 for a in AXES] + [0.0] * JUNK
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+def unit(v):
+    n = math.sqrt(dot(v, v)) or 1.0
+    return [x / n for x in v]
+
+def cos(a, b):
+    """Cosine similarity: the angle between two vectors. Length drops out,
+    which matters because vector length mostly tracks word frequency."""
+    return dot(unit(a), unit(b))
+
+def space(eta, seed):
+    """eta is how much idiosyncrasy each word carries on top of its features:
+    register, topic, frequency, whatever else the corpus happened to teach."""
+    rng = random.Random(seed)
+    return {w: [c + eta * rng.gauss(0, 1) for c in clean(w)] for w in WORDS}
+
+def analogy(V, a, b, c):
+    """b - a + c: walk the a->b arrow, starting from c. gensim and the
+    original word2vec tool unit-normalise the three vectors first; doing it
+    on raw vectors is what makes the headline below land on exactly 1.000.
+    Normalise first and queen still wins, at 0.998 instead of 1.000."""
+    return [V[b][i] - V[a][i] + V[c][i] for i in range(len(V[b]))]
+
+def ranked(U, vec):
+    """Every word, sorted by cosine to `vec`. U holds already-normalised
+    vectors. Ties break on spelling, so the tables read the same every run."""
+    u = unit(vec)
+    return sorted(((dot(u, U[w]), w) for w in WORDS), key=lambda t: (-t[0], t[1]))
+
+# ---- 1 · the clean space, where the parallelogram closes exactly ------------
+V0 = space(0.0, 0)
+U0 = {w: unit(V0[w]) for w in WORDS}
+print("clean features, no noise. king - man + woman lands on:")
+for s, w in ranked(U0, analogy(V0, "man", "king", "woman"))[:4]:
+    print(f"    {w:<10}{s:6.3f}")
+print("\n  Exactly 1.000, and not because anything was discovered. 'king' is")
+print("  'man' plus a royal axis, so subtracting man leaves bare royalty and")
+print("  adding woman spells queen, coordinate for coordinate. I built the")
+print("  features that way. The arithmetic had no choice.\n")
+
+# ---- 2 · one real number the clean space cannot reproduce -------------------
+# Two similarities off Google's published word2vec vectors (GoogleNews-300).
+REAL = {("man", "woman"): 0.77, ("king", "queen"): 0.65}
+print("  compared with vectors actually trained on text:")
+print(f"    {'pair':<16}{'this toy':>10}{'word2vec':>10}")
+for (a, b), r in REAL.items():
+    print(f"    {a + ' ~ ' + b:<16}{cos(V0[a], V0[b]):>10.3f}{r:>10.2f}")
+
+print("\n  I tuned the axis weights until man~woman hit 0.77. king~queen then")
+print("  came out too high, and no weight fixes it — king and queen differ on")
+print("  exactly the axis man and woman differ on, plus a shared royal axis,")
+print("  and a shared axis can only pull a pair together:\n")
+print(f"    {'royal weight':>13}{'man~queen':>11}{'king~queen':>12}")
+for rw in (0.2, 0.7, 1.5, 3.0):
+    Wr = dict(W, royal=rw)
+    k = [Wr[a] if a in FEAT["king"] else 0.0 for a in AXES]
+    q = [Wr[a] if a in FEAT["queen"] else 0.0 for a in AXES]
+    m = [Wr[a] if a in FEAT["man"] else 0.0 for a in AXES]
+    print(f"    {rw:>13.1f}{cos(m, q):>11.3f}{cos(k, q):>12.3f}")
+print("\n  It goes the wrong way and keeps going. Real embeddings put king and")
+print("  queen further apart than man and woman, which a tidy bundle of")
+print("  features cannot do. That is the first honest crack: learned vectors")
+print("  are not feature bundles, and the parallelogram is an approximation")
+print("  that happens to work, not an identity.\n")
+
+# ---- 3 · a stress test, not a simulation -----------------------------------
+# eta is a dial for "how much of a vector is not its clean features". I cannot
+# honestly calibrate it: man~woman is the knob I used to tune the weights, so
+# it cannot also referee the noise. Read the table as an ordering question —
+# as the features stop being the whole story, which claim breaks first?
+SEEDS = 100
+INPUTS = ("king", "man", "woman")
+NN0 = {w: ranked(U0, V0[w])[1][1] for w in WORDS}          # clean neighbours
+FAM = {w: "animal" if set(FEAT[w]) & {"canine", "feline"} else "person"
+       for w in WORDS}
+
+print(f"  {'eta':>5}{'man~woman':>11}{'analogy':>10}{'inputs':>9}"
+      f"{'top nbr':>10}{'same':>9}")
+print(f"  {'':>5}{'':>11}{'(barred)':>10}{'grab it':>9}{'holds':>10}"
+      f"{'family':>9}")
+ROW = {}
+for eta in (0.0, 0.08, 0.12, 0.18, 0.25, 0.40):
+    mw = hits = grab = both = keep = fam = 0.0
+    for s in range(SEEDS):
+        V = space(eta, s)
+        U = {w: unit(V[w]) for w in WORDS}
+        mw += dot(U["man"], U["woman"])
+        r = ranked(U, analogy(V, "man", "king", "woman"))
+        hit = [w for _, w in r if w not in INPUTS][0] == "queen"
+        gra = r[0][1] in INPUTS
+        hits += hit
+        grab += gra
+        both += hit and gra          # so the prose can quote a real conditional
+        nn = [ranked(U, V[w])[1][1] for w in WORDS]
+        keep += sum(n == NN0[w] for n, w in zip(nn, WORDS)) / len(WORDS)
+        fam += sum(FAM[n] == FAM[w] for n, w in zip(nn, WORDS)) / len(WORDS)
+    ROW[eta] = tuple(v / SEEDS for v in (mw, hits, grab, keep, fam)) + \
+               (both / hits if hits else 0.0,)
+    print(f"  {eta:>5.2f}{ROW[eta][0]:>11.3f}{ROW[eta][1]:>10.0%}"
+          f"{ROW[eta][2]:>9.0%}{ROW[eta][3]:>10.0%}{ROW[eta][4]:>9.0%}")
+
+print("\n  Read the 'inputs grab it' column before anything else. At eta=0.12")
+print(f"  the analogy still finds 'queen' {ROW[0.12][1]:.0%} of the time — and in {ROW[0.12][5]:.0%} of exactly")
+print("  those successful runs, had you not barred the three input words, one")
+print("  of them would have won instead. Every published analogy score bars")
+print("  them. That rule is the first thing to become load-bearing, long")
+print("  before the geometry itself gets shaky, and it is almost never")
+print("  mentioned out loud. The reason is plain once you look: the")
+print("  man->woman arrow is short next to everything else those vectors")
+print("  carry, so king - man + woman never really leaves where it started.")
+
+print("\n  The last two columns are the consolation, and they are real.")
+print(f"  Exact nearest neighbours do not hold up either: only {ROW[0.25][3]:.0%} of them")
+print("  still stand at eta=0.25. But coarse structure is stubborn — at")
+print(f"  eta=0.40, where the analogy is down to {ROW[0.40][1]:.0%} and only {ROW[0.40][3]:.0%} of top")
+print(f"  neighbours survive, {ROW[0.40][4]:.0%} of words still have a nearest neighbour from")
+print("  the right family. Which is why systems built on embeddings — search,")
+print("  retrieval, dedup, the RAG chapter in part III — ask 'what sits")
+print("  nearby', and essentially none ask 'walk me three words down this")
+print("  exact arrow'. The original word2vec paper's own reported analogy")
+print("  accuracies sit in the 50s and 60s of percent, not the 90s.\n")
+
+# ---- 4 · one draw, to see what that actually looks like ---------------------
+V = space(0.18, 7)
+U = {w: unit(V[w]) for w in WORDS}
+print("  one particular draw at eta=0.18 (seed 7):")
+print(f"    {'word':<10}{'clean space':<26}{'this draw'}")
+for w in ("king", "queen", "dog", "puppy"):
+    a = ", ".join(n for _, n in ranked(U0, V0[w])[1:4])
+    b = ", ".join(n for _, n in ranked(U, V[w])[1:4])
+    print(f"    {w:<10}{a:<26}{b}")
+print("\n  Scrambled, but not randomised. That is the shape of the whole")
+print("  chapter's claim: meaning really does become geometry, and the")
+print("  geometry is a good deal blurrier than one clean arrow suggests.")
+    </script>
     </div>
   </div>
 </section>
@@ -302,6 +670,252 @@ for label, s in (("raw scores        ", raw),
       <div class="gen-out" id="gen-out"></div>
       <div class="kv-row" id="kv-row"><span class="kv-label">KV cache:</span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Generate at temperature 0.2, then again at 2.0. Same model, different soul. The little green cells are the <b>KV cache</b> — it gets its own chapter next.</p>
+    </div>
+
+    <p class="kc-intro">The widget shows the bars moving. This is the arithmetic that moves them: one real next-token distribution counted off this chapter's prose, then each dial applied to it in turn — how much probability mass shifts, how many candidates get deleted and can never come back, and why the same top-k setting is nine candidates too many after one phrase and far too few after another. It ends with the same seed decoded three ways, so you can hear the difference the numbers make.</p>
+    <div data-kernel-cell data-title="the three sampling dials, one real distribution">
+    <script type="text/x-python">
+# Temperature, top-k and top-p, applied to one real distribution.
+# The model is the widget's own recipe, retrained here so you can read it:
+# a trigram, backed off to a bigram, backed off to raw word frequency.
+import math, random, re, textwrap
+from collections import Counter, defaultdict
+
+PROSE = """
+For years, models read sentences one word at a time, dragging a
+fading memory behind them — and long sentences dissolved into fog.
+The 2017 transformer threw that out with one move: let every word
+look at every other word at once, and let the model learn where to
+look. That mechanism is attention, and it is the single idea behind
+the entire modern AI boom. Each word plays three roles at once. Its
+query asks a question — what am I looking for? Its key advertises
+what it offers. Its value is the actual information it hands over.
+Every query is compared against every key; strong matches earn
+strong weights; and each word rebuilds itself as a weighted blend of
+everyone's values. When you read the robot picked up the ball
+because it was heavy, something in you resolves what it means.
+Attention is that reflex, made mechanical. Because all words are
+seen at once, the model needs a sense of order — so each position
+gets a rhythmic stamp built from sine and cosine waves (newer models
+rotate the query and key vectors instead, a scheme called RoPE — it
+gets its own chapter in part III). One attention pass is a committee
+meeting. A transformer is dozens of them, stacked. Each layer runs
+several heads in parallel — small independent spotlights, each free
+to learn its own kind of relationship: one watches the previous
+word, one binds verbs to their objects, one hunts for the far-away
+noun a pronoun leans on, one keeps an eye on everything at once.
+Layer by layer, every word's vector is rebuilt as a blend of what it
+attended to — meaning refined in passes, the way a drawing goes
+sketch → inks → color. By the top of the tower, the vector over ball
+doesn't just mean "ball"; it means this particular ball, the one the
+robot picked up. Below is a toy tower you can hold: six words wide,
+four layers tall, four heads per layer. Here is the secret that
+still surprises people: a language model has exactly one skill.
+Given everything so far, it predicts a probability for every
+possible next token. That's it. Generation is just prediction on a
+loop — predict, pick one, append it, predict again — each new word
+feeding the next prediction. The loop is why answers stream out word
+by word, and why a model never quite knows how its own sentence will
+end. How you pick from those probabilities is a personality dial.
+Always take the single most likely token — greedy decoding — and the
+text turns repetitive and dull. Instead we sample. Temperature
+reshapes the whole distribution: cold makes the favorite dominate,
+hot flattens the field toward chaos. Top-k only lets the k best
+candidates into the draw. Top-p keeps the smallest set of words
+whose probabilities add up to p. Every chatbot you've used is these
+three sliders wearing a trench coat. The model below is real and it
+learned from this very page — every probability you see comes from
+counting patterns in the words you just read. It is a humble n-gram
+model, not a transformer, but the sampling machinery is exactly what
+the big models use. Watch the outlined bars (raw probabilities) get
+reshaped into the filled bars (after your dials) at every single
+step.
+"""
+
+t = re.sub(r"[^a-z0-9'\s.]", " ", re.sub(r"[.!?]", " . ", PROSE.lower()))
+TOK = t.split()
+uni, bi, tri = Counter(TOK), defaultdict(Counter), defaultdict(Counter)
+for i, w in enumerate(TOK):
+    if i + 1 < len(TOK):
+        bi[w][TOK[i + 1]] += 1
+    if i + 2 < len(TOK):
+        tri[w, TOK[i + 1]][TOK[i + 2]] += 1
+COMMON = [w for w, _ in uni.most_common() if w != "."][:40]
+
+def dist(w1, w2):
+    """p(next | w1 w2). Mixes 0.70 trigram + 0.24 bigram + 0.06 plain word
+    frequency, then renormalises over the candidate set — so those are the
+    weights going in, not the shares coming out. The backoff is what leaves
+    mass on words this exact trigram never saw. Ties break on spelling, so
+    the tables read the same on every run."""
+    cand = sorted(set(COMMON) | set(tri[w1, w2]) | set(bi[w2]))
+    ts = sum(tri[w1, w2].values()) or 1
+    bs = sum(bi[w2].values()) or 1
+    p = {w: 0.70 * tri[w1, w2][w] / ts + 0.24 * bi[w2][w] / bs
+            + 0.06 * uni[w] / len(TOK) for w in cand}
+    z = sum(p.values())
+    return sorted(((v / z, w) for w, v in p.items() if v > 0),
+                  key=lambda t: (-t[0], t[1]))
+
+def entropy(d):
+    return -sum(p * math.log2(p) for p, _ in d if p > 0)
+
+def cover(d, q):
+    """how many tokens you need before the mass reaches q"""
+    c = 0.0
+    for i, (p, _) in enumerate(d, 1):
+        c += p
+        if c >= q:
+            return i
+    return len(d)
+
+CTX = ("is", "a")
+D = dist(*CTX)
+print(f'context: "... {CTX[0]} {CTX[1]}"   {len(D)} tokens carry nonzero mass')
+print(f"\n  {'token':<14}{'p':>8}{'logit = ln p':>14}")
+for p, w in D[:6]:
+    print(f"  {w:<14}{p:>8.4f}{math.log(p):>14.3f}   {'#' * round(p * 60)}")
+rest = sum(p for p, _ in D[6:])
+print(f"  {'... ' + str(len(D) - 6) + ' more':<14}{rest:>8.4f}")
+print(f"\n  Entropy {entropy(D):.2f} bits, which makes this step about as uncertain")
+print(f"  as a fair pick among {2 ** entropy(D):.1f} options. The top four are not merely close,")
+print("  they are bit-for-bit equal, and it takes all three backoff terms to")
+print("  agree for that: on this page 'is a' is followed by four different")
+print("  words, 'a' is followed by each of those four once, and each of the")
+print("  four occurs exactly once in the whole text.\n")
+
+# ---- temperature: reshapes everything, removes nothing ----------------------
+def temper(d, T):
+    z = [math.log(p) / T for p, _ in d]
+    m = max(z)
+    e = [math.exp(v - m) for v in z]
+    s = sum(e)
+    return sorted(((v / s, w) for v, (_, w) in zip(e, d)),
+                  key=lambda t: (-t[0], t[1]))
+
+TAIL = 40
+print("TEMPERATURE divides every logit by T and re-softmaxes. Nothing is")
+print("removed. The whole field is reshaped.\n")
+print(f"  {'T':>5}{'top-1 p':>10}{'entropy':>10}{'tokens for':>13}"
+      f"{'mass in the':>14}")
+print(f"  {'':>5}{'':>10}{'(bits)':>10}{'90% mass':>13}"
+      f"{'worst ' + str(TAIL):>14}")
+for T in (0.2, 0.5, 0.8, 1.0, 1.5, 2.5):
+    d = temper(D, T)
+    print(f"  {T:>5.1f}{d[0][0]:>10.4f}{entropy(d):>10.2f}"
+          f"{cover(d, 0.9):>13}{sum(q for q, _ in d[-TAIL:]):>14.4f}")
+
+# The widget above raises each probability to the power 1/T instead. Same
+# operation the other way round — worth checking rather than trusting.
+warm = sorted(((p ** (1 / 0.7) / sum(q ** (1 / 0.7) for q, _ in D), w)
+               for p, w in D), key=lambda t: (-t[0], t[1]))
+chk = max(abs(a - b) for (a, _), (b, _) in zip(temper(D, 0.7), warm))
+# printing chk itself would print last-bit noise, and that value is not the
+# same on every libm — so report the bound it clears, not the digits.
+verdict = "under 1e-12 on every token" if chk < 1e-12 else f"{chk:.1e} — NOT equal"
+print(f"\n  softmax(ln p / T) against the widget's p**(1/T): largest gap is")
+print(f"  {verdict}. The same operation, written two ways.\n")
+print("  Cooling cannot pick a winner here, and it is worth seeing why: four")
+print("  tokens are exactly tied, so as T drops the mass piles onto all four")
+print(f"  together and the entropy floors at {entropy(temper(D, 0.2)):.2f} bits — log2(4), to the")
+print("  digit. Heating has no such floor. By T=2.5 a third of the mass has")
+print("  drifted into the worst 40 candidates, and a long enough sample will")
+print("  find them. That is the failure temperature alone cannot fix, and it")
+print("  is the whole reason the next two dials exist.\n")
+
+# ---- top-k and top-p: these actually delete candidates ----------------------
+def top_k(d, k):
+    return d[:k]
+
+def top_p(d, q):
+    out, c = [], 0.0
+    for p, w in d:
+        out.append((p, w))
+        c += p
+        if c >= q:
+            break
+    return out
+
+def renorm(d):
+    z = sum(p for p, _ in d)
+    return [(p / z, w) for p, w in d]
+
+print("TOP-K and TOP-P truncate. Whatever they cut can never be drawn, no")
+print("matter how hot you run.\n")
+print(f"  {'rule':<14}{'kept':>6}{'cut':>6}{'mass kept':>11}{'new top-1':>12}")
+for label, kept in ([(f"top-k = {k}", top_k(D, k)) for k in (1, 5, 10, 40)]
+                    + [(f"top-p = {q}", top_p(D, q)) for q in (0.5, 0.9, 0.95)]):
+    print(f"  {label:<14}{len(kept):>6}{len(D) - len(kept):>6}"
+          f"{sum(p for p, _ in kept):>10.1%}{renorm(kept)[0][0]:>12.4f}")
+print("\n  top-k = 1 is greedy decoding: one survivor, renormalised to 1.0,")
+print("  the same sentence every time. And look at what top-p = 0.95 costs")
+print(f"  here — {len(top_p(D, 0.95))} of {len(D)} candidates kept, because this step has a long")
+print("  flat tail with a fifth of the mass spread thinly across it.\n")
+
+# ---- why top-p is the one people ship ---------------------------------------
+print("The difference that matters appears when the context changes. Same")
+print("model, same dials, three steps of very different confidence:\n")
+print(f"  {'context':<24}{'top-1':>7}{'entropy':>9}{'k=10 keeps':>12}"
+      f"{'p=0.9 keeps':>13}")
+for c in (("always", "take"), ("is", "a"), ("is", "the")):
+    d = dist(*c)
+    label = '"...' + c[0] + " " + c[1] + '"'
+    print(f"  {label:<24}{d[0][0]:>7.3f}{entropy(d):>9.2f}"
+          f"{len(top_k(d, 10)):>12}{len(top_p(d, 0.9)):>13}")
+print("\n  Top-k keeps ten in all three. That is nine too many after 'always")
+print("  take', where the page only ever continues one way, and far too few")
+print("  after 'is the'. Top-p reads the distribution and adapts — one")
+print("  candidate where the model is certain, twenty where it is not. That")
+print("  is the entire argument for nucleus sampling, and the reason every")
+print("  serving stack exposes it.\n")
+
+# ---- and the order the dials are applied in ---------------------------------
+a = top_p(temper(D, 2.0), 0.9)
+b = temper(top_p(D, 0.9), 2.0)
+print("One last thing the sliders hide: the order. Hugging Face and vLLM both")
+print("apply temperature first and truncate second. Reverse it and the same")
+print("two numbers give you a different candidate set.\n")
+print(f"  T=2.0, then top-p=0.9   ->  {len(a):>2} candidates")
+print(f"  top-p=0.9, then T=2.0   ->  {len(b):>2} candidates")
+print("\n  Heating first flattens the field, so the nucleus has to swallow")
+print("  much more of the tail before it reaches 0.9. Same dials, different")
+print("  machine. If you ever move a prompt between two providers and the")
+print("  temperature no longer behaves, this is one of the places to look.\n")
+
+# ---- what the three settings actually sound like ----------------------------
+def generate(seed, T=1.0, k=0, q=1.0, n=22):
+    rng = random.Random(seed)
+    out = ["every", "word"]
+    for _ in range(n):
+        d = temper(dist(out[-2], out[-1]), T)
+        if k:
+            d = top_k(d, k)
+        if q < 1.0:
+            d = top_p(d, q)
+        d = renorm(d)
+        r = rng.random()
+        for p, w in d:
+            r -= p
+            if r <= 0:
+                break
+        out.append(w)
+    return " ".join(out).replace(" .", ".")
+
+print("twenty-two tokens past the seed 'every word', one rng, three settings:")
+for label, kw in (("greedy (top-k=1)", dict(k=1)),
+                  ("T=0.7, top-p=0.9", dict(T=0.7, q=0.9)),
+                  ("T=2.0, no cutoff", dict(T=2.0))):
+    print(f"\n  {label}")
+    for line in textwrap.wrap(generate(4, **kw), 64):
+        print(f"      {line}")
+print("\n  Greedy recites. It stitches together fragments that appear on the")
+print("  page word for word, because once two words have been copied the")
+print("  likeliest third is whatever followed them there — a trigram model")
+print("  with the dials off is an expensive quotation machine. The middle")
+print("  setting reads like the page without quoting it. The hot one reads")
+print("  like nothing at all.")
+print("  Three numbers, three personalities, one unchanged model underneath.")
+    </script>
     </div>
 
     <div class="pager">

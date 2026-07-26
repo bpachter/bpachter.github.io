@@ -127,6 +127,153 @@
       <div class="readout"><span class="stat">nights <b id="fly-nights">0</b></span><span class="stat">edges verified <b id="fly-ok">0</b></span><span class="stat">rejected <b id="fly-rej">0</b></span><span class="stat">verifier accepts <b id="fly-accept">~70%</b></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Dashed = proposed, green = verified, faded = rejected. Drag <b>strictness</b>: too loose and unchecked edges compound into a misinformation engine; too strict and the flywheel starves, rejecting good facts with the bad. When the extractor floods the queue, the gate freezes the whole batch — and <b>you</b> hold the release.</p>
     </div>
+
+    <p class="kc-intro">Strictness is a slider up there. Here it is a number with a bill attached: forty nights of proposals, an adjudicator with a threshold, a false edge priced at five true ones, and a control run with the poisoning switched off to check that the effect is really the feedback loop rather than the noise. Two findings come out — and the second one is mostly a lesson in how precisely a simulation like this is entitled to answer the question at all.</p>
+    <div data-kernel-cell data-title="where to set the adjudicator's threshold">
+    <script type="text/x-python">
+# The flywheel, with a dial on it. Extractors propose edges every night;
+# an adjudicator scores each one and keeps what clears a threshold. The
+# question is where to put the threshold, and the interesting part is what
+# happens to the number of TRUE edges as you loosen it.
+import math
+import random
+
+NIGHTS = 40
+PROPOSALS = 120          # candidate edges the extractors bring each night
+MU_T, MU_F, SIGMA = 1.0, 0.0, 0.45     # adjudicator score, true vs false edges
+P0 = 0.50                # a fresh extractor is right about half the time
+FP_COST = 5.0            # one false edge in the graph costs five true ones
+
+# The coupling that makes this a flywheel and not a queue: verified true
+# edges give tomorrow's extractor context to anchor against, and false ones
+# mislead it. The signs are right; the magnitudes are invented. This is a
+# model of the feedback, not a measurement of it.
+GAIN, HARM = 0.055, 0.075
+
+SEEDS = [4242, 7, 101, 2024, 31337]
+
+
+def run(tau, harm=HARM, seed=4242):
+    r = random.Random(seed)
+    T = F = 0                                  # true / false edges in the graph
+    for _ in range(NIGHTS):
+        p = min(0.95, max(0.05, P0 + GAIN * math.log1p(T) - harm * math.log1p(F)))
+        for _ in range(PROPOSALS):
+            is_true = r.random() < p
+            if r.gauss(MU_T if is_true else MU_F, SIGMA) >= tau:   # adjudicator
+                if is_true:
+                    T += 1
+                else:
+                    F += 1
+    return T, F
+
+
+# The textbook threshold: judge one proposal in isolation, prior P0, a false
+# positive costing FP_COST. Two equal-variance Gaussians make the log
+# likelihood ratio linear, so this has a closed form.
+bayes = (MU_T + MU_F) / 2 + (SIGMA ** 2 / (MU_T - MU_F)) * math.log(
+    FP_COST * (1 - P0) / P0)
+
+print(f"{NIGHTS} nights, {PROPOSALS} proposals a night, a false edge costs "
+      f"{FP_COST:.0f} true ones")
+print(f"one-shot Bayes threshold, feedback ignored: {bayes:.2f}\n")
+
+GRID = [-0.24 + i * 0.12 for i in range(17)]
+rows = []
+for tau in GRID:
+    T, F = run(tau)
+    rows.append((tau, T, F, T / (T + F) if T + F else 1.0, T - FP_COST * F))
+
+best_true = max(rows, key=lambda x: x[1])
+best_net = max(rows, key=lambda x: x[4])
+top = best_net[4]
+
+print(f"{'strict':>7}{'kept':>8}{'true':>7}{'false':>7}{'prec':>7}"
+      f"{'net':>9}   net value")
+print("-" * 66)
+for tau, T, F, prec, net in rows:
+    bar = "#" * int(14 * max(net, 0) / top) if top > 0 else ""
+    mark = ""
+    if (tau, T) == (best_true[0], best_true[1]):
+        mark = " <-true peak"
+    elif net == top:
+        mark = " <-best net"
+    print(f"{tau:>7.2f}{T+F:>8,}{T:>7,}{F:>7,}{prec:>7.3f}{net:>9,.0f}"
+          f"   {bar}{mark}")
+
+# ---- finding 1: the loosest setting is not merely risky, it is worse ----
+loose = rows[0]
+print("\nread the `true` column downward. it does not peak at the loose end.")
+print(f"  strictness {loose[0]:.2f}: {loose[1]:,} true edges, "
+      f"{loose[2]:,} false ones")
+print(f"  strictness {best_true[0]:.2f}: {best_true[1]:,} true edges, "
+      f"{best_true[2]:,} false ones")
+print(f"the stricter setting keeps {best_true[1]-loose[1]:,} MORE true edges "
+      "while admitting")
+print(f"{loose[2]-best_true[2]:,} fewer false ones. that is not a tradeoff — "
+      "the loose graph is")
+print("beaten on both counts at once. a flywheel that swallows its own bad")
+print("edges spends the next month extracting against poisoned context.")
+
+# is that one lucky seed? re-run the whole grid on five and count.
+dom = 0
+for s in SEEDS:
+    rs = [(t, *run(t, seed=s)) for t in GRID]
+    pk = max(rs, key=lambda x: x[1])
+    if pk[1] > rs[0][1] and pk[2] < rs[0][2]:
+        dom += 1
+print(f"\nsame grid on {len(SEEDS)} seeds: the loosest setting is beaten on "
+      f"BOTH counts in {dom}/{len(SEEDS)}.")
+
+# ---- control: is finding 1 the feedback, or just noise? -----------------
+# Rerun the grid with HARM switched off, so false edges cost nothing later.
+# If the true-edge peak was really the feedback term, it should now slide
+# to the loosest setting on the grid.
+ctrl = [(t, run(t, harm=0.0)[0]) for t in GRID]
+ctrl_peak = max(ctrl, key=lambda x: x[1])
+where = " (the loosest on the grid)" if ctrl_peak[0] == GRID[0] else ""
+print("\ncontrol run, HARM set to 0 — bad edges now cost nothing later.")
+print(f"the true-edge peak moves from {best_true[0]:.2f} to "
+      f"{ctrl_peak[0]:.2f}{where},")
+print(f"where it keeps {ctrl_peak[1]:,} true edges. so finding 1 is the "
+      "feedback term")
+print("and nothing else: with no poisoning, accepting everything is best.")
+
+# ---- finding 2: how precisely can this thing locate a threshold? --------
+# The grid above steps by 0.12, so it cannot resolve the optimum better
+# than that — reading a two-decimal answer off it would be false precision.
+# Sweep finely instead, on every seed, and look at the SPREAD of the answer.
+fine = [0.60 + i * 0.02 for i in range(26)]
+argmax = []
+for s in SEEDS:
+    best_t, best_v = None, None
+    for tau in fine:
+        T, F = run(tau, seed=s)
+        v = T - FP_COST * F
+        if best_v is None or v > best_v:
+            best_t, best_v = tau, v
+    argmax.append(best_t)
+
+lo, hi = min(argmax), max(argmax)
+inside = lo <= bayes <= hi
+print("\nnow the part worth being careful about. sweeping finely (step 0.02)")
+print(f"on each of {len(SEEDS)} seeds, the best-net threshold lands at:")
+print("  " + "  ".join(f"{a:.2f}" for a in argmax))
+print(f"that is a spread of {hi-lo:.2f} — one run cannot pin this down to two")
+print("decimals. the one-shot Bayes rule, which knows nothing at all about")
+print(f"compounding, says {bayes:.2f}, and that sits "
+      f"{'INSIDE' if inside else 'OUTSIDE'} the spread [{lo:.2f}, {hi:.2f}].")
+print("so the honest claim is not a two-decimal gap — this run cannot")
+print("support one. it is that the feedback loop changes what the graph is")
+print("WORTH enormously, and moves where the threshold belongs by less than")
+print("the simulation can resolve.")
+print("the classical answer holds up — on the one condition that you")
+print("actually priced a false positive, which is the step everybody skips.")
+print("\nGAIN and HARM up top are invented, and nobody has measured them for")
+print("your graph. that is what the control run is for: change them, rerun,")
+print("and watch which of the two findings survives your numbers.")
+    </script>
+    </div>
   </div>
 </section>
 
@@ -171,6 +318,192 @@
       </div>
       <div class="readout"><span class="stat"><span id="fleet-cost-lbl">fleet cost</span> <b id="fleet-cost">$0.00</b></span><span class="stat"><span id="fleet-alt-lbl">all-frontier would be</span> <b id="fleet-alt">$0.00</b></span><span class="stat" id="fleet-save"></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> Volume goes local, checking goes cheap, <b>judgment goes frontier</b>. Flip to <b>all-frontier</b> and watch every trivial errand pile into the $$$ lane — the same night's work for an order of magnitude more. The router is why the whole flywheel runs for pocket change.</p>
+    </div>
+
+    <p class="kc-intro">The lanes above show one routing policy. There are 243 of them, so here is all 243 — priced, timed against a morning deadline, and boiled down to the handful that survive both tests. Two things fall out that the widget cannot show: the all-frontier option fails on the rate limit before it fails on the invoice, and this chapter's own routing advice, graded against the arithmetic, turns out to have one word wrong in it.</p>
+    <div data-kernel-cell data-title="every way to route one night, priced">
+    <script type="text/x-python">
+# One night's work, and every way to route it. Five kinds of task, three
+# tiers of model, so 3**5 = 243 possible routing policies. We price all of
+# them, throw away the ones that miss the deadline, and keep the frontier.
+from itertools import product
+
+# EVERY NUMBER BELOW IS INVENTED — round figures for three generic tiers,
+# not a quote for any real product. They are here so the METHOD is visible;
+# swap your own measured prices and accuracies in and rerun.
+
+# (task class, how many arrive tonight)
+TASKS = [("tag/embed", 40_000), ("extract", 12_000), ("verify", 6_000),
+         ("adjudicate", 400), ("brief", 60)]
+
+# (tier, $/task, seconds/task, how many can run at once)
+# Local concurrency is your GPU count. Frontier concurrency is a rate limit.
+TIERS = [("local", 0.00002, 0.35, 8),
+         ("mid", 0.00090, 1.10, 40),
+         ("frontier", 0.01400, 6.00, 12)]
+
+# P(task done correctly). Local is nearly as good as frontier at mechanical
+# work and hopeless at judgement — that gap is the whole reason a fleet works.
+QUALITY = {
+    "tag/embed":  (0.965, 0.980, 0.985),
+    "extract":    (0.780, 0.910, 0.960),
+    "verify":     (0.700, 0.900, 0.965),
+    "adjudicate": (0.420, 0.720, 0.940),
+    "brief":      (0.350, 0.640, 0.930),
+}
+DEADLINE_H = 6.0                      # the batch has to be done by morning
+TOTAL = sum(n for _, n in TASKS)
+
+
+def evaluate(policy):
+    """policy = one tier index per task class. Returns cost, correct, hours."""
+    cost = correct = 0.0
+    load = [0.0, 0.0, 0.0]            # seconds of work queued on each tier
+    for (cls, n), t in zip(TASKS, policy):
+        _, price, secs, conc = TIERS[t]
+        cost += n * price
+        correct += n * QUALITY[cls][t]
+        load[t] += n * secs
+    # the three tiers run in parallel, so the night ends when the slowest does
+    hours = max(load[t] / TIERS[t][3] for t in range(3)) / 3600
+    return cost, correct, hours
+
+
+LET = "LMF"
+allp = [(p, *evaluate(p)) for p in product(range(3), repeat=5)]
+feasible = [x for x in allp if x[3] <= DEADLINE_H]
+
+print(f"{TOTAL:,} tasks tonight, {len(allp)} possible routing policies, "
+      f"{DEADLINE_H:.0f}h deadline")
+print(f"policies that miss the deadline: {len(allp) - len(feasible)}\n")
+
+# ---- the helicopter option ----------------------------------------------
+af = [x for x in allp if x[0] == (2, 2, 2, 2, 2)][0]
+print("route everything to the frontier model:")
+print(f"  ${af[1]:,.2f} a night, {af[2]:,.0f} tasks correct, "
+      f"{af[3]:.1f}h — {'MISSES' if af[3] > DEADLINE_H else 'meets'} the "
+      f"deadline")
+print("  it is not the price that kills it first. it is the rate limit.\n")
+
+# ---- Pareto frontier: nothing cheaper is also better ---------------------
+pareto = []
+for x in feasible:
+    beaten = any(y[1] <= x[1] and y[2] >= x[2] and
+                 (y[1] < x[1] or y[2] > x[2]) for y in feasible)
+    if not beaten:
+        pareto.append(x)
+pareto.sort(key=lambda x: x[1])
+
+# ---- and the convex hull: which of those survive MIXING ------------------
+# Routing is divisible — send 60% of `verify` to mid and 40% to frontier and
+# you land exactly between two policies. So any point sitting below the line
+# between two others is beaten by a blend of them, and should never be run.
+# Blends stay legal, too: cost and correctness are linear in the split, and
+# hours is a max of linear loads, so a blend never runs longer than the
+# slower of the two policies it mixes.
+def cross(o, a, b):
+    return ((a[1]-o[1]) * (b[2]-o[2])) - ((a[2]-o[2]) * (b[1]-o[1]))
+
+
+hull = []
+for p in pareto:
+    while len(hull) >= 2 and cross(hull[-2], hull[-1], p) >= 0:
+        hull.pop()
+    hull.append(p)
+
+print(f"{len(feasible)} feasible, {len(pareto)} on the Pareto frontier, "
+      f"{len(hull)} survive mixing\n")
+hdr = (f"{'policy':>8}{'cost/night':>12}{'correct':>10}{'errors':>8}"
+       f"{'hours':>7}  $ per extra correct")
+print(hdr)
+print("-" * len(hdr))
+
+prev, margins = None, []
+for pol, cost, correct, hours in hull:
+    marg = ""
+    if prev:
+        dq = correct - prev[2]
+        if dq > 0:
+            m = (cost - prev[1]) / dq
+            margins.append(m)
+            marg = f"{m:>12.4f}"
+    print(f"{''.join(LET[t] for t in pol):>8}{cost:>12,.2f}{correct:>10,.0f}"
+          f"{TOTAL-correct:>8,.0f}{hours:>7.2f}  {marg}")
+    prev = (pol, cost, correct, hours)
+
+print("\nL=local  M=mid  F=frontier, in the order:")
+print("  " + " ".join(c for c, _ in TASKS))
+rising = all(b > a for a, b in zip(margins, margins[1:]))
+print(f"\nlast column rises monotonically: {rising}. it has to — that is what")
+print("being on a convex hull MEANS. every step up costs more per correct")
+print("task than the step below it, so you walk down the column until one")
+print("more correct task costs more than a correct task is worth, and stop.")
+
+
+# ---- does the chapter's own advice survive contact with the numbers? ----
+def shortfall(x):
+    """How many correct tasks x gives up against the best blend at its price."""
+    lo = max((h for h in hull if h[1] <= x[1]), key=lambda h: h[1])
+    hi = min((h for h in hull if h[1] >= x[1]), key=lambda h: h[1])
+    if hi[1] == lo[1]:
+        return hi[2] - x[2]
+    frac = (x[1] - lo[1]) / (hi[1] - lo[1])
+    return lo[2] + frac * (hi[2] - lo[2]) - x[2]
+
+
+# The chapter sends "the bulk work — extraction, embedding, tagging" to
+# local, verification to mid, judgement to frontier. Written out: LLMFF.
+gut = [x for x in allp if x[0] == (0, 0, 1, 2, 2)][0]
+gap = shortfall(gut)
+print("\nthe chapter routes the bulk work — extraction, embedding, tagging —")
+print(f"to local, checking to mid, judgement to frontier. that is "
+      f"{''.join(LET[t] for t in gut[0])}.")
+print(f"it costs ${gut[1]:,.2f} and gets {gut[2]:,.1f} tasks right. the best "
+      f"blend at that")
+print(f"same price gets {gut[2]+gap:,.1f} — so the slogan gives up {gap:,.0f} "
+      f"correct tasks,")
+print(f"one in {TOTAL/gap:,.0f}. that is not a rounding error. the slogan is "
+      f"wrong somewhere.")
+
+# Which single reassignment fixes it? Try moving one task class at a time.
+best_fix = None
+for i in range(len(TASKS)):
+    for t in range(3):
+        if t == gut[0][i]:
+            continue
+        pol = gut[0][:i] + (t,) + gut[0][i+1:]
+        x = [y for y in allp if y[0] == pol][0]
+        if x[3] > DEADLINE_H or not (hull[0][1] <= x[1] <= hull[-1][1]):
+            continue
+        g = shortfall(x)
+        if best_fix is None or g < best_fix[0]:
+            best_fix = (g, i, t, x)
+
+g, i, t, x = best_fix
+cls, n_cls = TASKS[i]
+was, now = gut[0][i], t
+print(f"\nmove ONE task class and re-grade. the winner is `{cls}`, "
+      f"{TIERS[was][0]} -> {TIERS[now][0]}:")
+print(f"  {''.join(LET[u] for u in x[0])} costs ${x[1]:,.2f} and gives up "
+      f"{g:,.1f} tasks — one in {TOTAL/g:,.0f}.")
+print(f"that one change closes essentially the whole gap. `{cls}` is where")
+print(f"the {TIERS[was][0]} tier is weakest ({QUALITY[cls][was]:.2f} vs "
+      f"{QUALITY[cls][now]:.2f}) on {n_cls:,} tasks a")
+print("night, so it is where the slogan's word \"bulk\" does the most damage.")
+print("checking goes cheap and judgement goes frontier both survive;")
+print("\"extraction goes local\" does not.")
+print("\nthat verdict is only as good as the QUALITY table up top, which is")
+print("invented. the method is the transferable part: enumerate, drop the")
+print("infeasible, hull the rest, then grade your slogan against it.")
+
+dropped = len(pareto) - len(hull)
+print(f"\nfootnote on the {dropped} Pareto points that did not survive: they "
+      f"are not")
+print("dominated by any single policy, which is why a naive frontier keeps")
+print("them. they are dominated by a BLEND of two — split one task class")
+print("across two tiers and you beat them on both axes. worth knowing")
+print("before you present a frontier chart to anyone holding a budget.")
+    </script>
     </div>
   </div>
 </section>
@@ -242,5 +575,7 @@
 <script src="../js/business.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

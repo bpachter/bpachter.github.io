@@ -220,7 +220,300 @@
     <p>You know what a weight is — a dial — and that learning is nothing grander than billions of dials feeling their way downhill. You know the tower: words becoming coordinates, attention letting every word watch every other, one skill — <em>guess the next token</em> — wearing a trench coat of temperature sliders. You know why it's fast (the engine room), how it grew hands (the loop), why it pauses to think (verifiable rewards), and what we find when we finally look inside (features, waiting for a dial of their own).</p>
     <p>And you know the other half, the part most explainers skip: that none of it matters to a business until the <em>knowing</em> is engineered too. Things as nodes. Relationships as typed, receipted edges. Identity defended at the merge desk. Agents that propose, verifiers that doubt, gates that hold, humans who decide how much to delegate — and a flywheel that compounds it all while everyone sleeps.</p>
     <p class="margin-note">← Loops with receipts, gates with humans. That's the whole doctrine.</p>
+
+    <p class="kc-intro">Part I wrote backpropagation out by hand, for one fixed network, and checked it against brute force. What has been asking you to take it on trust ever since is the general case: that <code>loss.backward()</code> — the line every framework is built around — works for <em>any</em> expression you type, and is still arithmetic you could have written yourself. So here is that engine whole, in plain Python: a tape that records every operation, a reverse walk that hands each node its share of the blame, an <code>nn</code>-shaped layer, an optimizer, and a ring it has no business being able to find. Then every gradient is checked against brute force again, because a claim this size should be measured, not asserted.</p>
+    <div data-kernel-cell data-title="the engine every framework is built on">
+    <script type="text/x-python">
+# A reverse-mode autograd engine, in plain Python. This is the thing every
+# framework is built around. PyTorch and TensorFlow do exactly what is
+# below — record every operation on a tape, then walk the tape backwards
+# handing each node its share of the blame — only in C++/CUDA, over whole
+# arrays. JAX records the same tape by tracing your function once up front
+# instead of as it runs, then transforms it; the reverse walk is identical.
+import math, random
+
+class Value:
+    """One number that remembers how it was made."""
+    __slots__ = ("data", "grad", "_back", "_prev")
+
+    def __init__(self, data, _prev=()):
+        self.data = float(data)
+        self.grad = 0.0            # d(final loss) / d(this number)
+        self._prev = _prev         # the nodes this one was built from
+        self._back = lambda: None  # how to push grad one step upstream
+
+    def __add__(self, o):
+        o = o if isinstance(o, Value) else Value(o)
+        out = Value(self.data + o.data, (self, o))
+        def back():                        # d(a+b)/da = 1, d(a+b)/db = 1
+            self.grad += out.grad
+            o.grad += out.grad
+        out._back = back
+        return out
+
+    def __mul__(self, o):
+        o = o if isinstance(o, Value) else Value(o)
+        out = Value(self.data * o.data, (self, o))
+        def back():                        # the product rule
+            self.grad += o.data * out.grad
+            o.grad += self.data * out.grad
+        out._back = back
+        return out
+
+    def tanh(self):
+        t = math.tanh(self.data)
+        out = Value(t, (self,))
+        def back():                        # d(tanh)/dz = 1 - tanh(z)^2
+            self.grad += (1 - t * t) * out.grad
+        out._back = back
+        return out
+
+    def softplus(self):                    # log(1 + e^z), overflow-safe
+        z = self.data
+        e = math.exp(-abs(z))              # never larger than 1, either sign
+        s = max(z, 0.0) + math.log1p(e)
+        sig = 1 / (1 + e) if z > 0 else e / (1 + e)      # = sigmoid(z)
+        out = Value(s, (self,))
+        def back():                        # d/dz log(1+e^z) = sigmoid(z)
+            self.grad += sig * out.grad
+        out._back = back
+        return out
+
+    def __neg__(self): return self * -1.0
+    def __sub__(self, o): return self + (-o)
+    def __radd__(self, o): return self + o
+    def __rmul__(self, o): return self * o
+
+    def backward(self):
+        """Topological sort of the tape, then one sweep in reverse."""
+        topo, seen, stack = [], set(), [(self, False)]
+        while stack:                       # iterative: deep graphs are safe
+            v, done = stack.pop()
+            if done:
+                topo.append(v)
+            elif id(v) not in seen:
+                seen.add(id(v))
+                stack.append((v, True))
+                for p in v._prev:
+                    stack.append((p, False))
+        self.grad = 1.0                    # dL/dL, the seed of the whole walk
+        for v in reversed(topo):
+            v._back()                      # every node, exactly once
+        return len(topo)
+
+# ---- an nn-shaped layer and an optimizer, deliberately torch-shaped -------
+
+class Linear:
+    def __init__(self, nin, nout, rng):
+        s = nin ** -0.5                          # the scale torch inits with
+        self.w = [[Value(rng.uniform(-s, s)) for _ in range(nin)]
+                  for _ in range(nout)]
+        self.b = [Value(0.0) for _ in range(nout)]  # torch jitters these too
+
+    def __call__(self, x):
+        return [sum((wi * xi for wi, xi in zip(row, x)), bi)
+                for row, bi in zip(self.w, self.b)]
+
+    def parameters(self):
+        return [p for row in self.w for p in row] + self.b
+
+class MLP:
+    def __init__(self, nin, nhid, rng):
+        self.fc1, self.fc2 = Linear(nin, nhid, rng), Linear(nhid, 1, rng)
+
+    def __call__(self, x):                       # returns one raw logit
+        return self.fc2([h.tanh() for h in self.fc1(x)])[0]
+
+    def parameters(self):
+        return self.fc1.parameters() + self.fc2.parameters()
+
+class SGD:
+    """torch.optim.SGD, minus the paperwork. Same momentum update:
+    buf = mu*buf + grad ;  p -= lr*buf. Nothing clears .grad but zero_grad(),
+    because backward() *accumulates* — which is why every training loop
+    written in any framework starts by throwing last step's gradients away."""
+    def __init__(self, params, lr, momentum=0.0):
+        self.params, self.lr, self.mu = params, lr, momentum
+        self.vel = [0.0] * len(params)
+
+    def zero_grad(self):
+        for p in self.params:
+            p.grad = 0.0
+
+    def step(self):
+        for i, p in enumerate(self.params):
+            self.vel[i] = self.mu * self.vel[i] + p.grad
+            p.data -= self.lr * self.vel[i]
+
+# ---- a real toy problem: two rings, which no straight line can separate ---
+
+rng = random.Random(11)
+DATA = []
+for k in range(14):
+    a = 2 * math.pi * k / 14
+    r = 0.85 + rng.uniform(-0.09, 0.09)             # inner ring -> label 0
+    DATA.append(((r * math.cos(a), r * math.sin(a)), 0.0))
+    a += math.pi / 14
+    r = 2.10 + rng.uniform(-0.12, 0.12)             # outer ring -> label 1
+    DATA.append(((r * math.cos(a), r * math.sin(a)), 1.0))
+
+net = MLP(2, 8, random.Random(3))
+opt = SGD(net.parameters(), lr=0.10, momentum=0.9)
+
+def total_loss():
+    """Binary cross-entropy on logits:  mean of  log(1+e^z) - y*z."""
+    tot = Value(0.0)
+    for (px, py), y in DATA:
+        z = net([Value(px), Value(py)])
+        tot = tot + (z.softplus() - y * z)
+    return tot * (1.0 / len(DATA))
+
+def accuracy():
+    ok = sum(1 for (px, py), y in DATA
+             if (net([Value(px), Value(py)]).data > 0) == (y > 0.5))
+    return ok / len(DATA)
+
+print("epoch    loss   accuracy")
+for epoch in range(141):
+    opt.zero_grad()
+    loss = total_loss()
+    nodes = loss.backward()                         # <- the whole tape walk
+    opt.step()
+    if epoch % 35 == 0:
+        print(f"{epoch:>5}  {loss.data:.4f}     {accuracy():.0%}")
+
+print(f"\none full-batch loss builds a graph of {nodes:,} nodes.")
+print("backward() visits every one, once, in reverse topological order,")
+print(f"and lands gradients on all {len(net.parameters())} parameters.")
+
+# ---- is it right? the only honest check: nudge, and measure --------------
+opt.zero_grad()
+total_loss().backward()
+analytic = [p.grad for p in net.parameters()]
+
+h, worst_abs, worst_rel = 1e-5, 0.0, 0.0
+for i, p in enumerate(net.parameters()):
+    keep = p.data
+    p.data = keep + h; up = total_loss().data
+    p.data = keep - h; dn = total_loss().data
+    p.data = keep
+    numeric = (up - dn) / (2 * h)                   # central difference
+    gap = abs(numeric - analytic[i])
+    worst_abs = max(worst_abs, gap)
+    scale = max(abs(numeric), abs(analytic[i]), 1e-12)
+    worst_rel = max(worst_rel, gap / scale)
+
+print(f"\nchain rule vs brute force, over all {len(analytic)} gradients")
+print(f"  largest absolute disagreement   {worst_abs:.2e}")
+print(f"  largest relative disagreement   {worst_rel:.2e}")
+print("  the central difference is itself only good to roughly 1e-10 here,")
+print("  so that is agreement down to the noise floor of the test.")
+
+# ---- what it learned, drawn ---------------------------------------------
+print("\ndecision surface   ( # = 'outer ring'   . = 'inner ring' )")
+for gy in range(15):
+    y = 2.8 - gy * (5.6 / 14)
+    row = "".join("#" if net([Value(-2.8 + gx * (5.6 / 38)),
+                              Value(y)]).data > 0 else "."
+                  for gx in range(39))
+    print("   " + row)
+print(f"\ntraining accuracy {accuracy():.0%}. That closed region is eight")
+print("tanh half-planes overlapping, which is why it came out a soft polygon")
+print("and not a circle. Thirty-three numbers downhill, and no library.")
+    </script>
+    </div>
     <p>Every dial you touched in these thirty-two chapters is a real dial, simplified but never faked: the perceptron used Rosenblatt's actual rule, the XOR net trained by real backpropagation, the GRPO rounds really did grade themselves on a curve, and the join tax was honest arithmetic. The frontier will keep moving — it always does — but it will keep being made of these parts: loops, dials, edges, receipts, and someone's hand on a gate. Now you know where to look.</p>
+
+    <p class="kc-intro">And the last thing on the last page, which you can now simply read: the same ring model in real PyTorch, and again in real TensorFlow. It cannot run here — there is no browser build of either library — but nothing in it should surprise you. <code>zero_grad</code>, <code>backward</code>, <code>step</code>: you wrote all three a few paragraphs ago.</p>
+    <div data-kernel-cell data-title="the same model, in real pytorch" data-runnable="false" data-note="PyTorch and TensorFlow are compiled C++/CUDA libraries with no WebAssembly build, so a browser kernel cannot import them.">
+    <script type="text/x-python">
+# The same ring model, in the frameworks the labs actually reach for. Read
+# it against the hand-rolled engine: every line here has a twin there. It is
+# seeded differently (torch's RNG is not Python's), so the numbers will not
+# match to the digit. The shape of the run does.
+import math, random
+
+import torch
+import torch.nn as nn
+
+# ---- the same two rings, packed into one (28, 2) tensor -------------------
+rng = random.Random(11)
+pts, labels = [], []
+for k in range(14):
+    a = 2 * math.pi * k / 14
+    r = 0.85 + rng.uniform(-0.09, 0.09)
+    pts.append([r * math.cos(a), r * math.sin(a)]); labels.append(0.0)
+    a += math.pi / 14
+    r = 2.10 + rng.uniform(-0.12, 0.12)
+    pts.append([r * math.cos(a), r * math.sin(a)]); labels.append(1.0)
+
+X = torch.tensor(pts, dtype=torch.float32)                    # (28, 2)
+y = torch.tensor(labels, dtype=torch.float32).unsqueeze(1)    # (28, 1)
+
+# ---- the model. nn.Linear is our Linear class with the paperwork done ----
+class MLP(nn.Module):
+    def __init__(self, nin=2, nhid=8):
+        super().__init__()
+        self.fc1 = nn.Linear(nin, nhid)     # weight + bias, requires_grad
+        self.fc2 = nn.Linear(nhid, 1)
+
+    def forward(self, x):                    # (batch, 2) -> logits (batch, 1)
+        return self.fc2(torch.tanh(self.fc1(x)))
+
+torch.manual_seed(3)
+net = MLP()
+opt = torch.optim.SGD(net.parameters(), lr=0.10, momentum=0.9)
+loss_fn = nn.BCEWithLogitsLoss()             # log(1+e^z) - y*z, done stably
+
+# ---- the loop. Four lines, and you have already written all four ---------
+print("pytorch")
+for epoch in range(141):
+    opt.zero_grad()              # .grad accumulates; drop last step's
+    loss = loss_fn(net(X), y)    # forward, recording the tape as it goes
+    loss.backward()              # the reverse sweep — in C++, over arrays
+    opt.step()                   # buf = mu*buf + grad ;  p -= lr*buf
+    if epoch % 35 == 0:
+        with torch.no_grad():    # no tape needed just to look
+            acc = ((net(X) > 0).float() == y).float().mean()
+        print(f"{epoch:>5}  {loss.item():.4f}     {acc:.0%}")
+
+# torch ships the finite-difference test we ran by hand:
+#     torch.autograd.gradcheck(fn, inputs)  # needs float64 — in float32
+#                                           # rounding swamps the gap
+
+# ==========================================================================
+# The same model again in TensorFlow. Keras will hide the loop entirely if
+# you let it, so here it is written out — the tape deserves to be visible.
+import tensorflow as tf
+
+tf.keras.utils.set_random_seed(3)               # seeds python, numpy and tf
+Xt = tf.constant(pts, dtype=tf.float32)
+yt = tf.constant([[v] for v in labels], dtype=tf.float32)
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(2,)),
+    tf.keras.layers.Dense(8, activation="tanh"),
+    tf.keras.layers.Dense(1),                       # raw logits, no sigmoid
+])
+kopt = tf.keras.optimizers.SGD(learning_rate=0.10, momentum=0.9)
+kloss = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+
+print("tensorflow")
+for epoch in range(141):
+    with tf.GradientTape() as tape:                 # the tape, named aloud
+        loss = kloss(yt, model(Xt, training=True))
+    grads = tape.gradient(loss, model.trainable_variables)
+    kopt.apply_gradients(zip(grads, model.trainable_variables))
+    if epoch % 35 == 0:
+        hit = tf.cast(model(Xt) > 0, tf.float32) == yt
+        acc = tf.reduce_mean(tf.cast(hit, tf.float32))
+        print(f"{epoch:>5}  {float(loss):.4f}     {float(acc):.0%}")
+
+# and the version you would actually ship, once you trust the loop:
+#     model.compile(optimizer=kopt, loss=kloss, metrics=["accuracy"])
+#     model.fit(Xt, yt, epochs=141, batch_size=len(pts), verbose=0)
+    </script>
+    </div>
 
     <div class="pager">
       <a class="pcard" href="../business/"><span class="plabel">back — part VII</span><div class="ptitle">← The business</div></a>
@@ -247,5 +540,7 @@
 <script src="../js/epilogue.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

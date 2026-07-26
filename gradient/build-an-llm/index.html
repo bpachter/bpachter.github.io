@@ -143,6 +143,178 @@
       <div class="build-step"><span class="bs-n">5</span><div><b>Post-training.</b> The polish that turns a text-continuer into an assistant. First <b>instruction tuning</b> — showing it thousands of examples of good answers. Then <b>alignment</b> — methods like DPO and RLHF (<a href="../frontier/#ch9">chapter 09</a>) that teach it to prefer helpful, honest responses, and <b>RLVR</b> (<a href="../thinking/#ch18">chapter 18</a>) that trains reasoning by rewarding correct final answers. Smaller models are often <em>distilled</em> from larger ones — taught to imitate a bigger sibling.</div></div>
     </div>
 
+    <p class="kc-intro">Stage one decides most of the gap, and it is the rung of this ladder that survives being shrunk to browser scale: the filter in a real pipeline is this same kind of small, cheap model, only fit on more labels. So here it is in scikit-learn, evaluated the honest way — no model grading its own homework, a baseline it has to beat, the words it decided to trust printed where you can argue with them, and a threshold whose cost is priced rather than asserted.</p>
+    <div data-kernel-cell data-title="the quality filter, honestly evaluated" data-packages="scikit-learn">
+    <script type="text/x-python">
+# Stage 1 of the ladder, done for real. Every serious pretraining pipeline
+# scores crawled pages with something small and cheap, then throws most of
+# them away. GPT-3 used a logistic-regression classifier over hashed word
+# features; CCNet ranked pages by n-gram language-model perplexity;
+# FineWeb-Edu puts a linear head on a small embedding model. Cheap enough
+# to run on billions of documents is the whole requirement. This is the
+# cheapest of them, and the closest to what GPT-3 actually used.
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.dummy import DummyClassifier
+
+KEEP = [
+    "Mitochondria make most of a cell's ATP by oxidative phosphorylation.",
+    "Binary search halves the interval each step, so a million items take"
+    " about twenty comparisons.",
+    "Cepheid variables pulse with a period tied to their brightness, which"
+    " is how their distance is measured.",
+    "Enzymes lower a reaction's activation energy without being consumed,"
+    " so very small amounts go a long way.",
+    "A hash table trades memory for speed by storing keys in buckets, so a"
+    " lookup avoids scanning the whole list.",
+    "Deeper sediment layers are generally older; geologists call this the"
+    " principle of superposition.",
+    "The Doppler shift moves an approaching source's frequency upward, so"
+    " a spectrum reveals how a star is moving.",
+    "In double-entry bookkeeping every transaction touches two accounts,"
+    " so the ledger has to balance.",
+    "Photosynthesis stores light energy as glucose and releases oxygen as"
+    " a by-product of splitting water.",
+    "A compiler translates the whole program before it runs; an"
+    " interpreter translates and executes line by line.",
+    "Vaccines present a harmless fragment of a pathogen so the immune"
+    " system builds memory cells in advance.",
+    "Continental plates drift a few centimetres a year, roughly the rate"
+    " at which fingernails grow.",
+    "A confidence interval describes the procedure: repeat the study and"
+    " 95 percent of such intervals cover the truth.",
+    "The Treaty of Westphalia ended the Thirty Years' War in 1648 and set"
+    " the template for sovereign states.",
+    "Roman concrete used volcanic ash, which reacts with seawater to grow"
+    " crystals that heal cracks over time.",
+]
+DROP = [
+    "CHEAP FLIGHTS 2024 cheap flight deals cheapest flights book cheap"
+    " flights online now!",
+    "Click here to continue reading. Sign up for our newsletter. Accept"
+    " cookies to view this content.",
+    "buy backlinks cheap SEO services guaranteed page one ranking contact"
+    " us today buy backlinks",
+    "Home | About | Contact | Privacy Policy | Terms of Service | Sitemap"
+    " | Careers | Login",
+    "Top 10 weight loss tips doctors hate this one weird trick lose belly"
+    " fat fast click now",
+    "Your browser is not supported. Please enable JavaScript to continue."
+    " Error 403 Forbidden.",
+    "download free mp3 download free movies download free software"
+    " download free games no survey",
+    "Related posts you may also like sponsored content from around the"
+    " web advertisement continue below",
+    "casino bonus free spins no deposit bonus code best online casino"
+    " bonus 2024 casino casino",
+    "This page has moved. Please update your bookmarks. Redirecting in"
+    " five seconds.",
+    "cheap insurance quotes compare insurance cheap car insurance quote"
+    " insurance online now",
+    "Comments (0) Leave a reply Your email address will not be published"
+    " Required fields are marked",
+    "order pills online cheap fast shipping discreet packaging order now"
+    " limited stock order now",
+    "Share on Facebook Share on Twitter Share on LinkedIn Pin it Email"
+    " this Print this page",
+    "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do"
+    " eiusmod tempor incididunt",
+]
+X = KEEP + DROP
+y = [1] * len(KEEP) + [0] * len(DROP)
+
+clf = make_pipeline(
+    TfidfVectorizer(sublinear_tf=True, ngram_range=(1, 2), min_df=1),
+    LogisticRegression(C=5.0, max_iter=1000, random_state=0),
+)
+
+# The trap first, because everyone falls into it once.
+clf.fit(X, y)
+print(f"accuracy on the documents it trained on:  "
+      f"{accuracy_score(y, clf.predict(X)):.2f}   <- means nothing")
+
+# With 30 documents there is no honest single test set, so every document
+# gets predicted by a model that never saw it: five-fold, out of fold.
+# cross_val_predict clones the whole pipeline per fold, so the vectorizer
+# is refit on the training rows alone. Fit it once on everything instead
+# and the test documents leak into the vocabulary and the idf weights.
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+oof = cross_val_predict(clf, X, y, cv=cv)
+base = cross_val_predict(DummyClassifier(strategy="most_frequent"), X, y,
+                         cv=cv)
+print(f"accuracy on documents it had never seen:  "
+      f"{accuracy_score(y, oof):.2f}")
+print(f"always-answer-with-one-class baseline:    "
+      f"{accuracy_score(y, base):.2f}\n")
+print(classification_report(y, oof, target_names=["drop", "keep"],
+                            digits=2))
+
+# What did it actually latch onto? A linear model will tell you.
+vec = clf.named_steps["tfidfvectorizer"]
+lr = clf.named_steps["logisticregression"]
+names = vec.get_feature_names_out()
+order = sorted(range(len(names)), key=lambda i: lr.coef_[0][i])
+print("strongest evidence for 'drop'     strongest evidence for 'keep'")
+for neg, pos in zip(order[:6], reversed(order[-6:])):
+    print(f"  {names[neg]:<20}{lr.coef_[0][neg]:>7.2f}"
+          f"     {names[pos]:<16}{lr.coef_[0][pos]:>7.2f}")
+print("Note what the 'keep' column is: function words. Nobody taught it")
+print("that; it worked out on its own that prose has grammar and keyword")
+print("spam does not. That is the whole trick, and it is a shallow one.")
+
+# And the thing you actually ship: a score, and a threshold you can move.
+# The second field is my label, not the model's, so the two bars below can
+# be scored instead of admired.
+UNSEEN = [
+    ("A neural network learns by nudging its weights so a loss function"
+     " decreases on the training data.", 1),
+    ("CHEAP LOANS FAST CASH no credit check apply now instant approval"
+     " loans loans loans", 0),
+    ("Cookie preferences | Manage consent | Reject all | Accept all |"
+     " Powered by our partner", 0),
+    ("Ocean acidification happens because dissolved carbon dioxide forms"
+     " carbonic acid in seawater.", 1),
+    ("Subscribe to unlock this article. Already a member? Sign in. Limited"
+     " time offer, 50% off.", 0),
+]
+BARS = (0.50, 0.60)
+docs = [d for d, _ in UNSEEN]
+truth = [t for _, t in UNSEEN]
+probs = clf.predict_proba(docs)[:, 1]
+
+print("\nfive documents it has never seen, at two thresholds:")
+print(f"  {'P(keep)':<9}{'>.50':<7}{'>.60':<7}{'truth':<7}document")
+for doc, t, p in zip(docs, truth, probs):
+    calls = "".join(f"{('keep' if p > b else 'drop'):<7}" for b in BARS)
+    print(f"  {p:<9.3f}{calls}{('keep' if t else 'drop'):<7}{doc[:24]}...")
+for b in BARS:
+    kept = [t for t, p in zip(truth, probs) if p > b]
+    lost = sum(1 for t, p in zip(truth, probs) if t and p <= b)
+    print(f"  bar at {b:.2f}: keeps {len(kept)} of 5,"
+          f" {sum(1 for t in kept if not t)} of them junk,"
+          f" loses {lost} good page{'' if lost == 1 else 's'}")
+near = min(zip(docs, probs), key=lambda r: abs(r[1] - 0.50))
+print(f"  closest call {near[1]:.3f}, {abs(near[1] - 0.50):.3f} off the"
+      f" line: {near[0][:22]}...")
+print("A document that close is not being judged, it is being rounded.")
+print("Moving the bar buys precision with recall and nothing else; the")
+print("numbers above are that trade, priced. Real pipelines set it to keep")
+print("a top slice — FineWeb-Edu kept about a tenth of its crawl — and")
+print("accept that borderline pages die.")
+
+print("\nThirty documents is a toy; the real filters are fit on hundreds of")
+print("thousands of labelled pages and score trillions. What does survive")
+print("the change of scale is everything else on this page: the split that")
+print("never lets a model grade its own homework, the baseline you have to")
+print("beat, and a linear model whose reasons you can read. Also its")
+print("weakness — it is a bag of words, so it can be gamed by anyone who")
+print("knows which words it likes. That is a real problem at web scale.")
+    </script>
+    </div>
+
     <p style="margin-top:22px">Then the weights are packaged and released — often with a technical report but rarely the data. The community takes it from there: fine-tuning it for niches, and <b>quantizing</b> it (more on that below) so it fits on ordinary hardware. That last step is what puts these models within your reach.</p>
   </div>
 </section>
@@ -187,6 +359,114 @@
       <div class="note-card"><h4>LM Studio</h4>A friendly desktop app with a chat window and a model browser — the same idea as Ollama, with a graphical interface instead of a terminal.</div>
       <div class="note-card"><h4>llama.cpp</h4>The engine humming underneath most local tools. It's the C++ project that made models run fast on ordinary CPUs, consumer GPUs, and Apple's Metal — and it defined <b>GGUF</b>, the quantized file format everything uses.</div>
       <div class="note-card"><h4>vLLM</h4>The production option. When you need to serve a model to many users at once, vLLM squeezes far more throughput out of a GPU. Overkill for a laptop; the right call for a service.</div>
+    </div>
+
+    <p class="kc-intro">Those four tools <em>run</em> a finished model. The stack that <em>made</em> it sits one layer down — PyTorch, JAX — and the single line you would miss most is the optimizer. Below, Adam and plain gradient descent written out in full and raced across six learning rates, and then the memory bill for the two extra buffers Adam keeps, which turns out to be the real reason training a model takes a data centre and running one takes a laptop.</p>
+    <div data-kernel-cell data-title="what the optimizer line buys you">
+    <script type="text/x-python">
+# What one line of a framework is worth: optim.Adam(...) in place of
+# optim.SGD(...). Both written out in full, on the same badly-scaled bowl,
+# from the same start, with the same budget, over the same learning rates.
+import math
+
+# f(x, y) = (x^2 + 100*y^2) / 2 — a valley 100x steeper across than along.
+# Minimum exactly (0, 0), value exactly 0, so there is nothing to argue
+# about when we measure how close each optimizer got.
+C = 100.0
+def f(p):    return 0.5 * (p[0] ** 2 + C * p[1] ** 2)
+def grad(p): return [p[0], C * p[1]]
+
+START, TARGET, BUDGET = [1.0, 1.0], 1e-8, 6000
+
+def sgd(lr, momentum=0.0):
+    p, buf = list(START), [0.0, 0.0]
+    for t in range(1, BUDGET + 1):
+        g = grad(p)
+        for i in (0, 1):
+            buf[i] = momentum * buf[i] + g[i]     # torch.optim.SGD, exactly
+            p[i] -= lr * buf[i]
+        val = f(p)
+        if not math.isfinite(val) or val > 1e12: return "x"
+        if val < TARGET: return t
+    return "—"
+
+def adam(lr, b1=0.9, b2=0.999, eps=1e-8):
+    """Kingma & Ba 2015, bias correction included — it is not optional."""
+    p, m, v = list(START), [0.0, 0.0], [0.0, 0.0]
+    for t in range(1, BUDGET + 1):
+        g = grad(p)
+        for i in (0, 1):
+            m[i] = b1 * m[i] + (1 - b1) * g[i]        # running mean of g
+            v[i] = b2 * v[i] + (1 - b2) * g[i] ** 2   # running mean of g^2
+            mhat = m[i] / (1 - b1 ** t)               # both started at zero,
+            vhat = v[i] / (1 - b2 ** t)               # so both start biased
+            p[i] -= lr * mhat / (math.sqrt(vhat) + eps)
+        val = f(p)
+        if not math.isfinite(val) or val > 1e12: return "x"
+        if val < TARGET: return t
+    return "—"
+
+LRS = (0.003, 0.01, 0.03, 0.1, 0.3, 1.0)
+COLS = (("SGD", lambda lr: sgd(lr)),
+        ("SGD mom=0.9", lambda lr: sgd(lr, momentum=0.9)),
+        ("Adam", adam))
+
+print("steps to reach f < 1e-8      ( x = blew up,  — = still going )")
+print(f"{'lr':>8}" + "".join(f"{n:>16}" for n, _ in COLS))
+print("-" * (8 + 16 * len(COLS)))
+survived = [0] * len(COLS)
+for lr in LRS:
+    row = f"{lr:>8.3f}"
+    for k, (_, run) in enumerate(COLS):
+        r = run(lr)
+        survived[k] += isinstance(r, int)
+        row += f"{(f'{r:,}' if isinstance(r, int) else r):>16}"
+    print(row)
+print("-" * (8 + 16 * len(COLS)))
+tally = "".join(f"{f'{s} of {len(LRS)}':>16}" for s in survived)
+print(f"{'landed':>8}" + tally)
+print("\n(Adam's first step is exactly ±lr in every coordinate: the bias")
+print("correction cancels the gradient's size. So lr=1.0 from (1, 1) lands")
+print("on the minimum by luck. Read that row as a fact about step one, not")
+print("as a fact about Adam.)")
+
+print("\nThe fastest single run here is not the story. The story is the last")
+print("row. Plain descent is capped by the steep direction: any step above")
+print("2/100 = 0.02 makes it oscillate and explode, so the flat direction")
+print("has to crawl at that same tiny step. A rate that worked fine at 0.01")
+print("destroys the run at 0.03. Adam divides each coordinate by its own")
+print("recent gradient size, so the same setting works across two orders of")
+print("magnitude. You get to be wrong about the rate, and still land.")
+
+# The ceiling, for honesty: if you already knew the curvature you would set
+# one step size per coordinate and hit the minimum exactly, in one step.
+p, g0 = list(START), grad(START)
+for i, curvature in ((0, 1.0), (1, C)):
+    p[i] -= (1 / curvature) * g0[i]
+print(f"\nknowing the curvature outright: 1 step, f = {f(p):.1e}.")
+print("Adam is a cheap running estimate of exactly that per-coordinate")
+print("scale. Not magic, and not free — here is the bill.")
+
+# ---- what those two extra buffers cost -----------------------------------
+# Standard mixed-precision accounting (Rajbhandari et al., ZeRO, 2020):
+#   fp16 weights 2 + fp16 grads 2 + fp32 master 4 + Adam m 4 + Adam v 4 = 16
+# The 4-bit row counts what a real quantized file costs, not the sticker:
+# 4 bits a weight plus one fp16 scale for every block of 32 = 4.5 bits.
+GiB, PARAMS = 1024 ** 3, 8e9
+rows = [("4-bit file, inference",          (32 * 4 + 16) / 32 / 8),
+        ("fp16 weights, inference",         2.0),
+        ("training, SGD without momentum",  8.0),
+        ("training, Adam",                 16.0)]
+print(f"\nan 8B model{'bytes/param':>30}{'GiB':>12}")
+for label, bpp in rows:
+    print(f"  {label:<32}{bpp:>7.3f}{PARAMS * bpp / GiB:>12.1f}")
+print(f"\n{rows[3][1] / rows[0][1]:.0f}x the memory to train a model as to"
+      f" run a quantized copy of it,")
+print(f"{rows[3][1] / rows[1][1]:.0f}x even at matched precision — and that"
+      f" is before a single")
+print("activation is stored. Which is the real reason you can hold a model")
+print("no laptop could ever have made.")
+    </script>
     </div>
   </div>
 </section>
@@ -318,5 +598,7 @@
 </script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

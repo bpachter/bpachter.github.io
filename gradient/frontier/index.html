@@ -174,6 +174,144 @@
         <div class="readout"><span class="stat">total params <b>47B</b></span><span class="stat">active per token <b id="moe-active">~13B</b></span><span class="stat">tokens routed <b id="moe-count">0</b></span></div>
         <p class="widget-hint"><span class="hand">Watch →</span> Different tokens light different specialists. The tally under each expert shows who's been busy — the router learns to balance the load.</p>
       </div>
+
+    <p class="kc-intro">The widget says the router learns to balance the load. It does not, on its own — that is the hard part of building an MoE, and it is worth watching fail. First the parameter count, taken straight off Mixtral's published config and checked against the two numbers Mistral reported. Then a real top-2 router fed topically clumpy tokens, which is what text is, with two columns held apart on purpose: what the router asks for, and what survives the capacity ceiling. Confusing those two is how a lopsided router gets credited with balance it never had.</p>
+    <div data-kernel-cell data-title="what the router actually does">
+    <script type="text/x-python">
+# Mixture of Experts: the parameter count, then the thing that goes wrong.
+# Config is Mixtral 8x7B, straight off its published config file.
+import math, random
+
+D_MODEL, D_FF, LAYERS = 4096, 14336, 32
+Q_HEADS, KV_HEADS, HEAD_DIM = 32, 8, 128
+VOCAB, EXPERTS, TOP_K = 32000, 8, 2
+
+attn = (D_MODEL * Q_HEADS * HEAD_DIM          # Wq
+        + 2 * D_MODEL * KV_HEADS * HEAD_DIM   # Wk, Wv  (grouped-query: 8, not 32)
+        + Q_HEADS * HEAD_DIM * D_MODEL)       # Wo
+one_expert = 3 * D_MODEL * D_FF               # SwiGLU: w1 and w3 up, w2 down
+shared = VOCAB * D_MODEL * 2 + D_MODEL        # embedding, output head, last norm
+per_layer = attn + D_MODEL * EXPERTS + 2 * D_MODEL      # everything but experts
+
+total = shared + LAYERS * (per_layer + EXPERTS * one_expert)
+active = shared + LAYERS * (per_layer + TOP_K * one_expert)
+
+print("Mixtral 8x7B, counted from the config:")
+print(f"  total parameters  {total/1e9:>6.1f}B   (published: 46.7B)")
+print(f"  active per token  {active/1e9:>6.1f}B   (published: 12.9B)")
+print(f"  you store {total/active:.1f}x what you compute with, and the name lies")
+print("  twice: 8 x 7B is not 56B, because attention is shared, not copied.\n")
+
+# ---- so where does the trouble come from? -----------------------------------
+# The router is one linear layer. Nothing makes it spread tokens evenly, and
+# real text is topically clumpy, so it doesn't. Toy width here (32, not 4096)
+# to keep the arithmetic visible; the routing rule itself is the real one.
+r = random.Random(7)
+N, D, E, K = 2048, 32, 8, 2
+CAP = math.ceil(1.25 * N * K / E)     # each expert holds 1.25x its fair share
+FAIR = N * K / E
+
+centers = [[r.gauss(0, 1) for _ in range(D)] for _ in range(5)]
+toks = []
+for _ in range(N):                    # tokens arrive in 5 clumps, not as noise
+    c = centers[r.choices(range(5), weights=[5, 4, 3, 2, 1])[0]]
+    toks.append([m + r.gauss(0, 0.55) for m in c])
+Wr = [[r.gauss(0, 1 / math.sqrt(D)) for _ in range(D)] for _ in range(E)]
+logits = [[sum(a * b for a, b in zip(w, t)) for w in Wr] for t in toks]
+
+def softmax(z):
+    m = max(z)
+    e = [math.exp(v - m) for v in z]
+    s = sum(e)
+    return [v / s for v in e]
+
+# mean gate mass per expert — fixed here, because this router is not training
+P = [0.0] * E
+for row in logits:
+    for i, p in enumerate(softmax(row)):
+        P[i] += p / N
+
+def route(bias):
+    """Top-k over (logit + bias), then a capacity ceiling. Two different
+    things get counted: what the router ASKS for, which is the router's own
+    behaviour, and what is KEPT, which is the ceiling's. Confusing the two
+    flatters the router — the ceiling does some of its balancing for it."""
+    asked, kept, lost = [0] * E, [0] * E, 0
+    for row in logits:
+        got = 0
+        for i in sorted(range(E), key=lambda i: -(row[i] + bias[i]))[:K]:
+            asked[i] += 1
+            if kept[i] < CAP:
+                kept[i] += 1
+                got += 1
+        if got == 0:                  # both experts full: this token is lost
+            lost += 1
+    return asked, kept, lost
+
+def balance_loss(asked):
+    """Switch / ST-MoE auxiliary loss, E * sum_i f_i * P_i: share of the
+    assignments that went to expert i, times the mean gate mass it drew.
+    Computed on what was asked for, because the aux loss is applied to the
+    router's decision and never sees the capacity ceiling. 1.000 = even."""
+    return E * sum(a / (N * K) * p for a, p in zip(asked, P))
+
+def report(tag, asked, kept, lost):
+    dropped = sum(asked) - sum(kept)
+    print(tag)
+    print(f"  {'expert':>6}{'asked':>9}{'x fair':>9}{'kept':>9}{'dropped':>9}")
+    for i in range(E):
+        share = asked[i] / FAIR
+        print(f"  {i:>6}{asked[i]:>9}{share:>9.2f}{kept[i]:>9}"
+              f"{asked[i]-kept[i]:>9}  {'#' * round(share * 12)}")
+    print(f"  busiest/quietest, as asked: {max(asked)/min(asked):.1f}x"
+          f"     balance loss {balance_loss(asked):.3f}")
+    print(f"  dropped {dropped:,} of {N*K:,} assignments ({dropped/(N*K):.1%});"
+          f" {lost} of {N:,} tokens")
+    print(f"  ({lost/N:.1%}) lost both experts and skip the layer entirely\n")
+
+raw = route([0.0] * E)
+report(f"raw router, capacity {CAP} per expert (factor 1.25):", *raw)
+
+# DeepSeek-V3's loss-free trick: keep a per-expert bias, nudge it down when an
+# expert is over its share and up when it is under. The bias steers who gets
+# picked; it never touches the gate weight that gets multiplied in. No
+# gradient, no extra loss term, nothing tugging against the language objective.
+bias = [0.0] * E
+for _ in range(60):
+    asked, kept, lost = route(bias)
+    for i in range(E):
+        bias[i] += 0.02 * (1 if asked[i] < FAIR else -1)
+tuned = route(bias)
+report("after 60 rounds of bias nudging:", *tuned)
+
+# ---- what the two numbers are worth -----------------------------------------
+asked0, kept0, lost0 = raw
+aux0, drop0 = balance_loss(asked0), sum(asked0) - sum(kept0)
+capped = sum(1 for a, k in zip(asked0, kept0) if a > k)
+COEF = 0.01                    # the coefficient the aux loss is usually given
+print(f"Read the two numbers against each other. A {max(asked0)/min(asked0):.1f}x imbalance scores")
+print(f"{aux0:.3f} where an even router scores 1.000. At the usual coefficient")
+print(f"{COEF}, the whole disaster is worth {COEF*(aux0-1):.4f} of extra loss, next to a")
+print(f"language loss of order 2 — a nudge of roughly {COEF*(aux0-1)/2:.1%}. It is a gentle")
+print("differentiable hint, not an enforcement mechanism. What actually")
+print("enforces is the capacity ceiling, and it enforces by throwing tokens")
+print(f"away. Notice that {capped} experts in the first table asked for more than")
+print(f"{CAP} and kept exactly {CAP}: read the 'kept' column alone and you would")
+print("credit the router with a balance the ceiling imposed on it.")
+print()
+print(f"Of those {drop0:,} dropped assignments, {lost0} tokens lost both experts at")
+print("once: they skip the layer completely, keeping only the residual stream")
+print("and arriving at the next block un-thought-about. The rest keep one")
+print(f"expert where the router wanted two. Either way {drop0/(N*K):.0%} of the layer's")
+print("expert work is silently not done — which is why every serious MoE")
+print("ships a balance loss, a bias controller like this one, or both.")
+print()
+print("One honest caveat: the gate masses P above are frozen, because this")
+print("router is not training. The bias controller flattens the assignment")
+print("counts directly, and those counts are most of what the balance loss")
+print(f"measures — so the {balance_loss(tuned[0]):.3f} it lands on is arithmetic, not evidence.")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10b · KV CACHE ── -->
@@ -265,6 +403,112 @@ print(f"  without cache  {uncached:>16,}   ({uncached/cached:,.0f}x more work)")
         <div class="readout"><span class="stat">angle between <b id="rope-delta">—</b></span><span class="stat">their match score <b id="rope-dot">—</b></span></div>
         <p class="widget-hint"><span class="hand">Notice →</span> Absolute positions change, the relationship doesn't. That's why RoPE models stretch to long contexts more gracefully.</p>
       </div>
+
+    <p class="kc-intro">"Absolute positions change, the relationship doesn't" is a claim about arithmetic, and it takes about fifteen lines to settle. Below, the same pair of vectors is slid from position 0 to position 4,000 with the gap held at five — first rotated, then stamped the old additive way, so you can see one number refuse to move while the other wanders. Then the frequency ladder, which is where the graceful stretching actually runs out.</p>
+    <div data-kernel-cell data-title="the only property that matters">
+    <script type="text/x-python">
+# RoPE, and the one property that justifies it. Rotate a query at position m
+# and a key at position n, and their dot product must depend only on n - m.
+import math, random
+
+D = 8            # head width. Real heads use 64 or 128; the pattern is identical.
+BASE = 10000.0
+theta = [BASE ** (-2.0 * i / D) for i in range(D // 2)]
+
+def rope(v, pos):
+    """Rotate coordinate pair i by angle pos * theta[i]. That is the whole
+    operation — no learned parameters, nothing added, just a rotation."""
+    out = []
+    for i, th in enumerate(theta):
+        x, y = v[2 * i], v[2 * i + 1]
+        c, s = math.cos(pos * th), math.sin(pos * th)
+        out += [x * c - y * s, x * s + y * c]
+    return out
+
+dot = lambda a, b: sum(p * q for p, q in zip(a, b))
+
+r = random.Random(3)
+q = [r.gauss(0, 1) for _ in range(D)]
+k = [r.gauss(0, 1) for _ in range(D)]
+
+# The old way, for contrast: add a fixed sinusoidal stamp. (Simplified — the
+# 2017 recipe adds it to the token embedding, before the Q and K projections.
+# Adding it here skips a linear map that changes the numbers but not the
+# point, which is that the score depends on where the pair sits.)
+def sinusoidal(pos):
+    e = []
+    for i in range(D // 2):
+        e += [math.sin(pos * theta[i]), math.cos(pos * theta[i])]
+    return e
+
+add = lambda v, p: [a + b for a, b in zip(v, sinusoidal(p))]
+
+print("the same pair of words, slid down the page. offset is always 5.")
+print(f"{'q at':>6}{'k at':>6}{'rotary q.k':>16}{'additive q.k':>16}")
+rot, absol = [], []
+for m in (0, 1, 7, 40, 300, 4000):
+    n = m + 5
+    a, b = dot(rope(q, m), rope(k, n)), dot(add(q, m), add(k, n))
+    rot.append(a); absol.append(b)
+    print(f"{m:>6}{n:>6}{a:>16.12f}{b:>16.6f}")
+print(f"\nrotary  spread across those rows: {max(rot)-min(rot):.2e}  "
+      "(zero, to floating point)")
+print(f"additive spread across those rows: {max(absol)-min(absol):.2e}  "
+      "(a different score every time)")
+print("\nThat is the trick, and it is the whole trick. A gap of five scores")
+print("the same in the first sentence and on page four hundred, so the model")
+print("never has to have visited position 4,000 to handle a pair sitting")
+print("there. The additive stamp offers no such thing: same two words, same")
+print("gap, a different score at every position on the page.")
+print()
+print("Note the exact claim. It is about the GAP being reusable, not about")
+print("long context being solved — a gap longer than anything in training is")
+print("a separate problem, and the last table here is about that one.\n")
+
+# ---- why it works: a rotation is a rotation ---------------------------------
+# Pair i of the rotated q and the rotated k sit at angles (m*th + phi_q) and
+# (n*th + phi_k). Their dot product is |q||k| cos of the difference, and the
+# difference keeps (n-m)*th while m itself cancels. Check it directly.
+print("closed form, pair by pair, for the m=300 / n=305 row above:")
+tot = 0.0
+for i, th in enumerate(theta):
+    qx, qy, kx, ky = q[2*i], q[2*i+1], k[2*i], k[2*i+1]
+    mag = math.hypot(qx, qy) * math.hypot(kx, ky)
+    dphi = math.atan2(ky, kx) - math.atan2(qy, qx)
+    term = mag * math.cos(5 * th + dphi)     # only the gap 5 appears
+    tot += term
+    print(f"  pair {i}  |q||k| {mag:>6.3f}  angle {5*th + dphi:>7.3f} rad"
+          f"  contributes {term:>8.4f}")
+print(f"  sum {tot:.12f}   vs rotated dot {dot(rope(q,300), rope(k,305)):.12f}")
+
+# ---- the frequency ladder, and why the base got raised ----------------------
+# Each coordinate pair is a clock hand with its own speed. Slow hands carry
+# long-range position; if a hand never completes a turn during training, the
+# model has only ever seen one arc of it.
+print("\nhead width 128 — how far each clock hand turns in 8,192 tokens:")
+print(f"{'pair':>6}{'base 10k period':>19}{'turns':>9}"
+      f"{'base 500k period':>20}{'turns':>9}")
+CTX, HD = 8192, 128
+for i in (0, 16, 32, 48, 63):
+    p10 = 2 * math.pi / (10000.0 ** (-2.0 * i / HD))
+    p500 = 2 * math.pi / (500000.0 ** (-2.0 * i / HD))
+    print(f"{i:>6}{p10:>15,.0f} tok{CTX/p10:>9.2f}"
+          f"{p500:>16,.0f} tok{CTX/p500:>9.2f}")
+slow = 2 * math.pi / (10000.0 ** (-2.0 * 63 / HD))
+gain = lambda i: (500000.0 / 10000.0) ** (2.0 * i / HD)
+print(f"\nThe slowest hand at base 10,000 needs {slow:,.0f} tokens for one turn,")
+print(f"so an {CTX//1024}K training run shows the model {CTX/slow:.0%} of that circle and")
+print("no more. Push inference past what was trained and the slow hands")
+print("wander into angles no gradient ever visited. Raising the base to")
+print("500,000 — what Llama 3 does, where Llama 2 used 10,000 — leaves pair 0")
+print(f"exactly where it was ({gain(0):.0f}x) while stretching pair 32 by {gain(32):.0f}x and pair")
+print(f"63 by {gain(63):.0f}x: the fast hands keep doing local work untouched while the")
+print("slow ones are given room to spare. It is not the whole answer — Llama")
+print("3.1 also rescales the low frequencies piecewise to reach 128K — but it")
+print("is the lever. The relative-offset property at the top holds for every")
+print("base. What the base buys is somewhere for long distances to live.")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10d · GQA ── -->
@@ -306,6 +550,122 @@ print(f"  without cache  {uncached:>16,}   ({uncached/cached:,.0f}x more work)")
         <div class="readout"><span class="stat">memory written <b id="flash-mem">—</b></span><span class="stat">SRAM passes <b id="flash-passes">—</b></span></div>
         <p class="widget-hint"><span class="hand">Try it →</span> Naive fills the whole square in slow memory; Flash chews tiles in the scratchpad. Bigger tiles mean fewer passes, but the tile must still fit in SRAM — that ceiling is the whole design constraint.</p>
       </div>
+
+    <p class="kc-intro">"It is not an approximation. Same numbers, exact to the bit" is the load-bearing claim, and it is the kind you should want checked rather than asserted. Here is naive attention and the tiled online-softmax version side by side, with the largest disagreement between them printed. Then the reason the running max exists at all — the exponential's ceiling in each float format, which in fp16 sits lower than most people guess — and the arithmetic behind the SRAM ceiling the hint above points at.</p>
+    <div data-kernel-cell data-title="the same answer, in tiles">
+    <script type="text/x-python">
+# FlashAttention: the same answer, computed without ever holding the score
+# matrix. The claim on the page is "exact to the bit" — so check it.
+import math, random, sys
+
+r = random.Random(21)
+N, DH, BLOCK = 64, 16, 8          # keys, head width, tile size
+scale = 1.0 / math.sqrt(DH)
+Q = [[r.gauss(0, 1) for _ in range(DH)] for _ in range(4)]     # 4 query rows
+K = [[r.gauss(0, 1) for _ in range(DH)] for _ in range(N)]
+V = [[r.gauss(0, 1) for _ in range(DH)] for _ in range(N)]
+dot = lambda a, b: sum(x * y for x, y in zip(a, b))
+
+def naive(q):
+    """Textbook: build the whole score row, softmax it, then weight V.
+    Every intermediate here is a real array that has to live somewhere."""
+    s = [dot(q, k) * scale for k in K]          # <- the N-wide row. this is the cost.
+    m = max(s)
+    e = [math.exp(v - m) for v in s]
+    z = sum(e)
+    return [sum(e[j] * V[j][d] for j in range(N)) / z for d in range(DH)]
+
+def flash(q):
+    """One tile at a time. Carry three things: the largest score seen so far,
+    a running denominator, and a running unnormalized output. When a tile
+    brings a bigger max, rescale what you already have and carry on."""
+    m, z, acc = -math.inf, 0.0, [0.0] * DH
+    for start in range(0, N, BLOCK):
+        tile = range(start, min(start + BLOCK, N))
+        s = [dot(q, K[j]) * scale for j in tile]
+        m_new = max(m, max(s))
+        fix = math.exp(m - m_new) if m > -math.inf else 0.0
+        e = [math.exp(v - m_new) for v in s]
+        z = z * fix + sum(e)
+        for d in range(DH):                     # rescale, then add this tile
+            acc[d] = acc[d] * fix + sum(w * V[j][d] for w, j in zip(e, tile))
+        m = m_new
+    return [a / z for a in acc]
+
+worst = max(abs(a - b) for q in Q for a, b in zip(naive(q), flash(q)))
+print(f"naive vs tiled, largest disagreement in any output number: {worst:.3e}")
+print(f"one float64 ulp near 1.0 is {2.0**-52:.3e} — so: the same answer,")
+print("to within the rounding you would get from reordering a sum.\n")
+
+# ---- the running max is not decoration --------------------------------------
+# Subtracting the max makes the largest term exactly 1.0, so the sum cannot
+# overflow whatever the logits are. Skip it and safety depends on how big the
+# logits happen to get — and exp() runs out of room sooner than people think.
+print("how large a logit exp() survives, before it returns infinity:")
+for name, mx in (("fp16", 65504.0),
+                 ("fp32", (2 - 2.0 ** -23) * 2.0 ** 127),
+                 ("float64", sys.float_info.max)):
+    print(f"  {name:>8}  largest finite {mx:>10.3e}   log of it {math.log(mx):>7.2f}")
+print(f"  {math.log(65504.0):.2f} is not much headroom, which is why fp16 attention")
+print("  kernels accumulate their softmax in fp32 and subtract the max too.\n")
+
+big = [700.0 + 40.0 * i for i in range(4)]
+print("Python only has float64, so it takes a silly row to show the cliff:")
+print("  raw logits", [f"{v:.0f}" for v in big])
+try:
+    raw = [math.exp(v) for v in big]
+    print("  plain exp() gives", raw)
+except OverflowError as exc:
+    print(f"  plain exp()   -> OverflowError: {exc}")
+m = max(big)
+safe = [math.exp(v - m) for v in big]
+z = sum(safe)
+print(f"  after subtracting the max {m:.0f}:")
+print(f"  softmax     {[f'{v/z:.3e}' for v in safe]}")
+print("\nFlash's running max is that same safety, done a tile at a time by a")
+print("kernel that never gets to see the whole row at once. The rescale-")
+print("as-you-go is what buys the equivalence.\n")
+
+# ---- what it actually saves -------------------------------------------------
+# Not arithmetic. Flash's forward pass does the same 2*N*N*d multiply-adds.
+# What changes is how much has to be parked in slow memory while that
+# happens. Real tile shape now, not the toy above: 128x128 blocks at head
+# width 128, fp16.
+BR = BC = 128
+D_REAL = 128
+work = (BR * D_REAL + BC * D_REAL * 2 + BR * D_REAL + 2 * BR) * 2  # Q,K,V,O,l,m
+
+def unit(b):
+    for cut, name in ((1024**3, "GiB"), (1024**2, "MiB"), (1024, "KiB")):
+        if b >= cut:
+            return f"{b/cut:,.0f} {name}" if b / cut >= 1000 else f"{b/cut:.1f} {name}"
+    return f"{b} B"
+
+print("one attention head, one layer, fp16:")
+print(f"{'seq len':>9}{'score matrix':>18}{'flash tile set':>18}{'ratio':>13}")
+for n in (1024, 4096, 16384, 65536):
+    mat = n * n * 2
+    print(f"{n:>9}{unit(mat):>18}{unit(work):>18}{mat/work:>12,.0f}x")
+print("\nThe right column never moves: the N-by-N matrix is never built, so")
+print("the quadratic term simply is not there. Read it precisely, though —")
+print("Flash still keeps Q, K, V and O in slow memory, and those grow with")
+print("the sequence. What died is the square, not the linear part.\n")
+print(f"And {unit(work)} is not an arbitrary number: an A100 has 192 KiB of SRAM")
+print("per streaming multiprocessor, so the tile is sized to just fit. That")
+print("ceiling is the design constraint the widget above is pointing at.\n")
+print("A 70B model runs 64 heads over 80 layers. No score matrix is written")
+print("at all under Flash — the backward pass recomputes the scores from Q")
+print("and K instead of reading them back, because redoing the arithmetic is")
+print("cheaper than a trip to the warehouse. That is the trade in one line:")
+print("spend FLOPs, which are abundant, to buy back bandwidth, which is not.")
+print()
+print("Which is the part that does not show up here. This cell proves the")
+print("equivalence, not the speed — in Python the tiled version is slower,")
+print("because Python has no memory hierarchy to exploit. The 2-4x is a")
+print("fact about GPUs, and it is the reason a rearrangement that changes")
+print("no number at all was worth a paper.")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10f · SPECULATIVE DECODING ── -->
@@ -324,6 +684,135 @@ print(f"  without cache  {uncached:>16,}   ({uncached/cached:,.0f}x more work)")
         <div class="readout"><span class="stat">big model alone <b>12 tok/s</b></span><span class="stat">accepted / verify <b id="spec-toks">—</b></span><span class="stat">with a drafter <b id="spec-speed">—</b></span></div>
         <p class="widget-hint"><span class="hand">Watch →</span> Gray marks cheap draft guesses. Green marks tokens accepted by the big model. Crossed-out text marks a rejection — the editor overrides with the gold word, and the intern sprints again.</p>
       </div>
+
+    <p class="kc-intro">"Provably the same output distribution" is the sentence that makes speculative decoding respectable rather than a shortcut, and it rests on one easily-missed detail: a rejected token is not resampled from the big model's distribution, but from the difference between the two. Below, that rule in full, then 40,000 draws checked against the target distribution token by token — and the closed form for how much speed it buys, including the two cases the widget's single slider cannot show: guessing more making things worse, and guessing far too much turning the whole trick into a loss.</p>
+    <div data-kernel-cell data-title="the accept rule, and what it buys">
+    <script type="text/x-python">
+# Speculative decoding. The page claims "provably the same output
+# distribution" — that is a testable claim, so let's test it.
+import math, random
+
+WORDS = ["mat", "floor", "chair", "roof", "step", "bed", "wall", "lap"]
+# what the big model thinks comes after "the cat sat on the ___"
+P = [0.40, 0.19, 0.13, 0.09, 0.07, 0.06, 0.04, 0.02]
+# what the little draft model thinks — flatter, and it likes "chair" too much
+Q = [0.28, 0.14, 0.24, 0.11, 0.09, 0.06, 0.05, 0.03]
+V = len(WORDS)
+
+alpha = sum(min(a, b) for a, b in zip(P, Q))       # = 1 - total variation
+resid = [max(0.0, a - b) for a, b in zip(P, Q)]    # what a rejection samples
+resid = [v / sum(resid) for v in resid]
+
+print(f"{'token':>8}{'target p':>10}{'draft q':>9}{'min(p,q)':>10}{'residual':>10}")
+for w, p, q, rr in zip(WORDS, P, Q, resid):
+    print(f"{w:>8}{p:>10.2f}{q:>9.2f}{min(p,q):>10.2f}{rr:>10.3f}")
+print(f"{'':>8}{sum(P):>10.2f}{sum(Q):>9.2f}{alpha:>10.2f}{sum(resid):>10.3f}")
+print(f"\nacceptance rate should be sum min(p,q) = {alpha:.4f}")
+print(f"  (equivalently 1 - total variation distance, {1-alpha:.4f})\n")
+
+rng = random.Random(5)
+
+def draw(dist):
+    u, c = rng.random(), 0.0
+    for i, w in enumerate(dist):
+        c += w
+        if u < c:
+            return i
+    return len(dist) - 1
+
+def one_step():
+    """The whole algorithm. Draft proposes, target judges, and on a rejection
+    the target samples from the *residual* rather than from p itself — that
+    correction is what makes the output exact instead of merely close."""
+    x = draw(Q)
+    if rng.random() < min(1.0, P[x] / Q[x]):
+        return x, True
+    return draw(resid), False
+
+N = 40_000
+counts, accepts = [0] * V, 0
+for _ in range(N):
+    tok, ok = one_step()
+    counts[tok] += 1
+    accepts += ok
+
+print(f"{N:,} draws through draft-then-verify:")
+print(f"{'token':>8}{'target p':>10}{'sampled':>10}{'gap':>9}{'std errs':>10}")
+worst = 0.0
+for i, w in enumerate(WORDS):
+    got = counts[i] / N
+    se = math.sqrt(P[i] * (1 - P[i]) / N)
+    worst = max(worst, abs(got - P[i]) / se)
+    print(f"{w:>8}{P[i]:>10.4f}{got:>10.4f}{got-P[i]:>+9.4f}"
+          f"{(got-P[i])/se:>+10.2f}")
+print(f"\nmeasured acceptance {accepts/N:.4f} vs predicted {alpha:.4f}")
+print(f"largest deviation anywhere: {worst:.2f} standard errors. Across eight")
+print("tokens that is exactly what chance looks like — nothing is biased,")
+print("the sampler is just a sampler. Meanwhile the draft model is wrong")
+print("about 'chair' by nearly a factor of two and none of it reaches the")
+print("output. You are not trading quality for speed here.\n")
+
+# ---- so what does it buy? ---------------------------------------------------
+# Draft gamma tokens, verify them all in one target pass. Accept the longest
+# correct prefix; if all gamma survive, the target's own pass yields a free
+# bonus token, so a perfect round returns gamma + 1.
+# (Simplification: every position here draws from the same p/q pair. Real
+# acceptance varies wildly token to token — easy words go, hard ones stall.)
+def round_of(gamma):
+    n = 0
+    for _ in range(gamma):
+        _, ok = one_step()
+        if not ok:
+            return n + 1          # the corrected token still counts
+        n += 1
+    return gamma + 1              # all accepted, plus the free bonus
+
+TRIALS = 4000
+print(f"tokens produced per verification pass, {TRIALS:,} rounds each:")
+print(f"{'gamma':>6}{'simulated':>12}{'closed form':>14}{'gap':>9}")
+for g in (1, 2, 4, 8):
+    got = sum(round_of(g) for _ in range(TRIALS)) / TRIALS
+    exact = (1 - alpha ** (g + 1)) / (1 - alpha)
+    print(f"{g:>6}{got:>12.3f}{exact:>14.3f}{got-exact:>+9.3f}")
+print("\nThat closed form is a geometric series and nothing more: you get one")
+print("token, plus another with probability alpha, plus another with alpha^2.")
+print("Which means the curve can be drawn without simulating anything.\n")
+
+# Leviathan, Kalman & Matias 2023, eq. 4 — expected tokens divided by the
+# cost of the round, where c is one draft step priced in target steps.
+C = 0.05                     # draft model ~20x smaller than the target
+speedup = lambda a, g: (1 - a ** (g + 1)) / ((1 - a) * (g * C + 1))
+
+print(f"speedup vs the target alone, draft costing {C:.0%} of a target step:")
+print(f"{'gamma':>6}{'alpha 0.83 (this pair)':>24}{'alpha 0.60 (sloppy)':>22}")
+peak1 = max(speedup(alpha, x) for x in range(1, 15))
+peak2 = max(speedup(0.60, x) for x in range(1, 15))
+for g in range(1, 15):
+    a1, a2 = speedup(alpha, g), speedup(0.60, g)
+    m1 = " <-" if a1 >= peak1 else "   "
+    m2 = " <-" if a2 >= peak2 else ""
+    print(f"{g:>6}{a1:>21.2f}x{m1}{a2:>19.2f}x{m2}")
+
+print("\nBoth curves rise, peak, and sag. Each extra guess costs a draft step")
+print("for certain but is only reached if every earlier guess survived, and")
+print(f"{alpha:.2f}^8 is {alpha**8:.2f} while 0.60^8 is {0.6**8:.2f}. A worse drafter should be")
+print("asked to guess less — which is why gamma is tuned per model pair and")
+print("increasingly adapted on the fly, mid-generation.")
+print()
+under = next(g for g in range(1, 500) if speedup(0.60, g) < 1.0)
+print("Read what this cost model does and does not promise. At gamma=1 the")
+print("speedup is (1+alpha)/(1+c), which beats 1 whenever alpha exceeds")
+print(f"c = {C:.2f} — so at a sane gamma a drafter is nearly free money, because a")
+print("wrong guess only wastes a cheap step. It is not free at any gamma,")
+print(f"though: at alpha 0.60 the curve crosses back under 1.0x at gamma {under},")
+print("paying full price for guesses that essentially never land. And the")
+print("bigger omission is the part that bites in production: on a loaded")
+print("server the GPU is already saturated with other users' work, so the")
+print("target's 'free' parallel verification is not free, and the win narrows")
+print("or inverts. Speculative decoding buys latency for one reader. It does")
+print("not buy throughput for a queue.")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10g · QUANTIZATION ── -->

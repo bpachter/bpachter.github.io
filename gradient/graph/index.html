@@ -151,6 +151,135 @@
       <div class="readout"><span class="stat">SQL rows examined <b id="join-sql">—</b></span><span class="stat">graph nodes visited <b id="join-graph">—</b></span></div>
       <p class="widget-hint"><span class="hand">Honesty →</span> Indexes tame the worst of this, and relational is still the right home for plenty of data. The point is the <b>shape</b>: joins recompute relationships; graphs simply keep them.</p>
     </div>
+
+    <p class="kc-intro">The slider above asserts a bill without showing the arithmetic. Here is the arithmetic: the same upstream question run as a k-way self-join and then as a graph walk, on one 400-org supply network, with every intermediate row and every pointer counted. Watch the <b>join rows</b> column — it is counting <em>paths</em>, and paths keep growing long after the answer has saturated at a few hundred organizations. The closing note concedes the two things this comparison cannot claim.</p>
+    <div data-kernel-cell data-title="the join tax, counted">
+    <script type="text/x-python">
+# One question, two data structures. "Who supplies the suppliers of the
+# suppliers of Acme?" — answered by SQL self-joins, then by walking a
+# graph. Both return the identical set; we count what each one spends.
+import random
+
+r = random.Random(11)
+N = 400                                   # organizations
+HUBS = 24                                 # the few everyone buys from
+
+# A supply network with the shape real ones have: heavy-tailed, hub-heavy,
+# and cyclic, because hubs buy from each other too.
+pairs = set()
+for buyer in range(N):
+    for _ in range(r.randint(3, 10)):     # each org has 3-10 suppliers
+        sup = r.randrange(HUBS) if r.random() < 0.45 else r.randrange(N)
+        if sup != buyer:
+            pairs.add((sup, buyer))
+EDGES = sorted(pairs)                     # the `supplies` table: (supplier, buyer)
+
+# The graph's index is built ONCE, at write time, and then it just sits there.
+UP = {}                                   # buyer -> the orgs that supply it
+for sup, buy in EDGES:
+    UP.setdefault(buy, []).append(sup)
+
+ACME = 0
+print(f"supply network: {N} orgs, {len(EDGES):,} `supplies` rows, "
+      f"{len(EDGES)/N:.1f} suppliers/org")
+print(f"question: who supplies the suppliers of ... of org #{ACME}?\n")
+
+
+def sql_join(k):
+    """The k-way self-join, executed the way a hash join executes it.
+
+    A join emits one row per PATH. It keeps no memory of nodes already
+    reached, so a loop back through a hub is simply a brand-new row.
+    Returns (answer set, rows produced at each level).
+    """
+    probe = {}                            # hash table on `buyer`
+    for sup, buy in EDGES:                # rebuilt for every query, because
+        probe.setdefault(buy, []).append(sup)   # nothing persists it
+
+    rows, per_level, answer = [(ACME,)], [], set()
+    for _ in range(k):
+        nxt = []
+        for row in rows:
+            for sup in probe.get(row[-1], ()):
+                nxt.append(row + (sup,))  # one more intermediate row
+        rows = nxt
+        per_level.append(len(rows))
+        answer.update(row[-1] for row in rows)   # UNION over hop depths
+    return answer - {ACME}, per_level
+
+
+def graph_walk(k):
+    """Breadth-first over stored pointers, with a visited set.
+
+    Each org is expanded at most once, so the bill is bounded by the size
+    of the neighbourhood — never by the number of paths through it.
+    """
+    frontier, seen, walks = {ACME}, {ACME}, 0
+    for _ in range(k):
+        nxt = set()
+        for node in frontier:
+            for sup in UP.get(node, ()):
+                walks += 1                # one pointer followed
+                if sup not in seen:
+                    seen.add(sup)
+                    nxt.add(sup)
+        frontier = nxt
+    return seen - {ACME}, walks
+
+
+hdr = (f"{'hops':>4} {'answer':>7} {'join rows':>12} {'nested-loop':>15}"
+       f" {'hash-join':>11} {'graph':>8}")
+print(hdr)
+print(f"{'':>4} {'orgs':>7} {'(paths)':>12} {'comparisons':>15}"
+      f" {'ops':>11} {'walks':>8}")
+print("-" * len(hdr))
+
+for k in range(1, 7):
+    a_sql, per_level = sql_join(k)
+    a_gph, walks = graph_walk(k)
+    assert a_sql == a_gph, "both plans must produce the same answer"
+
+    materialized = sum(per_level)
+    carried = [1] + per_level[:-1]                # rows entering each level
+    # Hash join, textbook cost: build the table once, probe it once per row
+    # you carry in, and pay again for every row you emit.
+    hash_ops = len(EDGES) + sum(carried) + materialized
+    # A nested-loop join has no hash table: for every row it currently
+    # holds it rescans the whole table. Counted, not executed — at 6 hops
+    # that is billions of comparisons and we are not going to do them.
+    nested = sum(c * len(EDGES) for c in carried)
+
+    print(f"{k:>4} {len(a_sql):>7,} {materialized:>12,} {nested:>15,} "
+          f"{hash_ops:>11,} {walks:>8,}")
+
+a6, lvl6 = sql_join(6)
+_, walk6 = graph_walk(6)
+mat6 = sum(lvl6)
+print(f"\nat 6 hops the join materializes {mat6:,} intermediate rows to name")
+print(f"{len(a6)} distinct orgs. the graph follows {walk6:,} pointers — "
+      f"{mat6/walk6:,.0f}x fewer.")
+print("the join's bill grows with the number of PATHS, which is exponential")
+print(f"in hops. the graph's is capped by the graph itself: {len(EDGES):,} edges")
+print("exist, so no traversal can cost more than that, at any depth ever.")
+
+# ---- where the honesty is ------------------------------------------------
+_, lvl3 = sql_join(3)
+carried3 = [1] + lvl3[:-1]
+print(f"\nhonest reading of the hash column. at 3 hops it spends "
+      f"{len(EDGES) + sum(carried3) + sum(lvl3):,} ops,")
+print(f"of which {len(EDGES):,} is rebuilding an index the graph built once at")
+print("write time and never rebuilt. a good planner really is competitive")
+print("here, and plenty of two-hop questions belong in SQL.")
+print("\nand one more concession the chapter's widget does not make: a")
+print("recursive CTE with UNION — not UNION ALL — dedupes against its own")
+print("working table, which makes it breadth-first search wearing SQL")
+print("syntax, and it wins back most of this column. the k-way self-join")
+print("counted above is what you get when you write the hops out by hand.")
+print("\nwhat neither index nor planner fixes is the shape: a join whose")
+print("plan carries paths pays for paths, and past ~4 hops the path count")
+print("runs away from the answer it is trying to produce.")
+    </script>
+    </div>
   </div>
 </section>
 
@@ -203,6 +332,169 @@
       <div class="er-verdict" id="er-verdict"></div>
       <div class="readout"><span class="stat">case <b id="er-case">1 / 5</b></span><span class="stat">score <b id="er-score">0</b></span></div>
       <p class="widget-hint"><span class="hand">The traps →</span> Same industry ≠ same company. Same word ≠ same family. And sometimes the right answer is neither merge nor separate — it's <b>an edge</b>.</p>
+    </div>
+
+    <p class="kc-intro">The merge desk above asks you to make the calls. This is a machine making them, graded against a labelled answer key — normalize, block, score by trigram overlap, then sweep the threshold and count precision and recall at every stop. Two results are worth sitting with: a <em>true</em> pair that scores lower than a <em>false</em> pair in the same block, so no threshold anywhere can separate them; and the reason the precision column looks better than it deserves to.</p>
+    <div data-kernel-cell data-title="entity resolution, scored against an answer key">
+    <script type="text/x-python">
+# Entity resolution, graded. 25 organization records, a labelled answer
+# key, and a machine that proposes merges — so every call it makes can be
+# scored instead of admired.
+from itertools import combinations
+
+# (record id, name exactly as it arrived, TRUE entity id)
+# The traps are deliberate: subsidiaries and holding companies that are NOT
+# their parent, two unrelated firms sharing a first word, an acronym, and a
+# legal name spelled out in full.
+RECORDS = [
+    ("r01", "Northrop Grumman Corporation",           "E1"),
+    ("r02", "NORTHROP GRUMMAN CORP",                  "E1"),
+    ("r03", "Northrop Grumman Corp.",                 "E1"),
+    ("r04", "Northrop Grumman Systems Corporation",   "E2"),   # subsidiary
+    ("r05", "Northrop Grumman Space Systems",         "E3"),   # a sector, not the parent
+    ("r06", "Delta Air Lines, Inc.",                  "E4"),
+    ("r07", "Delta Air Lines Inc",                    "E4"),
+    ("r08", "Delta Dental Plans Association",         "E5"),   # shared first word
+    ("r09", "Acme Rockets LLC",                       "E6"),
+    ("r10", "ACME ROCKETS, L.L.C.",                   "E6"),
+    ("r11", "Acme Rockets Holdings",                  "E16"),  # a holdco IS its own entity
+    ("r12", "Beta Alloys GmbH",                       "E7"),
+    ("r13", "Beta Alloys",                            "E7"),
+    ("r14", "Beta Analytics Ltd",                     "E8"),   # shared prefix
+    ("r15", "International Business Machines Corp",   "E9"),
+    ("r16", "IBM Corporation",                        "E9"),   # acronym
+    ("r17", "Lockheed Martin Corporation",            "E10"),
+    ("r18", "Lockheed Martin Corp",                   "E10"),
+    ("r19", "Lockheed Martin Space",                  "E11"),  # a sector
+    ("r20", "Siemens AG",                             "E12"),
+    ("r21", "Siemens Energy AG",                      "E13"),  # spun off, its own company
+    ("r22", "Siemens Aktiengesellschaft",             "E12"),  # the same firm's legal name
+    ("r23", "Zeta Foods Limited",                     "E14"),
+    ("r24", "Zeta Foods Ltd.",                        "E14"),
+    ("r25", "Zeta Robotics PLC",                      "E15"),
+]
+
+# Legal wrappers carry no identity: "Corp" vs "Corporation" is noise.
+# "Systems", "Space", "Energy" and "Holdings" are deliberately NOT in this
+# list — those are the words that tell you the record is a different legal
+# entity, and a stoplist that swallows them merges companies that are not
+# the same company.
+NOISE = {"CORP", "CORPORATION", "INC", "INCORPORATED", "LLC", "LTD",
+         "LIMITED", "PLC", "AG", "GMBH", "SA", "NV", "CO", "COMPANY",
+         "THE", "ASSOCIATION"}
+
+
+def normalize(name):
+    toks = "".join(c if c.isalnum() else " " for c in name.upper()).split()
+    out, i = [], 0
+    while i < len(toks):
+        if len(toks[i]) == 1:            # "L.L.C." arrives as L, L, C —
+            j = i                        # glue runs of single letters back
+            while j < len(toks) and len(toks[j]) == 1:
+                j += 1
+            out.append("".join(toks[i:j]))
+            i = j
+        else:
+            out.append(toks[i])
+            i += 1
+    return " ".join(t for t in out if t not in NOISE)
+
+
+def trigrams(s):
+    s = "  " + s.replace(" ", "") + "  "
+    return {s[i:i + 3] for i in range(len(s) - 2)}
+
+
+def jaccard(a, b):
+    A, B = trigrams(a), trigrams(b)
+    return len(A & B) / len(A | B) if A | B else 0.0
+
+
+NAME = {r: n for r, n, _ in RECORDS}
+NORM = {r: normalize(n) for r, n, _ in RECORDS}
+TRUTH = {r: e for r, _, e in RECORDS}
+IDS = [r for r, _, _ in RECORDS]
+
+# every pair that SHOULD merge, straight off the answer key
+gold = {frozenset(p) for p in combinations(IDS, 2)
+        if TRUTH[p[0]] == TRUTH[p[1]]}
+
+# ---- blocking: never compare records that cannot plausibly match --------
+# Key = first three letters of the normalized name. Crude, and it is what
+# makes ER affordable at a million records instead of at twenty-five.
+blocks = {}
+for r in IDS:
+    blocks.setdefault(NORM[r][:3], []).append(r)
+
+blocked = {frozenset(p) for g in blocks.values() for p in combinations(g, 2)}
+allpairs = {frozenset(p) for p in combinations(IDS, 2)}
+
+print(f"{len(RECORDS)} records, {len(set(TRUTH.values()))} true entities, "
+      f"{len(gold)} pairs that should merge")
+print(f"all-pairs comparisons : {len(allpairs)}")
+print(f"after blocking        : {len(blocked)}   "
+      f"({100*(1-len(blocked)/len(allpairs)):.0f}% of the work skipped)")
+
+lost = gold - blocked
+print(f"true pairs blocking threw away: {len(lost)}  -> recall ceiling "
+      f"{1 - len(lost)/len(gold):.3f}")
+for p in sorted(lost, key=sorted):
+    a, b = sorted(p)
+    print(f"    {NAME[a]}  /  {NAME[b]}")
+
+SIM = {p: jaccard(NORM[a], NORM[b]) for p in blocked for a, b in [sorted(p)]}
+
+print(f"\n{'thresh':>7}{'merged':>8}{'TP':>5}{'FP':>4}{'FN':>4}"
+      f"{'precision':>11}{'recall':>8}{'F1':>7}")
+print("-" * 52)
+
+best = None
+for t in [i / 20 for i in range(4, 19)]:
+    merged = {p for p, s in SIM.items() if s >= t}
+    tp, fp, fn = len(merged & gold), len(merged - gold), len(gold - merged)
+    prec = tp / (tp + fp) if tp + fp else 1.0
+    rec = tp / (tp + fn) if tp + fn else 1.0
+    f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
+    print(f"{t:>7.2f}{len(merged):>8}{tp:>5}{fp:>4}{fn:>4}"
+          f"{prec:>11.3f}{rec:>8.3f}{f1:>7.3f}")
+    if best is None or f1 > best[1]:
+        best = (t, f1, merged)
+
+t, f1, merged = best
+print(f"\nbest F1 = {f1:.3f} at threshold {t:.2f}. what it still gets wrong:")
+for p in sorted(merged - gold, key=sorted):
+    a, b = sorted(p)
+    print(f"  merged, should not have   ({SIM[p]:.2f})")
+    print(f"      {NAME[a]}\n      {NAME[b]}")
+for p in sorted(gold - merged, key=sorted):
+    a, b = sorted(p)
+    s = f"{SIM[p]:.2f}" if p in SIM else "never compared"
+    print(f"  missed, should have       ({s})")
+    print(f"      {NAME[a]}\n      {NAME[b]}")
+
+# ---- the trap that no threshold escapes ---------------------------------
+tp_hard = SIM[frozenset(("r20", "r22"))]      # Siemens AG / Aktiengesellschaft
+fp_hard = SIM[frozenset(("r20", "r21"))]      # Siemens AG / Siemens Energy AG
+print(f"\nlook at one block closely. the TRUE pair scores {tp_hard:.2f}:")
+print(f"    {NAME['r20']}  /  {NAME['r22']}")
+print(f"the FALSE pair in the same block scores {fp_hard:.2f}:")
+print(f"    {NAME['r20']}  /  {NAME['r21']}")
+print("the false pair looks MORE alike than the true one. no threshold on")
+print("this score can take one and refuse the other — the ordering itself")
+print("is wrong, and tuning cannot fix a wrong ordering.")
+
+# ---- and the part that flatters the machine -----------------------------
+print("\nread the precision column with one eye closed. NOISE was written")
+print("by someone who had already seen this answer key — that is why `Corp`")
+print("is in it and `Holdings` is not. a stoplist chosen blind does worse,")
+print("and a real system learns it from labelled pairs rather than taste.")
+print("the blocking key is the same kind of cheat in reverse: three letters")
+print("is what threw IBM away, and no threshold ever saw that pair.")
+print("\nthat is the honest state of name-only ER. IBM was never even")
+print("compared; Aktiengesellschaft is unrecoverable. both need evidence")
+print("a name does not carry — a ticker, a filing, a registry number.")
+print("which is exactly why the merge desk has a third button.")
+    </script>
     </div>
   </div>
 </section>
@@ -278,5 +570,7 @@
 <script src="../js/graph.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

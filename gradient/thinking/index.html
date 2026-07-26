@@ -164,6 +164,176 @@
       <div class="readout"><span class="stat">Round <b id="rlvr-round">0</b></span><span class="stat">Group average reward <b id="rlvr-mean">—</b></span></div>
       <p class="widget-hint"><span class="hand">Notice →</span> Nobody told the model which habit is best. The verifier only says ✓ or ✗ — and "steps + check" quietly takes over the policy. That's R1-style reasoning training in one picture.</p>
     </div>
+
+    <p class="kc-intro">"The group grades itself on a curve" is a claim you can actually check, because a softmax over four habits has a gradient you can write down exactly. Below, four ways of turning eight graded attempts into an update, each measured against that closed form — including the one where subtracting the group's own mean quietly shrinks your step by a factor you can predict in advance.</p>
+    <div data-kernel-cell data-title="grading on a curve, against the closed form">
+    <script type="text/x-python">
+# GRPO's one real idea: let a group of attempts be its own baseline.
+# The policy here is a softmax over four habits, so the true gradient has a
+# closed form — which means every sampled estimator can be checked against
+# the right answer instead of taken on faith.
+# (Real GRPO also carries PPO-style ratio clipping and a KL leash. What is
+# below is the advantage machinery underneath, which is where the idea is.)
+import math, random
+
+HABITS = ["blurt it out", "one step, answer", "steps, then answer",
+          "steps, then check"]
+SHORT = ["blurt", "1 step", "steps", "steps+chk"]
+P = [0.25, 0.45, 0.62, 0.78]        # how often each habit passes the verifier
+G, EPS = 8, 1e-4                    # group size; the guard in GRPO's divisor
+
+def softmax(th):
+    m = max(th)
+    e = [math.exp(t - m) for t in th]
+    s = sum(e)
+    return [x / s for x in e]
+
+def sample(pi, r):
+    u, c = r.random(), 0.0
+    for k, p in enumerate(pi):
+        c += p
+        if u < c:
+            return k
+    return len(pi) - 1
+
+def dot(a, b): return sum(x * y for x, y in zip(a, b))
+def norm(a): return math.sqrt(dot(a, a))
+
+# ---- the truth we get to check against -----------------------------------
+# J(theta) = sum_k pi_k * p_k, so dJ/dtheta_j = pi_j * (p_j - J). Exactly.
+def expected(pi, p=P): return sum(pi[k] * p[k] for k in range(4))
+def true_grad(pi, p=P):
+    J = expected(pi, p)
+    return [pi[j] * (p[j] - J) for j in range(4)]
+
+pi0 = softmax([0.0] * 4)
+print("closed-form gradient at the uniform start, vs nudging theta by hand")
+print(f"  {'habit':<20}{'passes':>8}{'analytic':>11}{'numerical':>11}")
+for j in range(4):
+    h, up, dn = 1e-6, [0.0] * 4, [0.0] * 4
+    up[j] += h; dn[j] -= h
+    fd = (expected(softmax(up)) - expected(softmax(dn))) / (2 * h)
+    print(f"  {HABITS[j]:<20}{P[j]:>7.0%}{true_grad(pi0)[j]:>11.6f}{fd:>11.6f}")
+
+# ---- four ways to turn a group of rewards into an update -----------------
+def advantages(rew):
+    n = len(rew)
+    mean = sum(rew) / n
+    std = math.sqrt(sum((x - mean) ** 2 for x in rew) / n)
+    loo = [(sum(rew) - x) / (n - 1) for x in rew]     # each sample left out
+    return {"raw":  list(rew),
+            "mean": [x - mean for x in rew],
+            "loo":  [x - b for x, b in zip(rew, loo)],
+            "grpo": [(x - mean) / (std + EPS) for x in rew]}
+
+def grads(rew, acts, pi):
+    out = {}
+    for name, adv in advantages(rew).items():
+        g = [0.0] * 4
+        for a, A in zip(acts, adv):
+            for j in range(4):                 # d log pi(a) / d theta_j
+                g[j] += A * ((1.0 if a == j else 0.0) - pi[j])
+        out[name] = [x / len(rew) for x in g]
+    return out
+
+KEYS = ("raw", "mean", "loo", "grpo")
+TRIALS = 12000
+r = random.Random(0)
+acc = {k: [0.0] * 4 for k in KEYS}
+sq = {k: [0.0] * 4 for k in KEYS}
+for _ in range(TRIALS):
+    acts = [sample(pi0, r) for _ in range(G)]
+    rew = [1.0 if r.random() < P[a] else 0.0 for a in acts]
+    for k, g in grads(rew, acts, pi0).items():
+        for j in range(4):
+            acc[k][j] += g[j]; sq[k][j] += g[j] * g[j]
+
+tg = true_grad(pi0)
+print(f"\n{TRIALS:,} independent groups of {G} at that same starting policy")
+print(f"  {'advantage rule':<24}{'cos':>7}{'|est|/|true|':>18}{'noise':>8}")
+for k, label in (("raw", "reward as-is"),
+                 ("mean", "minus the group mean"),
+                 ("loo", "minus leave-one-out mean"),
+                 ("grpo", "minus mean, over std")):
+    mean = [acc[k][j] / TRIALS for j in range(4)]
+    sd = math.sqrt(sum(sq[k][j] / TRIALS - mean[j] ** 2 for j in range(4)))
+    ratio = norm(mean) / norm(tg)
+    se = sd / math.sqrt(TRIALS) / norm(tg)
+    print(f"  {label:<24}{dot(mean, tg)/(norm(mean)*norm(tg)):>7.4f}"
+          f"{ratio:>10.3f} +-{se:5.3f}{sd/norm(mean):>8.1f}")
+print("  noise = sampling spread of one group's estimate, in units of its")
+print("  own mean. All four point the same way; only the scale differs.")
+print("\n  That 'minus the group mean' row is short of 1.0 on purpose, and by")
+print("  a predictable amount: each attempt sits inside its own baseline, so")
+print(f"  the estimate shrinks by exactly 1 - 1/G = {1 - 1/G:.3f}. Measured "
+      f"{norm([acc['mean'][j]/TRIALS for j in range(4)])/norm(tg):.3f}.")
+print("  Leaving the sample out of its own baseline fixes it, for free.")
+
+# ---- what the division by std actually buys ------------------------------
+# Not lower noise — look at the column above. It buys a step size that does
+# not depend on how hard the problem was, which matters when one training
+# batch mixes easy prompts with brutal ones.
+SETS = [("brutal", [0.05, 0.09, 0.12, 0.16]),
+        ("mixed",  [0.25, 0.45, 0.62, 0.78]),
+        ("easy",   [0.72, 0.88, 0.93, 0.97])]
+print(f"\nstep size vs problem difficulty, {G} rollouts, same policy")
+print(f"  {'problem set':<12}{'pass rate':>10}{'groups wasted':>15}"
+      f"{'|step| mean':>13}{'|step| GRPO':>13}")
+steps = []
+for label, p in SETS:
+    r = random.Random(11)
+    wasted, nm, ng, kept = 0, 0.0, 0.0, 0
+    for _ in range(4000):
+        acts = [sample(pi0, r) for _ in range(G)]
+        rew = [1.0 if r.random() < p[a] else 0.0 for a in acts]
+        if max(rew) == min(rew):
+            wasted += 1                       # every advantage is exactly 0
+            continue
+        g = grads(rew, acts, pi0)
+        nm += norm(g["mean"]); ng += norm(g["grpo"]); kept += 1
+    steps.append((nm / kept, ng / kept))
+    print(f"  {label:<12}{expected(pi0, p):>9.0%}{wasted/4000:>14.1%}"
+          f"{nm/kept:>13.4f}{ng/kept:>13.4f}")
+sm = [a for a, _ in steps]; sg = [b for _, b in steps]
+print("  Averaged over the groups that were not degenerate. Across those")
+print(f"  three difficulties the plain baseline's step swings by "
+      f"{max(sm)/min(sm)-1:.0%}; GRPO's")
+print(f"  swings by {max(sg)/min(sg)-1:.0%}. That is the whole purchase: one "
+      f"learning rate can")
+print("  cover a batch that mixes easy prompts with brutal ones.")
+
+# ---- and now just train with it -----------------------------------------
+LR, STEPS = 0.5, 600
+th, r = [0.0] * 4, random.Random(7)
+print(f"\ntraining: one group of {G} per step, lr {LR}, no value network")
+print(f"  {'step':>5}" + "".join(f"{s:>10}" for s in SHORT) + f"{'E[r]':>9}")
+for s in range(STEPS + 1):
+    pi = softmax(th)
+    if s % 120 == 0:
+        print(f"  {s:>5}" + "".join(f"{p:>9.0%} " for p in pi)
+              + f"{expected(pi):>8.3f}")
+    acts = [sample(pi, r) for _ in range(G)]
+    rew = [1.0 if r.random() < P[a] else 0.0 for a in acts]
+    g = grads(rew, acts, pi)["grpo"]
+    th = [th[j] + LR * g[j] for j in range(4)]
+print(f"  The best habit alone scores {max(P):.3f}. Nothing ever told the")
+print("  model which habit that was — the verifier only ever said whether")
+print("  that one attempt passed.")
+
+# ---- the catch nobody puts on the slide ---------------------------------
+# If all G rollouts agree, every advantage is exactly zero and the group
+# teaches nothing at all. For a habit passing with probability q that is
+# q^G + (1-q)^G — exact, no simulation needed.
+print("\nshare of groups where all rollouts agree, so the update is zero")
+print(f"  {'pass rate':>10}" + "".join(f"{'G=' + str(g):>9}" for g in
+                                       (4, 8, 16, 64)))
+for q in (0.02, 0.10, 0.30, 0.50, 0.90, 0.98):
+    print(f"  {q:>10.0%}" +
+          "".join(f"{q**g + (1-q)**g:>9.1%}" for g in (4, 8, 16, 64)))
+print("  Which is why reasoning runs are fed problems the model gets right")
+print("  only sometimes: too easy or too hard and there is no spread to grade.")
+    </script>
+    </div>
   </div>
 </section>
 
@@ -182,6 +352,139 @@
       </div>
       <div class="readout"><span class="stat">One long chain <b id="bud-serial">—</b></span><span class="stat">Majority vote <b id="bud-vote">—</b></span><span class="stat">Best-of-N + verifier <b id="bud-best">—</b></span></div>
       <p class="widget-hint"><span class="hand">Try it →</span> At small budgets, one deep chain wins. Push the budget and voting overtakes it — independent mistakes cancel. A verifier squeezes out the last few points, at the price of trusting the judge.</p>
+    </div>
+
+    <p class="kc-intro">Thinking longer is an empirical curve nobody can derive from first principles. Thinking wider is arithmetic, so that is what gets priced here: a plain majority vote against best-of-N under three different judges, with the simulator checked against closed form before any of it is read. The column worth sitting with is the last one — the ceiling, which has no N in it at all.</p>
+    <div data-kernel-cell data-title="what one more sample actually buys">
+    <script type="text/x-python">
+# Pricing the "think wider" dial. Thinking *longer* is an empirical curve
+# nobody can derive; thinking *wider* is arithmetic, so that is what gets
+# priced here. One model, one question, N independent attempts, four ways of
+# picking the winner.
+#
+# The model: each attempt is right with probability P. When it is wrong it
+# lands on one of WRONG distinct wrong answers — which is what lets a vote
+# work at all, since the right answers agree and the wrong ones scatter.
+import math, random
+from collections import Counter
+
+P, WRONG = 0.40, 4
+NS = (1, 2, 4, 8, 16, 32)
+TRIALS = 6000
+
+# two verifiers, each (accepts a right answer, accepts a wrong one)
+VERIFIERS = [("sloppy", 0.90, 0.15), ("sharp", 0.98, 0.02)]
+
+# ---- exact answers, where exact answers exist ----------------------------
+def pass_at_n(n):                       # a perfect verifier: 1 - (1-p)^n
+    return 1 - (1 - P) ** n
+
+def first_accepted(n, tpr, fpr):
+    """Take the first candidate the verifier waves through; if it rejects
+    every one, fall back to candidate 1 — a real system still has to answer.
+    q is the chance any given candidate gets waved through."""
+    q = P * tpr + (1 - P) * fpr
+    picked = (1 - (1 - q) ** n) * (P * tpr / q)
+    # the fallback branch: candidate 1 right AND rejected, all others rejected
+    return picked + P * (1 - tpr) * (1 - q) ** (n - 1)
+
+# ---- one simulator, checked against those before it is trusted ----------
+r = random.Random(4)
+hits = {("vote", n): 0 for n in NS}
+for k in ("perfect",) + tuple(v[0] for v in VERIFIERS):
+    for n in NS:
+        hits[(k, n)] = 0
+
+for _ in range(TRIALS):
+    # 0 is the correct answer; 1..WRONG are the distractors
+    ans = [0 if r.random() < P else 1 + int(r.random() * WRONG)
+           for _ in range(max(NS))]
+    u = [r.random() for _ in range(max(NS))]      # verifier's coin per answer
+    tie = r.random()
+    for n in NS:
+        a = ans[:n]
+        c = Counter(a).most_common()
+        top = [v for v, ct in c if ct == c[0][1]]
+        if top[int(tie * len(top))] == 0:         # majority vote, ties by coin
+            hits[("vote", n)] += 1
+        if 0 in a:                                # a perfect verifier finds it
+            hits[("perfect", n)] += 1
+        for name, tpr, fpr in VERIFIERS:
+            pick = next((i for i in range(n)
+                         if u[i] < (tpr if a[i] == 0 else fpr)), 0)
+            if a[pick] == 0:
+                hits[(name, n)] += 1
+
+def se(x):                              # binomial standard error, in points
+    return math.sqrt(x * (1 - x) / TRIALS)
+
+print(f"simulator vs closed form  (P={P:.2f}, {TRIALS:,} trials)")
+print(f"  {'N':>3}{'sim best-of-N':>15}{'1-(1-P)^N':>12}{'sim sloppy':>12}"
+      f"{'exact':>9}")
+for n in NS:
+    sp, sv = hits[("perfect", n)] / TRIALS, hits[("sloppy", n)] / TRIALS
+    print(f"  {n:>3}{sp:>14.3f}{pass_at_n(n):>13.3f}{sv:>12.3f}"
+          f"{first_accepted(n, 0.90, 0.15):>9.3f}")
+gap = max(max(abs(hits[("perfect", n)]/TRIALS - pass_at_n(n)),
+               abs(hits[("sloppy", n)]/TRIALS
+                   - first_accepted(n, 0.90, 0.15))) for n in NS)
+print(f"  largest gap {gap:.4f}, against a two-standard-error band of "
+      f"{2*se(0.5):.4f}.")
+print("  The instrument agrees with the algebra, so the vote column below")
+print("  — which has no tidy closed form — is worth reading.")
+
+print("\naccuracy vs samples — every column costs N times the tokens")
+print(f"  {'strategy':<22}" + "".join(f"{'N=' + str(n):>7}" for n in NS)
+      + f"{'ceiling':>9}")
+rows = [("majority vote", "vote", 1.0),
+        ("best-of-N, perfect", "perfect", 1.0)]
+for name, tpr, fpr in VERIFIERS:
+    q = P * tpr + (1 - P) * fpr
+    rows.append((f"best-of-N, {name}", name, P * tpr / q))
+for label, key, ceil in rows:
+    print(f"  {label:<22}"
+          + "".join(f"{hits[(key, n)]/TRIALS:>7.2f}" for n in NS)
+          + f"{ceil:>9.2f}")
+print(f"  A judge that waves through 15% of wrong answers caps you at "
+      f"{rows[2][2]:.2f},")
+print("  no matter how many samples you buy. That is not a slow curve, it")
+print("  is a wall: P(right | accepted) does not depend on N at all.")
+print("  The vote's N=2 column is exactly P — two samples either agree or")
+print("  tie, and a coin-flipped tie is worth what one sample was worth.")
+print(f"  Its ceiling is 1.00 only because {P:.2f} beats the "
+      f"{(1-P)/WRONG:.2f} on each distractor:")
+print("  give the model one favourite wrong answer and the vote converges")
+print("  contentedly on that instead.")
+
+print("\nwhere each curve bends — accuracy gained per doubling of spend")
+print(f"  {'strategy':<22}" + "".join(f"{str(n//2) + '->' + str(n):>8}"
+                                      for n in NS[1:]))
+for label, key, ceil in rows:
+    print(f"  {label:<22}" + "".join(
+        f"{(hits[(key,n)]-hits[(key,n//2)])/TRIALS:>+8.3f}" for n in NS[1:]))
+print("  Read these as points bought per doubling. The sloppy judge is flat")
+print("  by N=16 — the vote draws level with it there and passes it by N=32,")
+print("  still buying points. Deciding where to stop is the whole skill.")
+
+# ---- what a judge has to be worth before it beats just voting -----------
+print(f"\nhow good must the judge be to beat a plain vote at N={NS[-1]}?")
+vote = hits[("vote", NS[-1])] / TRIALS
+band = 2 * se(vote)                       # the vote is simulated, so it has
+print(f"  a plain majority vote at N={NS[-1]} scores {vote:.3f} "
+      f"+-{se(vote):.3f}")               # error bars; respect them
+print(f"  {'accepts wrong':>14}{'ceiling':>10}{'beats the vote?':>18}")
+for fpr in (0.30, 0.15, 0.08, 0.04, 0.02, 0.01):
+    tpr = 0.95
+    ceil = P * tpr / (P * tpr + (1 - P) * fpr)
+    call = ("inside the noise" if abs(ceil - vote) < band
+            else "yes" if ceil > vote else "no")
+    print(f"  {fpr:>13.0%}{ceil:>10.3f}{call:>18}")
+print("  Holding the judge's hit rate at 95%, everything turns on its false")
+print("  accepts. Buying more samples cannot rescue a judge that says yes to")
+print("  wrong answers — it just finds more of them to say yes to. And note")
+print("  the 4% row: it is a tie, not a win. Two numbers sitting inside")
+print("  each other's error bars have not been told apart.")
+    </script>
     </div>
   </div>
 </section>
@@ -233,5 +536,7 @@
 <script src="../js/thinking.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>
