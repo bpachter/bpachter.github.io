@@ -17,6 +17,7 @@ on:
       - 'gradient/**'
       - 'attractor/**'
       - 'drawdown/**'
+      - 'kernel/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -64,6 +65,7 @@ jobs:
             rm -rf _site/attractor/src _site/attractor/build.sh _site/attractor/ROADMAP.md
           fi
           if [ -d drawdown ]; then cp -r drawdown _site/drawdown; fi
+          if [ -d kernel ]; then cp -r kernel _site/kernel; fi
           touch _site/.nojekyll
 
       - name: Upload artifact

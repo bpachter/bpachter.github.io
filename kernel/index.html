@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kernel — real Python, running in your browser</title>
+<meta name="description" content="A live CPython interpreter compiled to WebAssembly, right in this page. Real pandas, real scikit-learn, real SQL, running on real EIA energy data — editable, runnable, no server." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0e15'/%3E%3Cpath d='M9 8l7 8-7 8' stroke='%237c93ff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M17 24h7' stroke='%23f2b73f' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..650&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap-wide top-row">
+    <a class="brand" href="./">kernel<span>.</span></a>
+    <nav class="top-links">
+      <a href="https://bpachter.github.io/gradient/">gradient</a>
+      <a href="https://bpachter.github.io/attractor/">attractor</a>
+      <a href="https://bpachter.github.io/">← portfolio</a>
+    </nav>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap-wide">
+    <div class="hero-kicker">Kernel · real code, running live</div>
+    <h1>This isn't a screenshot of code.<br>It's <span class="g">a running interpreter</span>.</h1>
+    <p>Every cell below is real <b>CPython</b>, compiled to WebAssembly and booted directly in this tab — no server, nothing installed. It's the same pandas, scikit-learn, and SQL I run at a desk every day, working on a real dataset: nine years of weekly U.S. natural gas storage from the EIA. Edit any cell. Break it. Run it again.</p>
+    <div class="status-row">
+      <div class="status-pill" id="status-pill"><span class="status-dot"></span><span id="status-text">waiting to boot…</span></div>
+    </div>
+    <div class="boot-log" id="boot-log"></div>
+    <div class="stack">
+      <span class="stack-item">CPython 3.12 · WASM</span>
+      <span class="stack-item">pandas</span>
+      <span class="stack-item">numpy</span>
+      <span class="stack-item">scikit-learn</span>
+      <span class="stack-item">sqlite3</span>
+      <span class="stack-item">zero backend</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── 01 · INGEST ─────────────── -->
+<section class="chapter" id="ingest">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">01 ·</span><h2>The ingest</h2></div>
+    <p>Real data work starts here: a CSV, a date index, and the question every analyst asks first — <em>what does the shape of this actually look like?</em> This is the full weekly EIA storage series, 2018 through today, loaded with <code>pandas</code> exactly like it would be on my own machine.</p>
+    <p class="margin-note">← 445 weekly readings. Same file this whole page uses for every chapter below.</p>
+
+    <div class="cell" data-chapter="ingest">
+      <div class="cell-bar">
+        <div class="cell-dots"><i></i><i></i><i></i></div>
+        <span class="cell-lang">python</span>
+        <div class="cell-actions">
+          <button class="btn-reset" data-reset="ingest">reset</button>
+          <button class="btn-run" data-run="ingest" disabled>▶ run</button>
+        </div>
+      </div>
+      <textarea class="code-editor" id="code-ingest" spellcheck="false">import pandas as pd
+
+df = pd.read_csv("storage_weekly.csv", parse_dates=["date"])
+df = df.set_index("date").sort_index()
+
+# a rolling 4-week average smooths out weekly noise
+df["rolling_4wk"] = df["storage_bcf"].rolling(4).mean()
+df["wow_change_bcf"] = df["storage_bcf"].diff()
+
+# average level by calendar month reveals the injection/withdrawal cycle
+monthly = df.groupby(df.index.month)["storage_bcf"].mean().round(0)
+monthly.index.name = "month"
+
+print(f"{len(df)} weekly readings, {df.index.min().date()} to {df.index.max().date()}")
+print()
+print("average storage by calendar month (Bcf):")
+print(monthly.to_string())
+print()
+print("most recent 5 weeks:")
+print(df.tail(5)[["storage_bcf", "rolling_4wk", "wow_change_bcf"]].round(1).to_string())</textarea>
+      <div class="cell-output-bar">output</div>
+      <pre class="cell-output" id="out-ingest"></pre>
+    </div>
+
+    <div class="takeaway">The cycle is the whole story: storage bottoms out around <b>March</b> (peak withdrawal season) and tops out around <b>November</b> (end of injection season) — a ~1,900 Bcf swing, every single year. Everything downstream — the SQL, the forecast, the model — is describing this one curve from different angles.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 02 · QUERY ─────────────── -->
+<section class="chapter" id="query">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">02 ·</span><h2>The query</h2></div>
+    <p>Pandas is for shaping data; <b>SQL</b> is for asking it a specific question. This loads the same rows into an actual <code>sqlite3</code> database — in memory, but the same engine and the same query language behind a lot of production systems — and asks: how big was the swing from peak to trough, year by year?</p>
+
+    <div class="cell" data-chapter="query">
+      <div class="cell-bar">
+        <div class="cell-dots"><i></i><i></i><i></i></div>
+        <span class="cell-lang">python + sql</span>
+        <div class="cell-actions">
+          <button class="btn-reset" data-reset="query">reset</button>
+          <button class="btn-run" data-run="query" disabled>▶ run</button>
+        </div>
+      </div>
+      <textarea class="code-editor" id="code-query" spellcheck="false">import sqlite3
+import pandas as pd
+
+df = pd.read_csv("storage_weekly.csv", parse_dates=["date"])
+
+# a real SQLite database, in memory
+con = sqlite3.connect(":memory:")
+df.to_sql("storage", con, index=False)
+
+query = """
+select
+  strftime('%Y', date) as year,
+  max(storage_bcf) as peak_bcf,
+  min(storage_bcf) as trough_bcf,
+  max(storage_bcf) - min(storage_bcf) as swing_bcf
+from storage
+group by year
+order by year
+"""
+result = pd.read_sql(query, con)
+
+print("note: 2026 is partial-year (data through July)")
+print()
+print(result.to_string(index=False))</textarea>
+      <div class="cell-output-bar">output</div>
+      <pre class="cell-output" id="out-query"></pre>
+    </div>
+
+    <div class="takeaway">Across full years the swing runs <b>1,700–2,600 Bcf</b>, with no clean trend — 2025 swung wider than 2018 despite eight years of new pipeline and storage buildout. Capacity changed; the seasonal appetite for gas didn't. (2026's smaller number is just a half-finished year — it hasn't had its autumn peak yet.)</div>
+  </div>
+</section>
+
+<!-- ─────────────── 03 · FORECAST ─────────────── -->
+<section class="chapter" id="forecast">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">03 ·</span><h2>The forecast</h2></div>
+    <p>No library, no black box — just arithmetic you can audit line by line. The forecast below says: <em>this week should look like the same week last year, adjusted by however much this year has been running ahead of or behind that pace.</em> Then it's graded against a number I didn't compute: <b>EIA's own published five-year average band</b> for 2026.</p>
+    <p class="margin-note">← Honest forecasting means showing the miss, not just the hit.</p>
+
+    <div class="cell" data-chapter="forecast">
+      <div class="cell-bar">
+        <div class="cell-dots"><i></i><i></i><i></i></div>
+        <span class="cell-lang">python</span>
+        <div class="cell-actions">
+          <button class="btn-reset" data-reset="forecast">reset</button>
+          <button class="btn-run" data-run="forecast" disabled>▶ run</button>
+        </div>
+      </div>
+      <textarea class="code-editor" id="code-forecast" spellcheck="false">import pandas as pd
+import numpy as np
+
+df = pd.read_csv("storage_weekly.csv", parse_dates=["date"]).set_index("date").sort_index()
+band = pd.read_csv("five_year_band_2026.csv", parse_dates=["week"]).set_index("week")
+
+s = df["storage_bcf"]
+last_date, last_val = s.index.max(), s.iloc[-1]
+horizon = 12
+future = pd.date_range(last_date + pd.Timedelta(weeks=1), periods=horizon, freq="W-FRI")
+
+# this week ≈ same week last year, nudged by this year's own trend so far
+this_year = s[s.index.year == 2026]
+ratios = []
+for d, v in this_year.items():
+    prior = s.asof(d - pd.Timedelta(weeks=52))
+    if pd.notna(prior) and prior > 0:
+        ratios.append(v / prior)
+yoy = float(np.median(ratios))
+
+forecast = pd.Series(
+    [s.asof(d - pd.Timedelta(weeks=52)) * yoy for d in future],
+    index=future, name="forecast_bcf"
+).round(0)
+
+print(f"last observed: {last_date.date()} at {last_val:.0f} Bcf")
+print(f"this year's median week-over-year-last-year ratio: {yoy:.3f}")
+print()
+out = pd.DataFrame({"forecast": forecast}).join(band)
+out.columns = ["forecast_bcf", "eia_5yr_avg", "eia_5yr_max", "eia_5yr_min"]
+print(out.head(8).to_string())
+print()
+above_avg = (out["forecast_bcf"] > out["eia_5yr_avg"]).mean() * 100
+print(f"forecast runs above the published 5-year average in {above_avg:.0f}% of these weeks —")
+print("consistent with 2026 having tracked above average most of the year.")</textarea>
+      <div class="cell-output-bar">output</div>
+      <pre class="cell-output" id="out-forecast"></pre>
+    </div>
+
+    <div class="takeaway">The forecast lands inside the historical band's high side, not outside it — the model didn't invent a new regime, it just carried forward the one already underway. That's the right amount of confidence for twelve weeks of pure seasonality.</div>
+  </div>
+</section>
+
+<!-- ─────────────── 04 · MODEL ─────────────── -->
+<section class="chapter" id="model">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-num">04 ·</span><h2>The model</h2></div>
+    <p>Last chapter's forecast was seasonal-only. This one lets a <b>gradient-boosted ensemble</b> — <code>scikit-learn</code>'s <code>GradientBoostingRegressor</code>, the same family as XGBoost — find whatever pattern it can in the week-to-week <em>change</em>, trained on the first 80% of history and graded on the last 20% it never saw.</p>
+
+    <div class="cell" data-chapter="model">
+      <div class="cell-bar">
+        <div class="cell-dots"><i></i><i></i><i></i></div>
+        <span class="cell-lang">python</span>
+        <div class="cell-actions">
+          <button class="btn-reset" data-reset="model">reset</button>
+          <button class="btn-run" data-run="model" disabled>▶ run</button>
+        </div>
+      </div>
+      <textarea class="code-editor" id="code-model" spellcheck="false">import pandas as pd
+import numpy as np
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
+
+df = pd.read_csv("storage_weekly.csv", parse_dates=["date"]).set_index("date").sort_index()
+s = df["storage_bcf"]
+
+feat = pd.DataFrame(index=s.index)
+doy = s.index.dayofyear
+feat["sin_doy"] = np.sin(2 * np.pi * doy / 365.25)
+feat["cos_doy"] = np.cos(2 * np.pi * doy / 365.25)
+feat["prior_level"] = s.shift(1)
+feat["prior_change"] = s.diff(1).shift(1)
+target = s.diff(1)  # what we predict: this week's net change, Bcf
+
+data = feat.join(target.rename("target")).dropna()
+X, y = data.drop(columns="target"), data["target"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+
+model = GradientBoostingRegressor(n_estimators=150, max_depth=3, learning_rate=0.05, random_state=7)
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+mae = mean_absolute_error(y_test, pred)
+naive_mae = mean_absolute_error(y_test, X_test["prior_change"])  # baseline: "same as last week"
+
+print(f"trained on {len(X_train)} weeks, tested on {len(X_test)} held-out weeks")
+print(f"model error:  {mae:.1f} Bcf/week (mean absolute error)")
+print(f"naive error:  {naive_mae:.1f} Bcf/week (persistence baseline)")
+print(f"improvement:  {(1 - mae / naive_mae) * 100:.0f}% over the naive guess")
+print()
+imp = pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False)
+print("what the model actually leans on:")
+print(imp.round(3).to_string())</textarea>
+      <div class="cell-output-bar">output</div>
+      <pre class="cell-output" id="out-model"></pre>
+    </div>
+
+    <div class="takeaway">The single strongest feature is always <b>last week's change</b>, not the calendar — storage has real momentum week to week, on top of the seasonal cycle. That's not a number I could have guessed; it's what falls out of actually holding out real data and checking.</div>
+    <p style="margin-top:20px">Same interpreter, still warm, still yours to edit above. <a href="https://bpachter.github.io/drawdown/">Drawdown</a> runs a much larger version of this same dataset as a full policy simulation, in JavaScript — this page is what the Python underneath something like that actually looks like.</p>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="wrap-wide">
+    Built by <a href="https://bpachter.github.io/">Ben Pachter</a> · sibling to <a href="https://bpachter.github.io/gradient/">Gradient</a> and <a href="https://bpachter.github.io/attractor/">The Great Attractor</a>. Every cell runs a real CPython interpreter (<a href="https://pyodide.org/" target="_blank" rel="noopener">Pyodide</a>) compiled to WebAssembly, entirely in your browser — nothing you type ever leaves this tab.
+    <span class="credits">Data: U.S. Energy Information Administration, weekly Lower-48 working gas in underground storage (<a href="https://ir.eia.gov/ngs/ngs.html" target="_blank" rel="noopener">ir.eia.gov/ngs</a>) and the published five-year average band. Same source as <a href="https://bpachter.github.io/drawdown/">Drawdown</a>.</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
