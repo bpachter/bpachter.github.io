@@ -543,3 +543,20 @@ table.ledger{width:100%;border-collapse:collapse;font-size:12.5px}
     min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding-left:14px;padding-right:14px;
   }
 }
+
+/* ── live Python cells (kernel/embed.js) — phosphor terminal palette ── */
+[data-kernel-cell]{
+  --kc-accent:var(--green);
+  --kc-onaccent:#04120b;
+  --kc-out:var(--amber);
+  --kc-outbg:var(--bg-deep);
+  --kc-bg:var(--bg-panel);
+  --kc-bg2:var(--bg-panel-2);
+  --kc-line:var(--border);
+  --kc-text:var(--ink);
+  --kc-bright:#eaf6ff;
+  --kc-faint:var(--ink-dim);
+  --kc-error:var(--red);
+  --kc-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  border-radius:2px;
+}

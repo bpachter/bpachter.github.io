@@ -162,6 +162,72 @@
       <div class="fig-cap">Each measurement takes a distance (Leavitt's ladder) and a speed (the redshift) and plots one point. The scatter is real physics — peculiar velocities, the very flows of Part II. The slope is <b>Hubble's constant</b>, ≈70 km/s per megaparsec — and its two best modern measurements disagree, which is the <em>Hubble tension</em> chapter 09 flagged. Hubble's own 1929 diagram reached ~2 Mpc with heroic scatter; be glad you get the clean version.</div>
     </div>
 
+    <p class="kc-intro">The caption above notes that the two best modern measurements of that slope disagree. Here they are with their error bars drawn to scale, plus the arithmetic that turns "they disagree" into a number a physicist would accept — and what an 8 percent argument about <em>H₀</em> actually costs you when you try to say where a galaxy is.</p>
+    <div data-kernel-cell data-title="the tension, in sigma">
+    <script type="text/x-python">
+# Hubble's law is one multiplication: v = H0 * d. The trouble is the constant.
+# Two ways of measuring H0 -- one climbing the ladder Leavitt started, one
+# reading the wall of first light -- do not agree, and both are very sure.
+from math import sqrt
+
+Mpc_km = 3.0856775814913673e19
+Gly_km = 9.4607304725808e21
+Gyr_s  = 3.15576e16
+
+# label, H0 in km/s/Mpc, 1-sigma uncertainty
+measures = [
+    ("SH0ES",  73.04, 1.04, "Cepheids into supernova hosts, 2022"),
+    ("CCHP",   69.80, 1.70, "tip of the red giant branch, 2021"),
+    ("Planck", 67.36, 0.54, "the CMB, run through LCDM, 2018"),
+]
+
+print("           H0 (km/s/Mpc)    1/H0 (Gyr)   method")
+for name, h0, err, how in measures:
+    print("%-8s  %5.2f +/- %-4.2f   %8.2f     %s" % (name, h0, err, Mpc_km / h0 / Gyr_s, how))
+print()
+
+# An ASCII interval plot, six columns per km/s/Mpc, so the axis cannot drift.
+LO, HI, PER = 65, 76, 6
+W = (HI - LO) * PER + 1
+col = lambda x: int(round((x - LO) * PER))
+for name, h0, err, _ in measures:
+    row = [" "] * W
+    for i in range(col(h0 - err), col(h0 + err) + 1):
+        row[i] = "-"
+    row[col(h0 - err)], row[col(h0 + err)], row[col(h0)] = "[", "]", "|"
+    print("".join(row) + "  " + name)
+axis, ticks = [" "] * W, [" "] * W
+for k in range(LO, HI + 1):
+    ticks[col(k)] = "+"
+    if k % 2:
+        for j, ch in enumerate(str(k)):
+            axis[col(k) + j] = ch
+print("".join(ticks))
+print("".join(axis).rstrip())
+print()
+
+sh0es, _, planck = measures
+sigma = (sh0es[1] - planck[1]) / sqrt(sh0es[2]**2 + planck[2]**2)
+print("ladder minus wall: %.2f km/s/Mpc, or %.1f sigma apart." % (sh0es[1] - planck[1], sigma))
+print("Five sigma is what physics demands before it calls something a discovery.")
+print("Here it is roughly what it takes to call something a problem.")
+print()
+
+# What the disagreement actually costs, in the only currency that matters.
+v = 10000.0    # km/s, far enough out that the flows of Part II wash out
+d_lad, d_cmb = v / sh0es[1], v / planck[1]
+print("A galaxy receding at %.0f km/s therefore sits at:" % v)
+print("  %.0f Mpc = %.2f Gly   if the ladder is right" % (d_lad, d_lad * Mpc_km / Gly_km))
+print("  %.0f Mpc = %.2f Gly   if the CMB is right" % (d_cmb, d_cmb * Mpc_km / Gly_km))
+print("  an %.1f%% disagreement about where that galaxy is." % (100 * (d_cmb - d_lad) / d_lad))
+print()
+print("One caution the 1/H0 column earns: 1/H0 is not the age of the universe.")
+print("It is the age you would get if expansion had never changed rate. That it")
+print("lands within a few percent of 13.8 Gyr is a coincidence of living now --")
+print("early deceleration and late acceleration very nearly cancel out.")
+    </script>
+    </div>
+
     <figure class="plate">
       <img src="../img/plate-quasar.jpg" alt="The quasar 3C 273" onerror="this.closest('.plate').remove()" />
       <figcaption><b>A redshift you can't miss.</b> 3C 273, the first quasar ever identified — the blazing core of a galaxy some two billion light-years away, outshining its entire host. Its light is stretched so far to the red that untangling it helped reveal these as the most distant, most luminous objects then known. <span class="plate-credit">ESA/Hubble &amp; NASA · CC BY 4.0</span></figcaption>
@@ -214,5 +280,7 @@
 
 <script src="../js/nav.js"></script>
 <script src="../js/bang.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

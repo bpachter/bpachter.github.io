@@ -352,3 +352,19 @@ body { padding-left: var(--side-w); }
   html { scroll-behavior: auto; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* ── live Python cells (kernel/embed.js) — space palette ── */
+[data-kernel-cell] {
+  --kc-accent: var(--teal);
+  --kc-onaccent: #04140f;
+  --kc-out: var(--gold);
+  --kc-outbg: #05080f;
+  --kc-bg: #0d1220;
+  --kc-bg2: #131a2b;
+  --kc-line: var(--line);
+  --kc-text: var(--text);
+  --kc-bright: var(--star);
+  --kc-faint: var(--faint);
+  --kc-error: #f87171;
+  --kc-mono: var(--mono);
+}

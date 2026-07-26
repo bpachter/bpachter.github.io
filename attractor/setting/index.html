@@ -162,6 +162,65 @@
       <div class="fig-cap">A toy integrator with honest shape: pull ∝ mass ÷ distance², push ∝ distance, calibrated so two Milky-Way-ish galaxies bind within a few million light-years — the real ballpark of the Local Group's edge. The default setup is us and Andromeda: release it and watch our actual long-term forecast.</div>
     </div>
 
+    <p class="kc-intro">The widget above is a toy with honest shape. The exact answer is one line of algebra — set <code>G·M/r²</code> equal to <code>(Λc²/3)·r</code> and solve — and it settles the question for every structure this site will name, in advance.</p>
+    <div data-kernel-cell data-title="the crossover distance, in closed form">
+    <script type="text/x-python">
+# The crossover distance, in closed form.
+# A test galaxy sitting at distance r from a mass M feels two things at once:
+#     pull  = G*M / r**2            gravity, fading as 1/r^2
+#     push  = (Lambda*c**2/3) * r   dark energy, growing linearly with r
+# In a flat universe Lambda*c**2/3 = Omega_L * H0**2, so the two cancel at
+#     r_zg = ( G*M / (Omega_L * H0**2) ) ** (1/3)
+# Astronomers call r_zg the zero-gravity radius. Outside it you are gone --
+# no matter how long you wait. Inside it gravity at least still has a vote.
+
+G      = 6.67430e-11              # m^3 kg^-1 s^-2, CODATA 2018
+M_sun  = 1.988410e30              # kg
+Mpc    = 3.0856775814913673e22    # m
+Mly    = 9.4607304725808e21       # m, one million light-years
+H0     = 67.4e3 / Mpc             # s^-1, Planck 2018 value of 67.4 km/s/Mpc
+Om_L   = 0.685                    # dark-energy fraction of the total density
+
+def zero_gravity_radius(M_in_suns):
+    return (G * M_in_suns * M_sun / (Om_L * H0**2)) ** (1.0 / 3.0)
+
+# name, mass in solar masses, how far the structure actually reaches (Mly).
+# Both columns are literature order-of-magnitude figures, not precision work.
+structures = [
+    ("Milky Way + M31",   3.0e12,   2.54),  # the full MW-M31 separation
+    ("Virgo cluster",     1.2e15,   7.0),
+    ("Great Attractor",   1.0e16, 150.0),
+    ("Laniakea",          1.0e17, 250.0),
+]
+
+print("structure            mass (Msun)    crossover   it reaches   verdict")
+print("-" * 73)
+for name, M, reach in structures:
+    r = zero_gravity_radius(M) / Mly
+    verdict = "bound, forever" if reach < r else "will be torn apart"
+    print("%-18s %11.1e %8.1f Mly %7.1f Mly   %s" % (name, M, r, reach, verdict))
+
+lg = zero_gravity_radius(3.0e12) / Mly
+print()
+print("Local Group crossover: %.1f Mly (%.2f Mpc). Its outer dwarfs sit near 5 Mly --" % (lg, lg * Mly / Mpc))
+print("right on the line. Andromeda, at 2.54 Mly, is not close to it. We keep her.")
+
+# The mass is the shakiest input, so check how much that matters: r goes as M^(1/3),
+# which is the most forgiving exponent in astronomy.
+print()
+for M in (1.5e12, 3.0e12, 6.0e12):
+    print("  if the Local Group weighs %.1e Msun -> crossover %.1f Mly" % (M, zero_gravity_radius(M) / Mly))
+spread = zero_gravity_radius(6.0e12) / zero_gravity_radius(1.5e12) - 1.0
+print("Quadruple the mass, move the answer by %.0f%%. This is hard to argue with." % (100 * spread))
+
+# Run it the other way: what would Laniakea need to weigh to hold itself together?
+need = Om_L * H0**2 * (250 * Mly)**3 / (G * M_sun)
+print()
+print("To bind Laniakea out to 250 Mly needs %.1e Msun -- about %.1fx what it has." % (need, need / 1.0e17))
+print("The watershed is real, and it is temporary.")
+    </script>
+    </div>
+
     <figure class="plate">
       <img src="../img/plate-bullet.jpg" alt="The Bullet Cluster — dark matter separated from hot gas after a collision" onerror="this.closest('.plate').remove()" />
       <figcaption><b>The mass, caught leaving its gas behind.</b> The Bullet Cluster: two clusters that collided and passed through each other. The hot gas (X-ray) dragged and slowed in the middle; the <b>mass</b> (mapped by the way it bends light) sailed straight on ahead — the clearest direct evidence that most of the universe's gravity isn't attached to anything we can see. <span class="plate-credit">X-ray NASA/CXC/CfA · optical &amp; lensing NASA/STScI, Magellan, ESO/WFI · public domain</span></figcaption>
@@ -187,5 +246,7 @@
 
 <script src="../js/nav.js"></script>
 <script src="../js/setting.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

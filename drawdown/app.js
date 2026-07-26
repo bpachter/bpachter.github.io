@@ -128,6 +128,11 @@
     MODULES[name](parts[1]);
     Motion.tabIndicator();
     Motion.stagger(vp.querySelector('.module'));
+    // route() rebuilds #viewport from scratch, so any live-Python cells in the
+    // freshly rendered module are new nodes that embed.js has never seen. Its
+    // own DOMContentLoaded pass fired long before boot() finished, so re-scan
+    // here. upgradeCell() short-circuits on already-upgraded nodes.
+    if (window.KernelEmbed) window.KernelEmbed.upgrade(vp);
   }
 
   function renderAtlas(sub) {
@@ -403,7 +408,66 @@
         probability-weight nothing, and the pull runs to <span class="num crit">12–15 Bcf/d</span> by the
         early 2030s.</p>
         <p class="dim">The model's P50 path lands at 5 Bcf/d by 2030 — the center of the published range,
-        and, not coincidentally, the number in the thesis that provoked this terminal.</p>`,
+        and, not coincidentally, the number in the thesis that provoked this terminal.</p>
+
+    <p class="kc-intro">The conversion from gigawatts of compute to Bcf/d of gas is the hinge of this whole chapter, and it is short enough to check by hand. This does it with the model's own constants, measures the answer against Homer City's disclosed <b>665,000 MMBtu/day</b>, and then divides the two published 2030 ranges into each other. What falls out is a load factor — the 380–850 TWh span and the 65–148 GW span turn out to be one range in two units, which unifies the <em>units</em> of the disagreement without settling the disagreement itself.</p>
+    <div data-kernel-cell data-title="one gigawatt, converted to gas">
+    <script type="text/x-python">
+# A gigawatt of data center, converted to gas. This is the hinge of the whole
+# argument, and it is one line of arithmetic -- so here it is, checked against
+# a real filing rather than asserted.
+HEAT_RATE = 6.5      # MMBtu/MWh, new H-class CCGT / large recip fleet (engine.js)
+BTU_PER_CF = 1037    # Btu per cubic foot, EIA pipeline-quality gas
+
+def gw_to_mmcfd(gw, heat_rate=HEAT_RATE, btu_per_cf=BTU_PER_CF):
+    mmbtu_day = gw * 1000 * 24 * heat_rate       # MW -> MWh/day -> MMBtu/day
+    return mmbtu_day * 1e6 / btu_per_cf / 1e6    # -> cf/day -> MMcf/d
+
+print(f"1 GW running 24/7 at {HEAT_RATE} MMBtu/MWh  =  {gw_to_mmcfd(1):.1f} MMcf/d")
+print()
+
+# Reality check: Homer City Redevelopment's own air-permit disclosure.
+HOMER_MMBTU_DAY, HOMER_GW = 665_000, 4.4
+implied_hr = HOMER_MMBTU_DAY / (HOMER_GW * 24 * 1000)
+implied_mmcfd = HOMER_MMBTU_DAY / HOMER_GW * 1e6 / BTU_PER_CF / 1e6
+print("HOMER CITY, 4.4 GW campus, 665,000 MMBtu/day disclosed")
+print(f"  implied heat rate     {implied_hr:.2f} MMBtu/MWh   (model uses {HEAT_RATE})")
+print(f"  implied gas per GW    {implied_mmcfd:.1f} MMcf/d      (model says {gw_to_mmcfd(1):.1f})")
+print(f"  the model runs {gw_to_mmcfd(1) / implied_mmcfd - 1:+.1%} hot. Call it the same number.")
+print()
+
+# The 380-850 TWh range and the 65-148 GW range are quoted as if they were two
+# separate disagreements. Divide one into the other: 1 GW of AVERAGE load is
+# 8.766 TWh/yr, so what falls out is the load factor behind each endpoint.
+TWH_PER_GW_YEAR = 8.766
+print("PUBLISHED 2030 DATA-CENTER FORECASTS -- two ranges, or one?")
+for twh, gw in ((380, 65), (850, 148)):
+    avg_gw = twh / TWH_PER_GW_YEAR
+    print(f"  {twh:3d} TWh/yr = {avg_gw:5.1f} GW average   vs {gw:3d} GW installed"
+          f"   -> load factor {avg_gw / gw:.0%}")
+print("  ~66% utilization at both ends: the TWh span and the GW span are one")
+print("  range stated in two units, not two competing claims. What they do")
+print(f"  not settle is the spread inside it -- {850 / 380:.1f}x from 380 to 850 TWh,")
+print("  and that spread is the disagreement the chapter is pointing at.")
+print("  (pairing 380 with 65 and 850 with 148 is an assumption: both spans")
+print("  are drawn across ~10 houses, not quoted as a pair by any one of them.)")
+print()
+
+# And the model's own path, so the 5 Bcf/d headline is not taken on trust.
+# gasGWByYear is cumulative NEW gas-served GW of AVERAGE load, not nameplate
+# -- engine.js:59 sets baseGW = 31 as "avg US DC load 2025" -- so the 24/7
+# conversion above is the right treatment and the 66% load factor is already
+# inside the number rather than a correction still owed. At nameplate the P50
+# would be 3.3 Bcf/d instead of 5.0, which spans the whole published range.
+GAS_GW_2030 = 33          # cumulative NEW gas-served GW, P50 (engine.js)
+print("MODEL PATH -- average-load GW, so the 24/7 conversion is the right one")
+for label, scale in (("P50", 1.0), ("P30", 1.8), ("P0", 2.7)):
+    bcfd = gw_to_mmcfd(GAS_GW_2030 * scale) / 1000
+    print(f"  {label:<3} {GAS_GW_2030 * scale:5.1f} gas-served GW by 2030  ->  {bcfd:5.2f} Bcf/d")
+print("  published range for incremental DC gas demand in 2030: 3-6 Bcf/d")
+print("  count every announced behind-the-meter project instead: 12-15 Bcf/d")
+    </script>
+    </div>`,
     },
     {
       code: 'DD-BRIEF-05', title: 'The Draw', kicker: 'CH.05 — STORAGE LEAVES THE HISTORICAL RECORD',
@@ -420,7 +484,126 @@
         unmitigated path goes looking for it.</p>
         <p class="dim">The chart is the model's live output under three scenarios. The shaded band is real
         EIA weekly history, 2021–2025. Everything right of the seam is arithmetic, not prophecy — and the
-        arithmetic is yours to change in MODEL (F3).</p>`,
+        arithmetic is yours to change in MODEL (F3).</p>
+
+    <p class="kc-intro">The imbalance is not a forecast; it is subtraction, so here is the subtraction. The cell takes the sources-and-uses rows straight off the TERMINAL ledger, nets them — and reconciles its own total against the one the panel prints — then carries the gap forward against a seasonal swing measured off the real five-year band. What it shows at the end is why the model does not actually fall through the floor: the balance does not close on molecules, and the price at which it does close is arrived at from the supply side alone.</p>
+    <div data-kernel-cell data-title="the ledger, as subtraction">
+    <script type="text/x-python">
+# The sources-and-uses ledger, run as arithmetic instead of read as a table.
+# Every row is an announced flow: EIA STEO production, the FID'd-only LNG
+# schedule, published data-center estimates. Supply is given full credit.
+#                        2026    2030 P50   2030 P0
+LEDGER = [
+    ("dry production",    111.5,    128.0,    128.0),
+    ("canada net",          5.8,      5.8,      5.8),
+    ("lng feedgas",       -18.0,    -33.9,    -33.9),
+    ("data centers, new",  -0.7,     -5.0,    -13.0),
+    ("mexico pipeline",    -6.6,     -7.3,     -7.3),
+    ("res/com/ind/pwr",   -92.3,    -93.1,    -93.1),
+]
+
+w = max(len(r[0]) for r in LEDGER)
+print(f"{'FLOW':<{w}}  {'2026':>9} {'2030 P50':>9} {'2030 P0':>9}   {'DELTA':>8}")
+for name, a, b, c in LEDGER:
+    print(f"{name:<{w}}  {a:>+9.1f} {b:>+9.1f} {c:>+9.1f}   {b - a:>+8.1f}")
+net26 = sum(r[1] for r in LEDGER)
+net50 = sum(r[2] for r in LEDGER)
+net0 = sum(r[3] for r in LEDGER)
+print("-" * (w + 42))
+print(f"{'NET TO STORAGE':<{w}}  {net26:>+9.1f} {net50:>+9.1f} {net0:>+9.1f}   Bcf/d")
+print()
+print("the TERMINAL panel prints -4.4 on its own P50 NET row. The six rows")
+print(f"above it sum to {net50:.1f}, and this cell uses the sum -- so read every")
+print(f"number below as {net50 / -4.4 - 1:.0%} heavier than that panel implies.")
+print()
+print(f"today the ledger nets to {net26:+.1f} Bcf/d -- balanced, which is why it feels fine.")
+print(f"2030 P50 nets to {net50:+.1f} Bcf/d. Over a year that is {net50 * 365:,.0f} Bcf,")
+print("against a system with 4,280 Bcf of demonstrated working-gas capacity.")
+print()
+
+# Reduced form: carry the annual storage peak forward; the winter trough sits
+# one seasonal swing below it. The swing is measured off the real 2021-25
+# five-year band (engine.js avgByMonth), not assumed.
+OCT_MEAN, NOV_MEAN, MAR_MEAN = 3599, 3776, 1832
+FULL_SWING = NOV_MEAN - MAR_MEAN     # the band's own peak-to-trough amplitude
+OCT_SWING = OCT_MEAN - MAR_MEAN      # like-for-like off an October level
+BAND_MIN_MAR = 1431      # lowest March in the 2021-25 band
+RECORD_LOW = 824         # 2014-03-28, the post-2010 record
+peak = 3970.0            # model Oct-2026 peak; EIA STEO says 3,966
+
+print(f"band swing Nov {NOV_MEAN:,} -> Mar {MAR_MEAN:,} = {FULL_SWING:,} Bcf, which is the")
+print("seasonal amplitude the calibration table quotes (model 1,943 vs 1,944).")
+print("but that band peaks in November, not October, and the peak below is")
+print("seeded at an October level -- so the like-for-like swing is Oct")
+print(f"{OCT_MEAN:,} -> Mar {MAR_MEAN:,} = {OCT_SWING:,} Bcf. That is the one used here.")
+print()
+print("NO PRICE RESPONSE, NO DEMAND DESTRUCTION, NO CURTAILMENT -- just")
+print("subtraction, with the gap ramped linearly from today (mid-2026) to its")
+print("2030 P50 value and read at the midpoint of each Oct-to-Oct year.")
+print(f"  {'SEASON':<9} {'NET Bcf/d':>10} {'OCT PEAK':>10} {'MAR TROUGH':>12}")
+net = net26
+for yr in range(2027, 2033):
+    net = net26 + (net50 - net26) * min((yr + 0.25 - 2026.5) / 4.0, 1.0)
+    peak += net * 365
+    trough = peak - OCT_SWING
+    tag = ""
+    if trough < RECORD_LOW:
+        tag = "  past the 824 record"
+    elif trough < BAND_MIN_MAR:
+        tag = "  outside the 5-yr band"
+    print(f"  {yr}-{str(yr + 1)[2:]:<4} {net:>10.2f} {peak:>10,.0f} {trough:>12,.0f}{tag}")
+    if trough < RECORD_LOW:
+        print(f"  the arithmetic stops here: {RECORD_LOW} Bcf is the post-2010")
+        print("  record low, and below it the system stops being able to")
+        print("  deliver on peak days.")
+        break
+print("  and that is the kind version: each trough is an October peak minus")
+print(f"  the band swing, without the {abs(net) * 151:,.0f} Bcf of structural deficit that")
+print("  accrues across the five months in between.")
+print()
+
+# So why does the full engine not fall through the floor on this schedule?
+# Because it lets price close the balance. Three feedbacks, all in engine.js:
+#   demand destruction:  3% of (industrial + power)/2 per dollar of HH over 6
+#   spot LNG curtailment: 15% of feedgas stops lifting, phased in 8 to 12
+#   producer response:   above the 3.75 incentive price supply climbs toward
+#                        the 130 Bcf/d deliverability ceiling -- but the
+#                        ledger already books 2030 production at 128.0, so
+#                        the headroom left to buy is 2.0 Bcf/d and no more.
+PROD_CEILING, PROD_2030, INCENTIVE = 130.0, 128.0, 3.75
+HEADROOM = PROD_CEILING - PROD_2030
+
+def closes(hh, with_supply=True):
+    shave = 0.03 * max(hh - 6, 0) * (23.6 + 35.8) / 2
+    curtail = 0.15 * 33.9 * min(max((hh - 8) / 4, 0), 1)
+    supply = HEADROOM * min(max((hh - INCENTIVE) / 2, 0), 1) if with_supply else 0
+    return shave + curtail + supply
+
+def clearing_price(gap, with_supply=True):
+    lo, hi = 3.0, 60.0
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if closes(mid, with_supply) < gap:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+print("THE BALANCE DOES NOT CLOSE ON MOLECULES. IT CLOSES ON PRICE.")
+for label, gap in (("P50", -net50), ("P0", -net0)):
+    hh = clearing_price(gap)
+    bare = clearing_price(gap, False)
+    print(f"  {label + ':':<4} a {gap:4.1f} Bcf/d gap clears near {hh:5.2f} USD/MMBtu")
+    print(f"       demand response alone would need {bare:5.2f}; the last "
+          f"{HEADROOM:.1f} Bcf/d")
+    print(f"       of drilling headroom takes {bare - hh:.2f} off that.")
+print("  the Cal-28 forward strip:  3.60 USD/MMBtu, flat")
+print()
+print("that is the price that stops the bleeding at the margin, not the price")
+print("the model prints in 2030 -- the engine's price answers to the storage")
+print("level it has already lost by then, so it runs higher still.")
+    </script>
+    </div>`,
     },
     {
       code: 'DD-BRIEF-06', title: 'The Misprice', kicker: 'CH.06 — THE CURVE IS FLAT. THE BALANCE IS NOT.',
@@ -684,6 +867,139 @@
           territory outside the historical sample, where Europe 2022 (TTF ≈ $100/MMBtu-equiv) is the only
           guide. Electricity = marginal heat rate ${C.power.marginalHeatRate} × HH + $${C.power.vomAdder}/MWh.
           Hyperscaler energy share = elec × PUE ÷ (elec × PUE + fixed stack calibrated to 10% at baseline).</p>
+
+    <p class="kc-intro">Convexity is the load-bearing assumption in this model — everything downstream of the storage path depends on it — so here is where it comes from, with nothing withheld. These are the twenty observation pairs in <code>data/price_episodes.json</code>: storage deviation against that month's average Henry Hub, from 2001 through this February. Refit them, put an outlier back, drop the pre-shale rows or keep them. The engine's own <code>priceFrom()</code> is reimplemented in full alongside — exponential, hyperbolic scarcity term, cap — because the paragraph above this cell promises all three.</p>
+    <div data-kernel-cell data-title="fitting the convexity to the episode record">
+    <script type="text/x-python">
+# Where the price model's convexity comes from. Nothing here is assumed:
+# these are the real observation pairs in data/price_episodes.json.
+#   dev = Lower-48 working gas vs the trailing 5-yr average (fraction, + = surplus)
+#   hh  = that month's average Henry Hub spot, USD/MMBtu (EIA series rngwhhdM)
+from math import exp, log
+
+USD = "$"
+
+#  period     dev %    HH avg   regime       use in fit?
+OBS = [
+    ("2012-04",  60.5,   1.95, "shale",     1),
+    ("2016-03",  51.9,   1.73, "shale",     1),
+    ("2024-02",  20.0,   1.72, "shale",     1),
+    ("2020-06",  18.0,   1.63, "shale",     1),
+    ("2023-06",  15.0,   2.18, "shale",     1),
+    ("2025-12",   6.0,   4.26, "shale",     1),
+    ("2025-01",   0.7,   4.13, "shale",     1),
+    ("2026-02",  -5.6,   3.62, "shale",     1),
+    ("2022-12",  -6.3,   5.53, "shale",     1),   # Elliott
+    ("2021-02",  -7.7,   5.35, "shale",     1),   # Uri
+    ("2022-09", -11.0,   7.88, "shale",     1),
+    ("2022-08", -12.0,   8.81, "shale",     1),   # peak post-invasion squeeze
+    ("2018-01", -12.9,   3.87, "shale",     1),   # bomb cyclone
+    ("2022-04", -17.0,   6.60, "shale",     1),
+    ("2014-02", -22.4,   6.00, "shale",     1),   # polar vortex, mid-winter
+    ("2014-03", -54.7,   4.90, "shale",     0),   # end of season: market prices the rebuild
+    ("2026-01",  -1.1,   7.72, "shale",     0),   # Fern: a flow shock, not a storage state
+    ("2005-10",   2.4,  13.42, "pre_shale", 0),
+    ("2008-07",  -2.7,  11.09, "pre_shale", 0),
+    ("2001-01", -17.0,   8.17, "pre_shale", 0),
+]
+
+def logfit(rows):
+    """OLS of ln(P) on dev, i.e. P = a * exp(-b * dev). Returns a, b, R2, n."""
+    xs = [r[1] / 100.0 for r in rows]
+    ys = [log(r[2]) for r in rows]
+    n = len(rows)
+    mx, my = sum(xs) / n, sum(ys) / n
+    sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    sxx = sum((x - mx) ** 2 for x in xs)
+    slope = sxy / sxx
+    inter = my - slope * mx
+    sst = sum((y - my) ** 2 for y in ys)
+    ssr = sum((y - inter - slope * x) ** 2 for x, y in zip(xs, ys))
+    return exp(inter), -slope, 1 - ssr / sst, n
+
+fit_rows = [r for r in OBS if r[3] == "shale" and r[4]]
+a, b, r2, n = logfit(fit_rows)
+print("SHALE-ERA FIT (2 flagged outliers and the pre-shale regime dropped)")
+print(f"  this cell      P = {a:.2f} * exp(-{b:.2f} * dev)    R2 = {r2:.2f}   n = {n}")
+print( "  published      P = 4.15 * exp(-1.95 * dev)    R2 = 0.66   n = 15")
+print()
+
+surp = [r for r in fit_rows if r[1] > 0]
+defi = [r for r in fit_rows if r[1] < 0]
+_, b_s, _, n_s = logfit(surp)
+_, b_d, _, n_d = logfit(defi)
+print("THE CURVE IS NOT ONE EXPONENTIAL -- fit each side separately")
+print(f"  surplus side   b = {b_s:.2f}  (n = {n_s})   published 1.13")
+print(f"  deficit side   b = {b_d:.2f}  (n = {n_d})   published 1.72")
+print(f"  deficit side is {b_d / b_s - 1:.0%} steeper. That asymmetry is the whole thesis:")
+print( "  a surplus is boring, a deficit is an auction.")
+print()
+
+# engine.js priceFrom(), in full. It is NOT a bare exponential: below 1,600
+# Bcf of working gas it multiplies by a hyperbolic scarcity term, and the
+# whole thing is clamped to a 60 dollar cap.
+BASE, K_TIGHT, K_LOOSE = 3.40, 4.0, 1.4
+SCARCITY_S, FLOOR, AMP, POW, CAP = 1600.0, 800.0, 9.0, 2.2, 60.0
+
+def exp_term(dev):
+    return BASE * exp(-(K_TIGHT if dev < 0 else K_LOOSE) * dev)
+
+def scarcity(S):
+    if S >= SCARCITY_S:
+        return 1.0
+    d = min(max((SCARCITY_S - S) / (SCARCITY_S - FLOOR), 0.0), 1.15)
+    return 1 + AMP * d ** POW
+
+def engine_price(S, norm):
+    return min(max(exp_term((S - norm) / norm) * scarcity(S), 1.2), CAP)
+
+# The observation record stores deviations, not absolute Bcf, so the column
+# below is the exponential factor alone -- the engine's full answer only
+# where working gas is known.
+money = lambda v: USD + f"{v:.2f}"
+print(f"{'DEV':>7}  {'PERIOD':<7}  {'OBSERVED':>8}  {'SINGLE-EXP':>10}  {'EXP TERM':>8}")
+for per, dv, hh, reg, use in OBS:
+    if reg != "shale":
+        continue
+    d = dv / 100.0
+    flag = "" if use else "   dropped"
+    print(f"{dv:>6.1f}%  {per:<7}  {money(hh):>8}  "
+          f"{money(a * exp(-b * d)):>10}  {money(exp_term(d)):>8}{flag}")
+print()
+print("2014-03 is the case the fit guidance says to drop: an end-of-season")
+print("deficit, with the market already pricing the injection-season rebuild.")
+print("it is also the one row where the engine's other half fires. Working")
+S_MAR14, MAR_NORM = 822, 1832   # wk 2014-03-28 (episodes), 2021-25 Mar mean
+NORM_MAR14 = S_MAR14 / (1 - 0.547)      # the norm that -54.7% implies
+print(f"gas that week was {S_MAR14} Bcf -- and {S_MAR14} at -54.7% implies a 5-yr")
+print(f"March norm of {NORM_MAR14:,.0f} Bcf, within {abs(NORM_MAR14 / MAR_NORM - 1):.0%} of the {MAR_NORM:,} the engine")
+print("carries, so the two records agree. Below 1,600 Bcf the scarcity term")
+print(f"multiplies by {scarcity(S_MAR14):.1f}x and then the cap binds:")
+print(f"  exponential term only          {money(exp_term(-0.547)):>8}")
+print(f"  times scarcity                 {money(exp_term(-0.547) * scarcity(S_MAR14)):>8}")
+print(f"  after the {CAP:.0f} dollar cap        {money(engine_price(S_MAR14, NORM_MAR14)):>8}")
+print(f"  reality printed                {money(4.90):>8}")
+print("so the engine's answer to the deepest deficit in the record is its own")
+print(f"ceiling -- {engine_price(S_MAR14, NORM_MAR14) / 4.90:.0f}x what the month actually printed. Apply the curve")
+print("mid-winter, and do not apply it at all below the sample.")
+print()
+
+print("WHAT THAT MEANS FOR THE STRIP -- mid-winter, priced off the band's")
+print(f"March mean of {MAR_NORM:,} Bcf, which is what priceFrom falls back to when")
+print("no frozen-cycle reference is passed:")
+print(f"  {'DEV':>5} {'BCF':>7} {'SINGLE-EXP':>11} {'EXP TERM':>9} {'ENGINE':>8}")
+for d in (-0.05, -0.10, -0.20, -0.30):
+    S = MAR_NORM * (1 + d)
+    print(f"  {d:>+5.0%} {S:>7,.0f} {money(a * exp(-b * d)):>11} "
+          f"{money(exp_term(d)):>9} {money(engine_price(S, MAR_NORM)):>8}")
+print(f"  the CAL-28 forward strip prices, flat: {USD}3.60")
+print()
+print(f"below {SCARCITY_S:,.0f} Bcf the scarcity term takes over and the engine stops")
+print("being an exponential at all. No shale-era observation lives down there")
+print("except the one the fit throws out -- which is the honest statement of")
+print("what this calibration can and cannot support.")
+    </script>
+    </div>
         </div>
       </div>
       <div class="panel" style="margin-top:14px">

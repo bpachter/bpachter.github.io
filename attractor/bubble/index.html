@@ -191,6 +191,99 @@
       <div class="fig-cap">A toy matter-only universe (scale factor ∝ t^⅔) — it lands the source at ~40 Gly; the full expansion history, with its early radiation era and late dark-energy push, gives <b>46.5</b>. Same phenomenon, gentler math. The tick labels are proper distances: watch the whole grid grow while the photon crawls.</div>
     </div>
 
+    <p class="kc-intro">The figure above says outright that it is a toy matter-only universe landing the source at ~40 Gly, and that the full expansion history gives 46.5. Here is the full expansion history — the same integral, run properly, with the radiation era and the dark-energy push both in it. It sorts out which of the chapter's two distances the 46.5 actually belongs to, and it turns up something the chapter does not mention: for the first four billion years, the photon was <em>losing</em>.</p>
+    <div data-kernel-cell data-title="13.8 billion years, 46 billion light-years">
+    <script type="text/x-python">
+# 13.8 billion years of travel, 46 billion light-years of separation.
+# Both numbers fall out of one integral over the expansion history, so you can
+# watch them refuse to contradict each other. Flat LCDM, Planck 2018 inputs.
+# a is the scale factor: a = 1 today, a = 1/(1+z) when the light left.
+from math import sqrt
+
+c_kms = 299792.458                     # km/s
+H0    = 67.4                           # km/s/Mpc
+Om, OL, Orad = 0.315, 0.685, 9.24e-5   # matter, dark energy, radiation
+# Orad counts photons plus three neutrino species treated as massless -- close
+# enough for everything below, and the reason the early integrand stays finite.
+z_cmb = 1089.80                        # Planck: redshift of last scattering
+
+Mpc_km = 3.0856775814913673e19
+Gly_km = 9.4607304725808e21
+Gyr_s  = 3.15576e16                    # one Julian gigayear
+
+# Substituting a = u**2 flattens both integrands near the Big Bang, so plain
+# Simpson on a few thousand points is already converged.
+def simpson(f, lo, hi, n=4000):
+    h = (hi - lo) / n
+    s = f(lo) + f(hi)
+    for i in range(1, n):
+        s += f(lo + i * h) * (4 if i % 2 else 2)
+    return s * h / 3.0
+
+def time_integrand(u):      # (1/H0) * this, integrated in u, gives cosmic time
+    a = u * u
+    return 2.0 * u**3 / sqrt(Orad + Om * a + OL * a**4)
+
+def dist_integrand(u):      # (c/H0) * this gives comoving distance
+    a = u * u
+    return 2.0 * u / sqrt(Orad + Om * a + OL * a**4)
+
+def age_to(a):
+    return simpson(time_integrand, 0.0, sqrt(a)) * Mpc_km / H0 / Gyr_s
+
+def comoving_between(a1, a2):
+    return simpson(dist_integrand, sqrt(a1), sqrt(a2)) * c_kms / H0 * Mpc_km / Gly_km
+
+a_emit  = 1.0 / (1.0 + z_cmb)
+age_now = age_to(1.0)
+age_cmb = age_to(a_emit)
+D_now   = comoving_between(a_emit, 1.0)     # to the matter that made the CMB
+horizon = comoving_between(0.0, 1.0)        # the true edge: the particle horizon
+travel  = age_now - age_cmb
+
+print("age of the universe today      %8.2f Gyr    Planck: 13.80" % age_now)
+print("age when that light broke free %8.0f yr     Planck: ~372,000"
+      % round(age_cmb * 1e9, -3))
+print("time the light spent in flight %8.2f Gyr" % travel)
+print()
+print("so it covered, at c            %8.2f Gly" % travel)
+print("but its source sits now at     %8.2f Gly" % D_now)
+print("and its source sat then at     %8.1f Mly    the road was that short" % (D_now * a_emit * 1000))
+print("the road stretched by          %8.1f x" % (1.0 / a_emit))
+print()
+print("particle horizon, the real edge   %8.2f Gly   commonly quoted as 46.5" % horizon)
+print("observable universe, side to side %8.1f Gly   commonly quoted as 93" % (2 * horizon))
+print("So the 46.5 usually quoted is this row, not the one above it: the wall")
+print("of first light sits %.2f Gly inside the true edge. Light from that" % (horizon - D_now))
+print("sliver had time to reach us and never came -- back then the universe")
+print("was still opaque to photons.")
+print()
+
+v = H0 * D_now * Gly_km / Mpc_km
+print("that matter recedes from us at %.0f km/s = %.2f c." % (v, v / c_kms))
+print("Nothing moved through space faster than light. The space did the moving.")
+print()
+
+# The part nobody expects: for billions of years the photon was losing ground.
+def state(z):
+    a = 1.0 / (1.0 + z)
+    t = age_to(a)
+    left = (D_now - comoving_between(a_emit, a)) * a   # proper distance, right then
+    return t, t - age_cmb, left
+
+print("     z        age        it had gone   still to go")
+for z in (z_cmb, 100, 20, 10, 5, 2, 1.6, 1, 0.5, 0):
+    t, gone, left = state(z)
+    print("  %7.1f  %7.3f Gyr   %7.3f Gly   %7.3f Gly" % (z, t, gone, left))
+
+scan = [state(3.0 * i / 60.0) for i in range(1, 61)]
+best = max((t_gone_left[2], t_gone_left[0]) for t_gone_left in scan)
+print()
+print("It topped out %.1f Gly from us about %.1f Gyr in -- the photon spent its" % best)
+print("first few billion years losing ground, moving toward us at c the whole time.")
+    </script>
+    </div>
+
     <figure class="plate">
       <img src="../img/plate-pandora.jpg" alt="Abell 2744, Pandora's Cluster — a gravitational lens" onerror="this.closest('.plate').remove()" />
       <figcaption><b>A lens the size of a cluster.</b> Abell 2744 — “Pandora's Cluster.” Its enormous mass warps space enough to magnify galaxies far behind it, bending their light into arcs and letting us see objects whose light set out when the universe was a few percent of its present age — some of the most distant things ever imaged. <span class="plate-credit">NASA, ESA, CSA, STScI · public domain</span></figcaption>
@@ -216,5 +309,7 @@
 
 <script src="../js/nav.js"></script>
 <script src="../js/bubble.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

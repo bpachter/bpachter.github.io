@@ -190,6 +190,65 @@
         <div class="readout"><span class="stat">work this step <b id="kv-work">—</b></span><span class="stat">cache held <b id="kv-mem">—</b></span></div>
         <p class="widget-hint"><span class="hand">Try it →</span> Switch the cache off and watch every step recompute the whole triangle. The green column is the only work a cached model does.</p>
       </div>
+
+    <p class="kc-intro">"Your context window is, physically, this cache sitting in GPU memory" is a sentence worth pricing. Here is the arithmetic on a real published architecture — Llama 3.1 70B — and the number at the bottom of the first table is the one that explains why long context costs money.</p>
+    <div data-kernel-cell data-title="the cache bill, in gigabytes">
+    <script type="text/x-python">
+# What the KV cache actually costs, using a real published architecture.
+# Llama 3.1 70B: 80 layers, 64 query heads, 8 key/value heads, head width 128,
+# 131,072-token context, 70.6B parameters, served in fp16 (2 bytes a number).
+import math
+
+LAYERS, Q_HEADS, KV_HEADS, HEAD_DIM = 80, 64, 8, 128
+BYTES = 2
+PARAMS = 70.6e9
+GiB = 1024 ** 3
+
+def per_token(kv_heads):
+    # one key vector and one value vector, per layer, per kv head
+    return 2 * LAYERS * kv_heads * HEAD_DIM * BYTES
+
+gqa = per_token(KV_HEADS)
+mha = per_token(Q_HEADS)          # what it would cost if every query head kept its own
+print(f"cache per token, GQA (8 kv heads):  {gqa:>9,} bytes  = {gqa/1024:.0f} KiB")
+print(f"cache per token, MHA (64 kv heads): {mha:>9,} bytes  = {mha/1024/1024:.1f} MiB")
+print(f"grouped-query attention is {mha/gqa:.0f}x cheaper to remember with\n")
+
+print(f"{'context':>10}{'GQA cache':>15}{'MHA cache':>15}   (fp16)")
+for ctx in (2_048, 8_192, 32_768, 131_072):
+    label = f"{ctx//1024}K"
+    print(f"{label:>10}{ctx*gqa/GiB:>11.1f} GiB{ctx*mha/GiB:>11.1f} GiB")
+
+weights = PARAMS * BYTES / GiB
+full_ctx = 131_072 * gqa / GiB
+print(f"\nweights alone:          {weights:>7.1f} GiB")
+print(f"one 128K-token session: {full_ctx:>7.1f} GiB  "
+      f"({full_ctx/weights:.0%} of the weights, for one chat)")
+
+# A serving box: two H100s, 80 GiB of HBM each. Weights are paid once; every
+# concurrent conversation rents cache out of whatever is left.
+hbm = 2 * 80
+spare = hbm - weights
+print(f"\ntwo H100s = {hbm} GiB. after weights, {spare:.1f} GiB is left over:")
+for ctx in (4_096, 8_192, 32_768):
+    sessions = math.floor(spare * GiB / (ctx * gqa))     # whole chats that fit
+    print(f"  {ctx//1024:>3}K-token chats:{sessions:>6d} concurrent   "
+          f"({ctx*gqa/GiB:.2f} GiB each)")
+print("  (rounded down, because a chat that half fits does not fit. Real servers")
+print("   also hold activations and fragment the pool, so read these as ceilings")
+print("   — but the shape is why context length is priced, not free.)")
+
+# ---- and the reason the cache exists at all --------------------------------
+# Attention compares each new token against every token before it. With the
+# cache, step t does t comparisons. Without it, step t redoes the whole triangle.
+n = 2_000
+cached = sum(range(1, n + 1))
+uncached = sum(t * (t + 1) // 2 for t in range(1, n + 1))
+print(f"\ngenerating a {n:,}-token reply — attention comparisons:")
+print(f"  with cache     {cached:>16,}")
+print(f"  without cache  {uncached:>16,}   ({uncached/cached:,.0f}x more work)")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10c · RoPE ── -->
@@ -280,6 +339,117 @@
         <div class="readout"><span class="stat">shelves available <b id="quant-levels">—</b></span><span class="stat">7B model on disk <b id="quant-mem">—</b></span></div>
         <p class="widget-hint"><span class="hand">Try it →</span> Slide to 4 bits: the histogram snaps to a few shelves and the wave goes chunky — audibly compressed, still recognizably the song.</p>
       </div>
+
+    <p class="kc-intro">Two things the slider cannot show. First, a "4-bit" file is never 4 bits a weight — the block scales cost you, and the cell works out exactly how much. Second, the damage: quantize a real-sized weight row with a few outliers in it and measure how far the answer moves. The bottom row of the table is what happens if you skip the blocks, and the block after it is a lesson in how easy it is to fool yourself about the size of the damage.</p>
+    <div data-kernel-cell data-title="what 4 bits costs you">
+    <script type="text/x-python">
+# Quantization, both halves of it: what you save, and what you break.
+import math, random, statistics
+
+PARAMS = 30e9          # a 30B model
+VRAM = 24 * 1024**3    # one RTX 4090
+GiB = 1024**3
+
+# A real 4-bit file is not 4 bits a weight. Weights are squeezed in small blocks,
+# and every block ships a 16-bit scale alongside its 32 packed values.
+BLOCK = 32
+effective = (BLOCK * 4 + 16) / BLOCK
+
+print(f"{'format':<24}{'bits/weight':>12}{'30B on disk':>15}{'fits a 4090?':>14}")
+for name, bits in (("fp16", 16.0), ("int8", 8.0),
+                   ("4-bit, naive count", 4.0),
+                   (f"4-bit, blocks of {BLOCK}", effective)):
+    size = PARAMS * bits / 8
+    print(f"{name:<24}{bits:>12.3f}{size/GiB:>11.1f} GiB"
+          f"{('yes' if size < VRAM else 'no'):>14}")
+print(f"the per-block scale adds {effective/4 - 1:.1%} on top of the naive count — which")
+print("is why the 4-bit file you download is bigger than params/2, and still fits.\n")
+
+# ---- now the damage ---------------------------------------------------------
+# One row of a weight matrix at Llama-70B width: 8,192 numbers, roughly
+# Gaussian, plus a few outliers. The outliers here are deliberately overdrawn
+# — real weight tensors have milder tails than this, and real *activations*
+# have worse. What matters is only what one stray large value does to a scale
+# it shares with everybody else.
+r = random.Random(11)
+N = 8_192
+W = [r.gauss(0, 1) for _ in range(N)]
+OUTLIERS = 8
+for i in r.sample(range(N), OUTLIERS):
+    W[i] *= r.uniform(6, 12)
+
+def quantize(w, bits, block):
+    """Symmetric absmax: each block gets one scale, set by its largest value,
+    and every weight in it snaps to an integer code. Signed 4-bit runs -7..7
+    — fifteen shelves, not the sixteen the chapter counts, because absmax
+    never uses the -8."""
+    top = 2 ** (bits - 1) - 1
+    deq, codes = [], []
+    for s in range(0, len(w), block):
+        chunk = w[s:s + block]
+        scale = (max(abs(v) for v in chunk) or 1e-12) / top
+        c = [max(-top, min(top, round(v / scale))) for v in chunk]
+        codes += c
+        deq += [v * scale for v in c]
+    return deq, codes
+
+norm = lambda v: math.sqrt(sum(a * a for a in v))
+sigma = norm(W) / math.sqrt(N)
+print(f"a row with {OUTLIERS} outliers in it: sigma {sigma:.2f}, "
+      f"largest weight {max(abs(v) for v in W)/sigma:.0f} sigma\n")
+
+qs = {}
+print(f"{'round-trip through':<26}{'rel RMS':>9}{'cos sim':>9}{'snapped to 0':>14}")
+for label, bits, block in (("int8, blocks of 32", 8, BLOCK),
+                           ("4-bit, blocks of 32", 4, BLOCK),
+                           ("4-bit, one global scale", 4, N)):
+    q, codes = quantize(W, bits, block)
+    qs[label] = q
+    err = [a - b for a, b in zip(W, q)]
+    cos = sum(a * b for a, b in zip(W, q)) / (norm(W) * norm(q))
+    zeros = codes.count(0) / N
+    print(f"  {label:<24}{norm(err)/norm(W):>9.2%}{cos:>9.5f}{zeros:>14.1%}")
+
+print("\nOne scale for the whole row is set by the largest weight in it, so every")
+print("ordinary weight rounds to 0 or +/-1: two thirds of the row is flattened")
+print("to nothing. Blocks of 32 give each outlier its own scale and quarantine")
+print("the damage to its 31 neighbours — same 4 bits, and the row survives.")
+
+# ---- and what does that cost one neuron? ------------------------------------
+# The row meets an incoming activation vector; their dot product is one
+# neuron's output. Ask once and you learn nothing — it is a ratio of two
+# Gaussians, and those have tails all the way out. So ask 201 times.
+q = qs["4-bit, blocks of 32"]
+err = [a - b for a, b in zip(W, q)]
+rel = []
+for trial in range(201):
+    rx = random.Random(1000 + trial)
+    x = [rx.gauss(0, 1) for _ in range(N)]
+    exact = sum(a * b for a, b in zip(W, x))
+    rel.append(abs(sum(a * b for a, b in zip(err, x))) / abs(exact))
+rel.sort()
+pick = lambda f: rel[round(f * (len(rel) - 1))]
+med = statistics.median(rel)
+print("\none neuron's output, 4-bit blocks of 32, over 201 activation draws:")
+print(f"  p10 {pick(.10):>6.1%}  median {med:>6.1%}  p90 {pick(.90):>6.1%}  "
+      f"worst {rel[-1]:>8.1%}")
+print(f"  ||dW|| / ||W|| = {norm(err)/norm(W):.1%}   <- the median lands beside this,")
+print("  and that is the rel-RMS column again. It has to be: the error vector")
+print("  meets a random activation exactly the way the weights do, so the")
+print("  typical shift is just the error's size relative to the weights. Any")
+print("  one draw is a story about the draw, not about the quantizer.")
+
+print("\nSo: int8 is near-lossless. 4-bit in blocks of 32 moves a typical neuron")
+print(f"by about the same {med:.0%} it moves the weights — the arithmetic under")
+print("\"slightly gritty\" is double figures, not a few percent. Models come")
+print("through it anyway because the shift is zero-mean noise rather than a")
+print("bias, and because generation only needs the winning logit to stay ahead")
+print("of the rest — whether it does is a benchmark question this cell cannot")
+print("settle. What this cell does settle is the bottom row: a scale shared")
+print("across 8,192 weights is wrecked by eight of them, and that is why GGUF")
+print("and AWQ quantize in small blocks.")
+    </script>
+    </div>
     </div>
 
     <!-- ── 10h · RAG ── -->
@@ -328,5 +498,7 @@
 <script src="../js/frontier.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

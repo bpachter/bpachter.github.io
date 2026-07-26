@@ -157,6 +157,102 @@
       <p class="widget-hint"><span class="hand">Try it →</span> Tap any word to see where its attention flows. Then switch on the <b>causal mask</b> — in a generator, no word may peek at the future, so everything after the chosen word goes dark.</p>
     </div>
 
+    <p class="kc-intro">The widget shows you where attention flows. This is the arithmetic that decides it — the same sentence, the same causal mask, every score and softmax written out. Watch what happens to <em>it</em> when the head has only coarse features to work with, then what one extra learned channel buys — and then read carefully what that channel did and did not actually do, because the word that settles this sentence is one the head never gets to see.</p>
+    <div data-kernel-cell data-title="one attention head, all the way through">
+    <script type="text/x-python">
+# One attention head, computed the whole way through: softmax(QK^T / sqrt(d)) V.
+# Same sentence as the widget above. No libraries.
+import math, random
+
+SENT = ["The", "robot", "picked", "up", "the", "ball",
+        "because", "it", "was", "heavy"]
+
+# A real head learns W_Q, W_K, W_V and squeezes these out of the embeddings.
+# I am writing them by hand so the numbers stay readable. Four channels:
+#             [ thing, action, pronoun, verb's-object ]
+FEAT = {
+    "The":     [0.0, 0.0, 0.0, 0.0],    # function words advertise nothing
+    "robot":   [1.0, 0.0, 0.0, 0.0],
+    "picked":  [0.0, 1.0, 0.0, 0.0],
+    "up":      [0.0, 0.5, 0.0, 0.0],
+    "the":     [0.0, 0.0, 0.0, 0.0],
+    "ball":    [1.0, 0.0, 0.0, 0.0],
+    "because": [0.0, 0.0, 0.0, 0.0],
+    "it":      [0.0, 0.0, 1.0, 0.0],
+    "was":     [0.0, 0.3, 0.0, 0.0],
+    "heavy":   [0.0, 0.0, 0.0, 0.0],    # nothing — and, at token 7, unread
+}
+D = 4
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+def softmax(s):
+    m = max(s)                                    # subtract the max: same answer,
+    e = [math.exp(v - m) for v in s]              # no overflow
+    return [v / sum(e) for v in e]
+
+def attend(query, upto):
+    """Score against every key up to `upto` — the causal mask — then blend values."""
+    keys = [FEAT[w] for w in SENT]
+    vals = [FEAT[w] for w in SENT]
+    scores = [dot(query, keys[j]) / math.sqrt(D) for j in range(upto + 1)]
+    w = softmax(scores)
+    out = [sum(w[j] * vals[j][c] for j in range(upto + 1)) for c in range(D)]
+    return w, out
+
+def show(w, out):
+    for j, weight in enumerate(w):
+        print(f"    {SENT[j]:<9}{weight:6.3f}  {'#' * round(weight * 60)}")
+    hidden = ", ".join(SENT[len(w):])
+    print(f"    {hidden:<9}     —  masked; not read yet at this position")
+    print(f"    weights sum to {sum(w):.3f}  ->  'it' leaves carrying "
+          f"thing={out[0]:.2f} obj={out[3]:.2f}")
+
+i = SENT.index("it")
+print("query: token 7, 'it', asking only 'who here is a concrete thing?'\n")
+w, out = attend([3.0, 0.0, 0.0, 0.0], i)
+show(w, out)
+print("\n  A dead heat between 'robot' and 'ball'. With channels this coarse the")
+print("  head genuinely cannot tell which one 'it' means — and attention never")
+print("  picks, it only blends, so a tie comes out half-robot, half-ball.")
+
+# Now switch on the fourth channel — the kind of thing chapter 07 means by
+# "one binds verbs to their objects". Mark whichever noun the verb acted on.
+# It is a syntactic role, and it is already behind the query. No peeking.
+FEAT["ball"] = [1.0, 0.0, 0.0, 0.9]     # the thing that got picked up
+FEAT["robot"] = [1.0, 0.0, 0.0, 0.1]    # the one doing the picking
+print("\nsame head, fourth channel on — 'it' now asks for the verb's object\n")
+w, out = attend([3.0, 0.0, 0.0, 3.0], i)
+show(w, out)
+print(f"\n  'ball' takes {w[5]:.0%} of the blend against {w[1]:.0%} for 'robot' — the right")
+print("  answer here. But look at what the head did to earn it. The word that")
+print("  actually settles this sentence is 'heavy', two tokens ahead of the")
+print("  query and behind the causal mask; the head never reads it. All it")
+print("  applied was a prior — pronouns often mean the thing the verb acted")
+print("  on — which happens to fit. Swap 'heavy' for 'strong' and the answer")
+print("  flips to 'robot' while not one number above would move. Syntax buys")
+print(f"  you that {w[5]:.0%}; the sentence needs meaning, and meaning is what the")
+print("  rest of the stack — dozens more layers, hundreds more heads — is for.")
+
+# ---- and why sqrt(d) is in the formula at all ------------------------------
+# At a real head width the raw dot products get big, and a big spread makes
+# softmax collapse onto a single token before training has taught it anything.
+r = random.Random(0)
+d_real, n = 128, len(SENT)
+q = [r.gauss(0, 1) for _ in range(d_real)]
+keys = [[r.gauss(0, 1) for _ in range(d_real)] for _ in range(n)]
+raw = [dot(q, k) for k in keys]
+print(f"\nrandom vectors at a realistic head width (d={d_real}, {n} keys)")
+for label, s in (("raw scores        ", raw),
+                 ("divided by sqrt(d)", [v / math.sqrt(d_real) for v in raw])):
+    p = softmax(s)
+    bits = -sum(v * math.log(v, 2) for v in p if v > 0)
+    print(f"  {label}  spread {max(s) - min(s):6.2f}   max w {max(p):.3f}"
+          f"   entropy {bits:.2f}/{math.log(n, 2):.2f} bits")
+    </script>
+    </div>
+
     <p>Because all words are seen at once, the model needs a sense of order — so each position gets a rhythmic stamp built from sine and cosine waves (newer models rotate the query and key vectors instead, a scheme called <b>RoPE</b> — it gets its own chapter in part III).</p>
   </div>
 </section>
@@ -233,5 +329,7 @@
 <script src="../js/language.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

@@ -750,3 +750,23 @@ footer { margin-top: 70px; border-top: 2px solid var(--paper-3); padding: 44px 0
   .gc-fab, .gc-panel { transition: none; }
   .gc-typing i { animation: none; }
 }
+
+/* ── live Python cells (kernel/embed.js) — cream/editorial palette.
+   Light-on-light to sit beside the .widget cards rather than punch a
+   black hole in the page; the output pane goes a shade deeper so results
+   still read as machine output rather than prose. ── */
+[data-kernel-cell] {
+  --kc-accent: var(--leaf-deep);
+  --kc-onaccent: #ffffff;
+  --kc-out: var(--ink);
+  --kc-outbg: #ece6d8;
+  --kc-bg: #faf7f0;
+  --kc-bg2: #f2ede1;
+  --kc-line: var(--line);
+  --kc-text: var(--ink-soft);
+  --kc-bright: var(--ink);
+  --kc-faint: var(--ink-faint);
+  --kc-error: var(--bad);
+  --kc-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  box-shadow: 0 6px 18px rgba(45, 42, 36, 0.12);
+}

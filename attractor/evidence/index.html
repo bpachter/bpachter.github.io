@@ -164,6 +164,85 @@
       <div class="fig-cap">Schematic velocity field with the right moral: flows converge on basins, we ride the stream at ~600 km/s, and the pull doesn't stop at the first drain — something bigger (<b>Shapley</b>) lies beyond it, and something behind us (<b>the Dipole Repeller</b>) adds a push. Both get their chapter in Part III.</div>
     </div>
 
+    <p class="kc-intro">The takeaway below claims the 600 km/s is written on the CMB rather than guessed. Here is that sentence as arithmetic: a measured temperature difference of three thousandths of a kelvin, divided by the monopole, times <em>c</em>, then one vector subtraction to get the Sun's own orbit out of the way — and finally the awkward question of what that direction actually hits.</p>
+    <div data-kernel-cell data-title="600 km/s, read off a temperature map">
+    <script type="text/x-python">
+# The 600 km/s, read off a temperature map.
+# Moving through the CMB rest frame warms the sky ahead and cools the sky behind:
+#     dT/T = v/c   (to first order in v/c)
+# So a measured dipole is a speedometer. Then one vector subtraction removes the
+# Sun's own orbit and leaves the stream this whole site is about.
+import math
+
+T0     = 2.72548      # K, CMB monopole, Fixsen 2009
+c      = 299792.458   # km/s
+dipole = 3.3621e-3    # K, Planck 2018 measured dipole amplitude
+
+v_sun = c * dipole / T0
+print("measured dipole        : %.4f mK  (ahead warm, behind cool)" % (dipole * 1e3))
+print("peak-to-peak across sky: %.4f mK" % (2 * dipole * 1e3))
+print("implied speed  c*dT/T  : %.1f km/s" % v_sun)
+print("Planck's published fit : 369.82 +/- 0.11 km/s")
+print()
+
+def to_xyz(v, l_deg, b_deg):
+    """galactic longitude/latitude + speed -> Cartesian components"""
+    l, b = math.radians(l_deg), math.radians(b_deg)
+    return (v * math.cos(b) * math.cos(l),
+            v * math.cos(b) * math.sin(l),
+            v * math.sin(b))
+
+def to_lb(vec):
+    x, y, z = vec
+    v = math.sqrt(x * x + y * y + z * z)
+    return v, math.degrees(math.atan2(y, x)) % 360.0, math.degrees(math.asin(z / v))
+
+# Planck 2018: the Solar System barycentre, toward galactic (l, b) = (264.021, 48.253).
+sun_cmb = to_xyz(369.82, 264.021, 48.253)
+# Courteau and van den Bergh 1999: the Sun's motion relative to the Local Group
+# -- the Sun's lap around the galaxy plus the Milky Way's own fall toward Andromeda.
+sun_lg  = to_xyz(306.0, 99.0, -4.0)
+lg_cmb  = tuple(a - b for a, b in zip(sun_cmb, sun_lg))
+
+print("Sun  vs CMB : %6.1f km/s toward (l, b) = (%6.1f, %5.1f)" % to_lb(sun_cmb))
+print("Sun  vs LG  : %6.1f km/s toward (l, b) = (%6.1f, %5.1f)   [subtract this]" % to_lb(sun_lg))
+print("-" * 64)
+print("LOCAL GROUP : %6.1f km/s toward (l, b) = (%6.1f, %5.1f)" % to_lb(lg_cmb))
+print("published   :  ~620 km/s toward (l, b) = ( 271.9,  29.6)")
+print()
+
+# Nothing above was ever told where to point. So check what it landed on.
+def angle_from(vec, l_deg, b_deg):
+    """angle on the sky between a vector and a galactic direction, in degrees"""
+    n = to_xyz(1.0, l_deg, b_deg)
+    v = math.sqrt(sum(x * x for x in vec))
+    dot = sum(p * q for p, q in zip(vec, n)) / v
+    return math.degrees(math.acos(max(-1.0, min(1.0, dot))))
+
+landmarks = [
+    ("Hydra cluster  A1060",  269.6,  26.5),
+    ("Centaurus      A3526",  302.4,  21.6),
+    ("Shapley core   A3558",  311.5,  30.7),
+    ("Norma cluster  A3627",  325.3,  -7.2),
+]
+print("how far that apex sits from the landmarks this site names:")
+for name, l, b in landmarks:
+    print("   %-22s %5.1f deg" % (name, angle_from(lg_cmb, l, b)))
+print("The apex all but hits the Hydra cluster, the near end of the")
+print("Hydra-Centaurus supercluster. It misses Norma -- the core chapter 07")
+print("digs out from behind our own galaxy -- by %.0f degrees. An apex is the"
+      % angle_from(lg_cmb, 325.3, -7.2))
+print("sum of every pull at once, not a signpost to the largest one.")
+print()
+
+# Why the dipole has to be thrown away before the CMB can be used as a map.
+print("our motion  : 1 part in %6.0f of the sky temperature" % (T0 / dipole))
+print("the ripples : 1 part in %6.0f  <- the seeds of every galaxy" % 100000)
+print("The foreground we subtract is %.0fx louder than the signal underneath it."
+      % (100000 / (T0 / dipole)))
+    </script>
+    </div>
+
     <div class="takeaway">The 600 km/s is not a guess — it's written on the CMB as a warm patch ahead and a cool patch behind. Everything near us drifts the same way, and the map of that drift points at <b>one basin</b>.</div>
   </div>
 </section>
@@ -215,5 +294,7 @@
 
 <script src="../js/nav.js"></script>
 <script src="../js/evidence.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>

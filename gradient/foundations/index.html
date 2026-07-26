@@ -205,6 +205,117 @@
       <p class="widget-hint"><span class="hand">Try it →</span> Train with <b>sigmoid</b>, note how many steps it needs — then reset and try <b>ReLU</b>. That gap is the vanishing gradient, felt.</p>
     </div>
 
+    <p class="kc-intro">The widget above trains by backpropagation, which is a strong claim to make about a piece of arithmetic you cannot see. So here it is in full, in plain Python — and then checked the only honest way: nudge one weight by a hair, watch how far the loss actually moves, and see whether the chain rule predicted it. The second table is the sigmoid-versus-ReLU gap, counted in epochs instead of felt, with the honest bookkeeping on what one layer's worth of shrinkage does and does not prove. The last block is the trained net, answering all four corners of XOR.</p>
+    <div data-kernel-cell data-title="backprop, checked against brute force">
+    <script type="text/x-python">
+# A two-layer network trained on XOR — the puzzle that killed the perceptron.
+# No libraries. Just lists, loops, and the chain rule written out by hand.
+import math, random, statistics
+
+XOR = [((0, 0), 0.0), ((0, 1), 1.0), ((1, 0), 1.0), ((1, 1), 0.0)]
+H = 6                                        # hidden neurons
+
+# each activation, paired with its slope expressed in terms of its own output
+ACT = {
+    "sigmoid": (lambda z: 1 / (1 + math.exp(-z)), lambda a: a * (1 - a)),
+    "tanh":    (lambda z: math.tanh(z),           lambda a: 1 - a * a),
+    "ReLU":    (lambda z: z if z > 0 else 0.0,    lambda a: 1.0 if a > 0 else 0.0),
+}
+
+def init(seed):
+    r = random.Random(seed)
+    u = lambda: r.uniform(-1, 1)
+    # one flat list of dials, interleaved by hidden neuron j:
+    #   3j, 3j+1, 3j+2  ->  its two input weights and its bias
+    #   3H .. 4H-1      ->  the output weights;  last slot -> the output bias
+    return [u() for _ in range(H * 4 + 1)]
+
+def forward(p, x, f):
+    h = [f(p[3*j] * x[0] + p[3*j+1] * x[1] + p[3*j+2]) for j in range(H)]
+    z = sum(p[3*H + j] * h[j] for j in range(H)) + p[-1]
+    return h, 1 / (1 + math.exp(-z))          # sigmoid output, always
+
+def loss(p, f):                               # mean squared error over four corners
+    return sum((forward(p, x, f)[1] - t) ** 2 for x, t in XOR) / 4
+
+def backprop(p, f, df):
+    """Walk the error backwards, handing every dial its own share of the blame."""
+    g = [0.0] * len(p)
+    for x, t in XOR:
+        h, out = forward(p, x, f)
+        d_out = (out - t) / 2 * out * (1 - out)      # dL/dz at the output neuron
+        g[-1] += d_out
+        for j in range(H):
+            g[3*H + j] += d_out * h[j]
+            d_h = d_out * p[3*H + j] * df(h[j])      # chain rule into the hidden layer
+            g[3*j]   += d_h * x[0]
+            g[3*j+1] += d_h * x[1]
+            g[3*j+2] += d_h
+    return g
+
+# ---- 1. is the chain rule actually telling the truth? ----------------------
+# Check backprop against brute force: nudge one dial by a hair in each
+# direction and watch how far the loss really moves.
+f, df = ACT["tanh"]
+p = init(1)
+g = backprop(p, f, df)
+print("gradient check — backprop vs. nudging the dial by hand")
+print(f"  {'dial':<11}{'backprop':>13}{'numerical':>13}{'gap':>11}")
+for label, k in [("W1[0][0]", 0), ("b1[0]", 2), ("W2[3]", 3*H + 3), ("b2", len(p)-1)]:
+    eps = 1e-6
+    up, dn = list(p), list(p)
+    up[k] += eps; dn[k] -= eps
+    numeric = (loss(up, f) - loss(dn, f)) / (2 * eps)
+    print(f"  {label:<11}{g[k]:>13.8f}{numeric:>13.8f}{abs(g[k]-numeric):>11.1e}")
+
+# ---- 2. which curve trains fastest? ---------------------------------------
+LR, CAP, TARGET = 2.0, 2000, 0.01
+print(f"\nepochs to get loss under {TARGET}  (plain gradient descent, lr={LR}, 8 seeds)")
+print(f"  {'activation':<11}{'median':>8}{'fastest':>9}{'slowest':>9}{'stuck':>7}")
+meds = {}
+for name, (f, df) in ACT.items():
+    hits = []
+    stuck = 0
+    for seed in range(1, 9):
+        p = init(seed)
+        for epoch in range(1, CAP + 1):
+            g = backprop(p, f, df)
+            for k in range(len(p)):
+                p[k] -= LR * g[k]
+            if loss(p, f) < TARGET:
+                hits.append(epoch)
+                break
+        else:
+            stuck += 1
+    if not hits:
+        print(f"  {name:<11}{'—':>8}{'—':>9}{'—':>9}{stuck:>7}")
+        continue
+    med = statistics.median(hits)
+    meds[name] = med
+    print(f"  {name:<11}{med:>8.1f}{min(hits):>9}{max(hits):>9}{stuck:>7}")
+print("  sigmoid's slope never exceeds 0.25, so one hidden layer already taxes")
+print("  the signal on its way back by 4x — and one layer is the whole bill")
+print(f"  here, worth {meds['sigmoid']/meds['tanh']:.1f}x the epochs tanh needs. Stack forty layers and what")
+print(f"  reaches the first is 0.25**40 = {0.25 ** 40:.0e} of what left the output. That")
+print("  extrapolation is the vanishing gradient; the row above is its first")
+print("  instalment, not the thing itself. ReLU's slope is 1 wherever a neuron")
+print("  is awake, so nothing shrinks — but a slope of 0 is permanent, and a")
+print("  dead neuron never revives: that is the 'stuck' column.")
+
+# ---- 3. the trained network, on the four corners ---------------------------
+f, df = ACT["tanh"]
+p = init(1)
+for _ in range(600):
+    g = backprop(p, f, df)
+    for k in range(len(p)):
+        p[k] -= LR * g[k]
+print(f"\nlearned XOR — tanh, 600 epochs, loss {loss(p, f):.5f}")
+for x, t in XOR:
+    out = forward(p, x, f)[1]
+    print(f"  {x[0]} xor {x[1]} -> want {t:.0f}   got {out:.3f}  |{'#' * round(out*32):<32}|")
+    </script>
+    </div>
+
     <div class="pager">
       <a class="pcard spacer" href="../" aria-hidden="true"><span class="plabel">·</span><div class="ptitle">·</div></a>
       <a class="pcard next" href="../language/"><span class="plabel">next — part II</span><div class="ptitle">Language →</div></a>
@@ -230,5 +341,7 @@
 <script src="../js/foundations.js"></script>
 <script src="../js/nav.js"></script>
 <script src="../js/chat.js"></script>
+<!-- Live Python cells. Downloads nothing until a reader presses Run. -->
+<script src="../../kernel/embed.js"></script>
 </body>
 </html>
