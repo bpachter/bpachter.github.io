@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPDRAFT — what the machines give back</title>
+<meta name="description" content="Every watt into a data center leaves as low-grade heat. Updraft maps where that exhaust is agricultural infrastructure: 1,474 US data centers and 179 ethanol plants scored by December light and heating demand, from public data.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ BOOT ═══ -->
+<div id="boot">
+  <div class="boot-inner">
+    <div class="boot-mark">UPDRAFT</div>
+    <div class="boot-sub">WASTE-HEAT SYMBIOSIS ATLAS · v1</div>
+    <div class="boot-lines" id="bootlines"></div>
+    <div class="boot-bar"><i id="bootbar"></i></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand" id="brand" title="go to ATLAS">
+      <div>
+        <div class="bmark">UPDRAFT</div>
+        <div class="bsub">WHAT THE MACHINES GIVE BACK</div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-route="atlas"><span class="tno">F1</span> ATLAS</button>
+      <button class="tab" data-route="brief"><span class="tno">F2</span> BRIEF</button>
+      <button class="tab" data-route="data"><span class="tno">F3</span> DATA</button>
+      <a class="tab ext" href="../drawdown/" target="_blank" rel="noopener" title="the strain — what the machines take"><span class="tno">↗</span> DRAWDOWN</a>
+      <a class="tab ext" href="../headroom/" target="_blank" rel="noopener" title="the gate — where the grid says yes"><span class="tno">↗</span> HEADROOM</a>
+      <a class="tab ext" href="https://bpachter.github.io/" title="back to the portfolio"><span class="tno">←</span> PORTFOLIO</a>
+      <span class="tab-ind" id="tab-ind"></span>
+    </nav>
+    <div class="top-right">
+      <div class="clockbox">
+        <div class="c1" id="clock">--:--:--</div>
+        <div class="c2">UTC</div>
+      </div>
+      <div class="syslamp" title="data compiled 2026-08-09"></div>
+    </div>
+  </header>
+
+  <main id="viewport"></main>
+
+  <footer class="statusbar">
+    <span><b>FRONTIER</b> <span class="ok">DC 50.3%</span> · <span class="ok">ETHANOL 76.5%</span></span>
+    <span><b>PAIRS ≤50KM</b> 94</span>
+    <span><b>CELLS</b> 1,592 · <b>FACILITIES</b> 1,474 + 179</span>
+    <span><b>DATA</b> IM3 · GHGRP · EIA · NASA POWER · RETRIEVED 2026-08-09</span>
+    <span><a href="https://bpachter.github.io/">BEN PACHTER</a> · INDEPENDENT ANALYSIS · <a href="data/summary.json">VIEW DATA</a></span>
+  </footer>
+
+</div>
+
+<script src="atlas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
