@@ -14,6 +14,22 @@
     <link rel="stylesheet" crossorigin href="/astraea/assets/index-DN6rO98m.css">
   </head>
   <body>
+    <!-- Back to the portfolio. Deliberately outside #root and styled inline:
+         Astraea is a React app, and a visitor who lands here from the portfolio
+         should never need the browser's back button or a working bundle to get
+         home. NOTE: this file is Vite build output — re-add this block to the
+         astraea source index.html so a rebuild does not drop it. -->
+    <a href="https://bpachter.github.io/" aria-label="Back to portfolio"
+       style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;
+              align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+              font:500 12px/1 Barlow,system-ui,sans-serif;letter-spacing:.06em;
+              text-transform:uppercase;text-decoration:none;color:#e8ecf1;
+              background:rgba(14,17,22,.72);border:1px solid rgba(232,236,241,.22);
+              backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+              transition:background .18s,border-color .18s"
+       onmouseover="this.style.background='rgba(14,17,22,.92)';this.style.borderColor='rgba(232,236,241,.45)'"
+       onmouseout="this.style.background='rgba(14,17,22,.72)';this.style.borderColor='rgba(232,236,241,.22)'"
+    >← Portfolio</a>
     <div id="root"></div>
   </body>
 </html>
