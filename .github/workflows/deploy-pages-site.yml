@@ -9,15 +9,23 @@ name: Deploy GitHub Pages Site
 on:
   push:
     branches: [main]
+    # Anything servable MUST appear both here and in "Assemble Pages artifact"
+    # below. A directory missing from the copy step is not merely un-deployed:
+    # the assemble step starts with `rm -rf _site`, so the next deploy triggered
+    # by ANY other path silently deletes it from the live site. astraea/,
+    # updraft/ and media/ were absent from both lists and went 404 that way.
     paths:
       - 'index.html'
       - 'case-studies.html'
       - 'BPachterResume.pdf'
       - 'assets/**'
+      - 'media/**'
+      - 'astraea/**'
       - 'gradient/**'
       - 'attractor/**'
       - 'drawdown/**'
       - 'kernel/**'
+      - 'updraft/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -56,6 +64,9 @@ jobs:
           if [ -f case-studies.html ]; then cp case-studies.html _site/case-studies.html; fi
           if [ -f BPachterResume.pdf ]; then cp BPachterResume.pdf _site/BPachterResume.pdf; fi
           if [ -d assets ]; then cp -r assets _site/assets; fi
+          if [ -d media ]; then cp -r media _site/media; fi
+          # Vite build output — no src/ or build script to strip.
+          if [ -d astraea ]; then cp -r astraea _site/astraea; fi
           if [ -d gradient ]; then
             cp -r gradient _site/gradient
             rm -rf _site/gradient/src _site/gradient/build.sh _site/gradient/.gitignore _site/gradient/ROADMAP.md
@@ -66,7 +77,20 @@ jobs:
           fi
           if [ -d drawdown ]; then cp -r drawdown _site/drawdown; fi
           if [ -d kernel ]; then cp -r kernel _site/kernel; fi
+          if [ -d updraft ]; then cp -r updraft _site/updraft; fi
           touch _site/.nojekyll
+
+          # Fail the build rather than publish a site missing an app the
+          # portfolio links to. This is the check that would have caught
+          # astraea/ and updraft/ going 404 instead of shipping it.
+          missing=0
+          for d in astraea attractor drawdown gradient kernel updraft media; do
+            if [ -d "$d" ] && [ ! -e "_site/$d" ]; then
+              echo "::error::$d is tracked but was not copied into _site"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
