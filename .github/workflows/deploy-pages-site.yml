@@ -18,6 +18,9 @@ on:
       - 'index.html'
       - 'case-studies.html'
       - 'BPachterResume.pdf'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '404.html'
       - 'assets/**'
       - 'media/**'
       - 'astraea/**'
@@ -63,6 +66,9 @@ jobs:
           cp index.html _site/index.html
           if [ -f case-studies.html ]; then cp case-studies.html _site/case-studies.html; fi
           if [ -f BPachterResume.pdf ]; then cp BPachterResume.pdf _site/BPachterResume.pdf; fi
+          for f in robots.txt sitemap.xml 404.html; do
+            if [ -f "$f" ]; then cp "$f" "_site/$f"; fi
+          done
           if [ -d assets ]; then cp -r assets _site/assets; fi
           if [ -d media ]; then cp -r media _site/media; fi
           # Vite build output — no src/ or build script to strip.
@@ -87,6 +93,12 @@ jobs:
           for d in astraea attractor drawdown gradient kernel updraft media; do
             if [ -d "$d" ] && [ ! -e "_site/$d" ]; then
               echo "::error::$d is tracked but was not copied into _site"
+              missing=1
+            fi
+          done
+          for f in robots.txt sitemap.xml 404.html BPachterResume.pdf case-studies.html; do
+            if [ -f "$f" ] && [ ! -e "_site/$f" ]; then
+              echo "::error::$f is tracked but was not copied into _site"
               missing=1
             fi
           done
