@@ -226,7 +226,7 @@
   .cert{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)}
   .cert .mg{margin-top:2px}
   .cert-txt{min-width:0}
-  .cert h4{font-family:var(--font-heading);font-weight:600;font-size:16px;letter-spacing:.02em;text-transform:uppercase;margin:0}
+  .cert h3{font-family:var(--font-heading);font-weight:600;font-size:16px;letter-spacing:.02em;text-transform:uppercase;margin:0}
   .cert p{font-size:12.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:6px 0 0}
   @media (max-width:760px){.certs{grid-template-columns:1fr}}
   /* capabilities */
@@ -244,7 +244,7 @@
   .contact-plate>.corner::after{content:"";position:absolute;top:7px;left:0;width:100%;height:1px;background:currentColor}
   .contact-plate>.corner.tl{top:-8px;left:-8px}.contact-plate>.corner.tr{top:-8px;right:-8px}
   .contact-plate>.corner.bl{bottom:-8px;left:-8px}.contact-plate>.corner.br{bottom:-8px;right:-8px}
-  .contact-plate h2{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
+  .contact-plate h3{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     font-size:clamp(28px,3.2vw,40px);line-height:1.02;margin:0;max-width:16ch}
   .contact-plate p{font-size:15.5px;line-height:1.55;max-width:52ch;margin:16px 0 0;
     color:color-mix(in srgb,var(--color-text) 82%,transparent)}
@@ -362,7 +362,7 @@
     --shadow-md:0 6px 20px rgba(0,0,0,.55);
     --shadow-lg:0 22px 60px rgba(0,0,0,.6);
   }
-  [data-theme="dark"] :is(.r-name,.intro h1,.contact-plate h2,.ir-name h3,.ir-name h3 a,.xp-role,.stat .v,.cert h4,.story-lead){color:#eef4fb}
+  [data-theme="dark"] :is(.r-name,.intro h1,.contact-plate h3,.ir-name h3,.ir-name h3 a,.xp-role,.stat .v,.cert h3,.story-lead){color:#eef4fb}
   [data-theme="dark"] .intro{background:radial-gradient(120% 80% at 8% -12%,rgba(45,212,191,.12),transparent 58%)}
   [data-theme="dark"] .aurora{display:block}
   [data-theme="dark"] .aurora .b1{animation:drift1 22s var(--ease-out) infinite alternate}
@@ -427,7 +427,7 @@
         </section>
 
         <section class="sec" id="approach">
-          <div class="sec-head"><span class="kick">01 · About me</span></div>
+          <div class="sec-head"><h2 class="kick">01 · About me</h2></div>
           <hr class="rule">
           <div class="story reveal">
             <div class="story-body">
@@ -444,7 +444,7 @@
         </section>
 
         <section class="sec" id="work">
-          <div class="sec-head"><span class="kick">02 · Selected work</span></div>
+          <div class="sec-head"><h2 class="kick">02 · Selected work</h2></div>
           <hr class="rule">
           <div class="idx-hrow"><div>№</div><div>Project</div><div>What it does</div><div class="r">Status</div></div>
 
@@ -605,7 +605,7 @@
 
 
         <section class="sec" id="experience">
-          <div class="sec-head"><span class="kick">03 · Experience</span></div>
+          <div class="sec-head"><h2 class="kick">03 · Experience</h2></div>
           <hr class="rule">
           <div class="xp reveal">
             <div class="xp-when">
@@ -658,7 +658,7 @@
         </section>
 
         <section class="sec" id="capabilities">
-          <div class="sec-head"><span class="kick">04 · Capabilities</span></div>
+          <div class="sec-head"><h2 class="kick">04 · Capabilities</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k">AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
           <div class="cap reveal"><div class="cap-k">Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
@@ -670,7 +670,7 @@
         </section>
 
         <section class="sec" id="education">
-          <div class="sec-head"><span class="kick">05 · Education &amp; certifications</span></div>
+          <div class="sec-head"><h2 class="kick">05 · Education &amp; certifications</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k">Education</div><div class="cap-v">
             <div class="edu-row">
@@ -681,33 +681,33 @@
           <div class="certs reveal">
             <div class="cert">
               <span class="mg mg-sm blueprint" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>IBM</span>
-              <div class="cert-txt"><h4>IBM AI Engineering</h4><p>Professional Certificate · 13 courses — LLMs, Transformers, LoRA / QLoRA, RLHF, RAG; PyTorch, TensorFlow, Hugging Face</p></div>
+              <div class="cert-txt"><h3>IBM AI Engineering</h3><p>Professional Certificate · 13 courses — LLMs, Transformers, LoRA / QLoRA, RLHF, RAG; PyTorch, TensorFlow, Hugging Face</p></div>
             </div>
             <div class="cert">
               <span class="mg mg-sm blueprint" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>DL</span>
-              <div class="cert-txt"><h4>DeepLearning.AI / Stanford</h4><p>ML Specialization — supervised &amp; unsupervised learning, advanced algorithms, reinforcement learning</p></div>
+              <div class="cert-txt"><h3>DeepLearning.AI / Stanford</h3><p>ML Specialization — supervised &amp; unsupervised learning, advanced algorithms, reinforcement learning</p></div>
             </div>
             <div class="cert">
               <span class="mg mg-sm blueprint" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>BI</span>
-              <div class="cert-txt"><h4>Microsoft Power BI PL-300</h4><p>Data Analyst Associate — ETL, DAX, data modeling, Microsoft Fabric deployment</p></div>
+              <div class="cert-txt"><h3>Microsoft Power BI PL-300</h3><p>Data Analyst Associate — ETL, DAX, data modeling, Microsoft Fabric deployment</p></div>
             </div>
             <div class="cert">
               <span class="mg mg-sm blueprint" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>AWS</span>
-              <div class="cert-txt"><h4>Architecting Solutions on AWS</h4><p>Lambda, Glue, S3, Athena, Redshift, SageMaker</p></div>
+              <div class="cert-txt"><h3>Architecting Solutions on AWS</h3><p>Lambda, Glue, S3, Athena, Redshift, SageMaker</p></div>
             </div>
             <div class="cert">
               <span class="mg mg-sm blueprint" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>SAS</span>
-              <div class="cert-txt"><h4>SAS Statistical Business Analyst</h4><p>Regression modeling, statistical analysis, hypothesis testing</p></div>
+              <div class="cert-txt"><h3>SAS Statistical Business Analyst</h3><p>Regression modeling, statistical analysis, hypothesis testing</p></div>
             </div>
           </div>
         </section>
 
         <section class="sec" id="contact" style="padding-bottom:24px">
-          <div class="sec-head"><span class="kick">06 · Contact</span></div>
+          <div class="sec-head"><h2 class="kick">06 · Contact</h2></div>
           <hr class="rule">
           <div class="contact-plate reveal">
             <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-            <h2>Get in touch</h2>
+            <h3>Get in touch</h3>
             <p>Happy to talk about applied AI, knowledge graphs, or grid-scale data platforms — or about anything here you'd want to pull apart.</p>
             <div class="cta">
               <a class="btn btn-primary blueprint" href="mailto:ben.pachter@bellsouth.net"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>Email me</a>
