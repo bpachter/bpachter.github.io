@@ -61,7 +61,10 @@
     background:transparent;border:1px solid var(--color-divider);border-radius:0;padding:7px 12px}
   .btn svg{display:block}
   .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn-primary{background:var(--color-accent);border-color:var(--color-accent);color:var(--color-bg)}
+  /* accent-700, not accent: --color-bg text on --color-accent is 3.71:1 in
+     light mode, under the 4.5:1 AA floor. accent-700 lifts it to 5.78:1 and
+     also improves dark mode (10.39 -> 11.64), so no per-theme override. */
+  .btn-primary{background:var(--color-accent-700);border-color:var(--color-accent-700);color:var(--color-bg)}
   .btn-primary:hover{background:var(--color-accent-600)}
   .btn-primary:active{background:var(--color-accent-700)}
   .btn-secondary{border-color:var(--color-divider)}
@@ -325,7 +328,7 @@
   .pf-x:hover{color:var(--color-text)}
   .pf-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
   .pf-msg{max-width:84%;padding:9px 13px;font-size:13.5px;line-height:1.55;font-family:var(--font-body);white-space:pre-wrap;word-wrap:break-word}
-  .pf-user{align-self:flex-end;background:var(--color-accent);color:var(--color-bg)}
+  .pf-user{align-self:flex-end;background:var(--color-accent-700);color:var(--color-bg)}
   .pf-bot{align-self:flex-start;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-divider)}
   .pf-typing{display:inline-flex;gap:4px;align-items:center}
   .pf-typing i{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--color-text) 45%,transparent);animation:pf-blink 1s infinite}
@@ -336,7 +339,7 @@
     font:inherit;font-family:var(--font-body);font-size:13.5px;background:var(--color-bg);color:var(--color-text)}
   .pf-in:focus{outline:none;border-color:var(--color-accent)}
   .pf-send{flex:0 0 auto;width:42px;border:1px solid var(--color-accent);border-radius:0;
-    background:var(--color-accent);color:var(--color-bg);font-size:17px;font-weight:700;cursor:pointer}
+    background:var(--color-accent-700);color:var(--color-bg);font-size:17px;font-weight:700;cursor:pointer}
   .pf-send:hover{background:var(--color-accent-600)}
   .pf-send:disabled{opacity:.5;cursor:default}
   .pf-foot{padding:8px 12px 11px;font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.07em;
