@@ -102,6 +102,21 @@ jobs:
               missing=1
             fi
           done
+          # An app whose HTML ships but whose bundle does not is worse than a
+          # missing app: the page returns 200 and renders nothing, so every
+          # "is it up?" check passes while it is dead. Astraea shipped exactly
+          # that way once, when Git Bash rewrote its /astraea/assets/... paths
+          # to /Program Files/Git/astraea/assets/..., which 404s.
+          while IFS= read -r page; do
+            grep -oE '(src|href)="/[^"]+\.(js|css)"' "$page" 2>/dev/null \n              | sed -E 's/^(src|href)="//; s/"$//' \n            | while IFS= read -r url; do
+                if [ ! -f "_site$url" ]; then
+                  echo "::error::$page references $url which is not in the artifact"
+                  echo bad >> _site/.assetfail
+                fi
+              done
+          done < <(find _site -name index.html)
+          if [ -f _site/.assetfail ]; then rm -f _site/.assetfail; missing=1; fi
+
           [ "$missing" -eq 0 ] || exit 1
 
       - name: Upload artifact

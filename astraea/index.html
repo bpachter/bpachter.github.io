@@ -10,10 +10,24 @@
       href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/Program Files/Git/astraea/assets/index-Bw4OplPt.js"></script>
-    <link rel="stylesheet" crossorigin href="/Program Files/Git/astraea/assets/index-DN6rO98m.css">
+    <script type="module" crossorigin src="/astraea/assets/index-Bw4OplPt.js"></script>
+    <link rel="stylesheet" crossorigin href="/astraea/assets/index-DN6rO98m.css">
   </head>
   <body>
+    <!-- Back to the portfolio. Outside #root and inline-styled on purpose:
+         Astraea is a React app, and a visitor who arrives from the portfolio
+         should be able to leave without the browser's back button and without
+         a working bundle. NOTE: this file is Vite build output — re-add this
+         block to the astraea SOURCE index.html, or the next rebuild drops it
+         again, which is exactly what happened once already. -->
+    <a href="https://bpachter.github.io/" aria-label="Back to portfolio"
+       style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;
+              align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+              font:500 12px/1 Barlow,system-ui,sans-serif;letter-spacing:.06em;
+              text-transform:uppercase;text-decoration:none;color:#e8ecf1;
+              background:rgba(14,17,22,.72);border:1px solid rgba(232,236,241,.22);
+              backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"
+    >&#8592; Portfolio</a>
     <div id="root"></div>
   </body>
 </html>
