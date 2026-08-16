@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Case Studies — Benjamin Pachter</title>
-<meta name="description" content="Scenarios &amp; work, in depth — an animated BMW production-line diagram, a 10-factor real-estate scoring model with a live comp map, and a regime-switching Monte Carlo / hidden-Markov lab.">
+<meta name="description" content="Scenarios &amp; work, in depth — Thessa's reconciliation gate on real Intel filing data, Astraea's $10.9B refusal ledger, an animated BMW production-line diagram, a 10-factor real-estate scoring model, and a regime-switching Monte Carlo lab.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
 <!-- Paired, so the browser chrome matches the theme the page will actually
      paint for a first-time visitor. The toggle rewrites these media queries
@@ -254,6 +254,33 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   @media (max-width:760px){.fx-card{max-width:230px}.fx-card-img{width:72px;height:56px}}
   @media (max-width:760px){.fx-map{height:260px}}
 
+  /* 01/02 — flagship ledgers (Thessa reconciliation gate, Astraea refusals).
+     Same two-state pattern as the BMW figure: the .bmw-mode buttons set
+     data-mode on the figure and CSS does the rest — no bespoke JS. */
+  .lg-rows{border:1px solid var(--color-divider);margin-top:16px}
+  .lg-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);font-feature-settings:"tnum" 1}
+  .lg-row:last-child{border-bottom:0}
+  .lg-name{font-size:13px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 82%,transparent)}
+  .lg-name b{font-family:var(--font-heading);font-weight:600;font-size:13.5px;letter-spacing:.02em;color:var(--color-text)}
+  .lg-sub{display:block;font-size:11px;color:var(--color-mute-2)}
+  .lg-num{font-family:var(--font-heading);font-weight:600;font-size:15px;text-align:right;white-space:nowrap;color:var(--color-text)}
+  .lg-tag{font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--color-divider);color:var(--color-mute);white-space:nowrap;min-width:104px;text-align:center}
+  .lg-tag--no{border-color:var(--color-accent-700);color:var(--color-accent-700)}
+  .lg-tag--ok{border-color:var(--color-accent);background:var(--color-accent-100);color:var(--color-accent-800)}
+  .lg-total{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 16px;border:1px solid var(--color-divider);border-top:0;padding:13px 14px}
+  .lg-total-k{font-family:var(--font-heading);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-mute-2)}
+  .lg-total-v{font-family:var(--font-heading);font-weight:600;font-size:20px;font-feature-settings:"tnum" 1;color:var(--color-text)}
+  .lg-total-s{font-size:12px;color:var(--color-mute)}
+  #cs-thessa[data-mode="naive"] .m-gate{display:none}
+  #cs-thessa[data-mode="gate"] .m-naive{display:none}
+  #cs-thessa[data-mode="gate"] .lg-drop .lg-name,#cs-thessa[data-mode="gate"] .lg-drop .lg-num{text-decoration:line-through;opacity:.55}
+  #cs-astraea[data-mode="heuristic"] .m-gate{display:none}
+  #cs-astraea[data-mode="gate"] .m-heuristic{display:none}
+  #cs-astraea[data-mode="heuristic"] .lg-keep .lg-name,#cs-astraea[data-mode="heuristic"] .lg-keep .lg-num{opacity:.55}
+  @media (max-width:560px){.lg-row{grid-template-columns:1fr auto;row-gap:6px}.lg-row .lg-tag{grid-column:1 / -1;justify-self:start}}
+  .mc-stats.lg-stats{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:900px){.mc-stats.lg-stats{grid-template-columns:repeat(2,1fr)}}
+
   /* dark mode — bpachter.github.io aurora palette */
   [data-theme="dark"]{
     --color-bg:#0a0e14;--color-surface:#111823;--color-text:#cdd8e4;
@@ -304,11 +331,141 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <p class="cs-lead fade" style="--i:2">A few problems worth walking through — the constraint, the redesign, and what it saved. Everything here runs live: toggle it, drag it, break it.</p>
       </section>
 
+      <figure class="bmw blueprint reveal" data-mode="naive" id="cs-thessa">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <figcaption class="bmw-head">
+          <div>
+            <span class="kick">01 · Thessa · thessa.space</span>
+            <h2 class="bmw-title">The wrong number that looks right</h2>
+          </div>
+          <div class="bmw-seg" role="group" aria-label="Publish mode">
+            <button type="button" class="bmw-mode" data-mode="naive" aria-pressed="true">Sum the tags</button>
+            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Reconcile, then publish</button>
+          </div>
+        </figcaption>
+        <p class="ro-note"><a href="https://thessa.space" target="_blank" rel="noopener">Thessa</a> maps who depends on whom across space, defense, AI infrastructure and critical minerals — a knowledge graph built from primary public records, free and open source. The hard part is not the graph, it is deciding what deserves to be in it: a filing-derived edge carries an audited dollar figure, a press release carries an assertion, and they sit on different trust rungs. The gate below is the reason the dollars can be trusted. These are <b>real numbers from Intel's FY2025 filing</b>, exactly as tagged in XBRL. Sum what the filing tags and you publish +126% — a figure that looks perfectly reasonable. Toggle the mode.</p>
+        <div class="lg-rows" role="table" aria-label="Intel FY2025 segment revenue members as tagged, USD millions">
+          <div class="lg-row lg-drop">
+            <span class="lg-name"><b>A rollup member, tagged alongside its own children</b><span class="lg-sub">equals Client Computing + Data Center &amp; AI, to the dollar</span></span>
+            <span class="lg-num">49,147</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag lg-tag--no m-gate">undetected_rollup · dropped</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Client Computing Group</b></span>
+            <span class="lg-num">32,228</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Data Center &amp; AI</b></span>
+            <span class="lg-num">16,919</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Every other segment member</b><span class="lg-sub">reported gross of intersegment sales</span></span>
+            <span class="lg-num">21,389</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Intersegment elimination</b><span class="lg-sub">the filing's own reconciling row</span></span>
+            <span class="lg-num">−17,683</span>
+            <span class="lg-tag m-naive">ignored</span>
+            <span class="lg-tag lg-tag--ok m-gate">applied</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Consolidated revenue, same filing</b><span class="lg-sub">the number the sum must tie to</span></span>
+            <span class="lg-num">52,853</span>
+            <span class="lg-tag m-naive">not checked</span>
+            <span class="lg-tag lg-tag--ok m-gate">the anchor</span>
+          </div>
+        </div>
+        <div class="lg-total">
+          <span class="m-naive"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$119,683M</span>&ensp;<span class="lg-total-s">+126% against reality — and nothing downstream can tell</span></span>
+          <span class="m-gate"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$52,853M</span>&ensp;<span class="lg-total-s">ties to consolidated · verdict: <b>pass</b></span></span>
+        </div>
+        <p class="ro-note">The rollup is caught <b>arithmetically</b> — a genuine rollup ties to its children to the dollar, so no vocabulary list is needed — and both readings of the members (gross of intersegment sales vs net) are tested against the filing's own consolidated figure. Every failure gets a named class: <b>undetected_rollup</b>, <b>duplicate_facts</b>, <b>no_consolidated</b>, <b>unreconciled</b> — never "failed". Apple's product bucket is tagged above iPhone, Mac and iPad the same way; summing it publishes 2×. The rule that fell out of shipping those wrong numbers: <b>nothing publishes unless it reconciles</b>. The cost is coverage — 33% of the cohort published correctly instead of 100% plausibly — and that trade is the product.</p>
+        <div class="mc-stats lg-stats">
+          <div class="mc-stat"><span class="mc-k">Federal awards mapped</span><span class="mc-v">$1.98T</span></div>
+          <div class="mc-stat"><span class="mc-k">Resolve to a graph recipient</span><span class="mc-v">97.5%</span></div>
+          <div class="mc-stat"><span class="mc-k">Filing-derived edges · top trust rung</span><span class="mc-v">1,504</span></div>
+          <div class="mc-stat"><span class="mc-k">Verified share, after one audit write-back</span><span class="mc-v">62.8 → 71.5%</span></div>
+        </div>
+        <p class="ro-note">The same honesty applies to the graph's own opinion of itself: an audit found the stored confidence number <b>inverted</b> — the 0.95+ band was less accurate than the band below it — so confidence was replaced with trust tiers derived from how each edge was made, and 671 audit verdicts were written back with refuted claims kept in the ledger rather than deleted. <a href="https://thessa.space" target="_blank" rel="noopener">Live</a> · <a href="https://github.com/bpachter/thessa" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/bpachter/thessa/blob/main/CLAUDE.md" target="_blank" rel="noopener">The working rules</a> · <a href="graph-ontology/">How the graph is designed</a></p>
+      </figure>
+
+      <figure class="bmw blueprint reveal" data-mode="heuristic" id="cs-astraea">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <figcaption class="bmw-head">
+          <div>
+            <span class="kick">02 · Astraea · live on AWS</span>
+            <h2 class="bmw-title">The gate that said no</h2>
+          </div>
+          <div class="bmw-seg" role="group" aria-label="Adjudication mode">
+            <button type="button" class="bmw-mode" data-mode="heuristic" aria-pressed="true">Name-shape heuristic</button>
+            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Substance gate</button>
+          </div>
+        </figcaption>
+        <p class="ro-note"><a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Astraea</a> is the governance layer extracted from Thessa: AI agents propose facts, a typed <b>C#/.NET reconciliation gate</b> verifies them with named failure modes, and a <b>Django</b> portal makes approval structurally impossible without a passing verdict — HTTP 409, in code, not in a review comment. What follows is its <b>first live run</b> against the production graph: a heuristic had flagged twenty nodes as "article/quantifier-led phrases, not discrete entities" and proposed demoting them to generic. Toggle what each adjudicator does.</p>
+        <div class="lg-rows" role="table" aria-label="Twenty proposed node demotions and their fate under each adjudicator">
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>The Aerospace Corporation</b><span class="lg-sub">"The"-led phrase, said the heuristic · 213 federal contracts</span></span>
+            <span class="lg-num">$9.1B</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused · substance_demotion</span>
+          </div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Two Six Labs</b><span class="lg-sub">"Two" read as a quantifier</span></span>
+            <span class="lg-num">$438M</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Five Stones Research</b><span class="lg-sub">"Five" read as a quantifier</span></span>
+            <span class="lg-num">$154M</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Eleven more contract-holding nodes</b><span class="lg-sub">632 federal contracts across all fourteen refusals</span></span>
+            <span class="lg-num">$1.2B</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Five name-only stubs</b><span class="lg-sub">no contracts, almost no edges</span></span>
+            <span class="lg-num">—</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--ok m-gate">allowed</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>The MathWorks</b><span class="lg-sub">three edges, no contracts — provable neither way</span></span>
+            <span class="lg-num">—</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--ok m-gate">routed to a human</span>
+          </div>
+        </div>
+        <div class="lg-total">
+          <span class="m-heuristic"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">20 demotions apply</span>&ensp;<span class="lg-total-s">$10.9B in federal contracts reclassified as "generic" — silently</span></span>
+          <span class="m-gate"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">14 refused, by name</span>&ensp;<span class="lg-total-s">provenance beats name shape · a gate is a floor, not a verdict</span></span>
+        </div>
+        <p class="ro-note">The gate judges a node by what it <b>holds</b> — live edges, federal contracts, ticker and identity bridges — never by how its name reads. Its honest boundary is on display too: the six nodes it let through hold nothing worth protecting, and the one judgment call goes to the human reviewer it feeds. The same invariance shows up when the proposer changes: two different frontier models ran the same four filings and disagreed almost perfectly on which reconciled — swapping the proposer is one environment variable, and the verdict logic never moves. The AI is load-bearing for throughput, never for truth.</p>
+        <div class="mc-stats lg-stats">
+          <div class="mc-stat"><span class="mc-k">Protected on the first live run</span><span class="mc-v">$10.9B</span></div>
+          <div class="mc-stat"><span class="mc-k">Approval without a verdict</span><span class="mc-v">HTTP 409</span></div>
+          <div class="mc-stat"><span class="mc-k">Human outcomes calibrating AI confidence</span><span class="mc-v">1,691</span></div>
+          <div class="mc-stat"><span class="mc-k">The whole AWS footprint, per month</span><span class="mc-v">~$6–9</span></div>
+        </div>
+        <p class="ro-note">Confidence itself is treated as a claim to verify: a split-conformal table fitted on 1,691 human-adjudicated outcomes turns the AI's self-report into a measured probability — the finding so far is that the extractor is <b>under</b>confident. The same algorithm is implemented independently in C# and Python with one shared fixture pinned in both test suites, so the implementations cannot drift. <a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Source</a> · <a href="atlas/">Recon viewer &amp; 3D atlas</a> · <a href="https://gate.thessa.space/lookup" target="_blank" rel="noopener">Lookup API</a> · <a href="https://portal.thessa.space/admin/" target="_blank" rel="noopener">Portal</a> (<code>demo / astraea-demo</code>)</p>
+      </figure>
+
       <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-bmw">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">01 · BMW Spartanburg · 2018</span>
+            <span class="kick">03 · BMW Spartanburg · 2018</span>
             <h2 class="bmw-title">The line never stops</h2>
           </div>
           <div class="bmw-seg" role="group" aria-label="View mode">
@@ -387,7 +544,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">02 · New York Mortgage Trust · 2022–24</span>
+            <span class="kick">04 · New York Mortgage Trust · 2022–24</span>
             <h2 class="bmw-title">The 10-factor lens</h2>
           </div>
         </figcaption>
@@ -448,7 +605,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">03 · Deloitte · fixed income</span>
+            <span class="kick">05 · Deloitte · fixed income</span>
             <h2 class="bmw-title">Volatility regimes, live</h2>
           </div>
         </figcaption>
@@ -484,7 +641,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">04 · Duke Energy · 2024 —</span>
+            <span class="kick">06 · Duke Energy · 2024 —</span>
             <h2 class="bmw-title">Where the grid says yes</h2>
           </div>
           <a class="go" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--font-heading);font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--color-accent-700)">Play the public version <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:15px;height:15px;stroke-width:1.5"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
@@ -535,7 +692,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <p class="ro-note">The constraint: every serious request used to earn a 2–4 week PSS/E study, and the requests never stopped coming. The call was <b>fidelity versus throughput</b> — study everything at full accuracy, or screen first with a fast linearized headroom surface and accept that a screen is slightly wrong about flows so it can be completely right about which sites are hopeless. Screening is calibrated conservative: a false positive costs one deep study; a false negative kills a viable site, so the surface errs toward sending borderline sites through. What it bought: <b>250+ GW screened, 150+ site analyses, same-day answers, ~200 engineering hours a month</b> returned to actual engineering. The production platform is proprietary — the <a href="https://bpachter.github.io/headroom/">Headroom sandbox</a> is its public, synthetic cousin: same screening math (DC power flow, PTDF, N-1), invented network, every number checkable by hand in the <a href="https://github.com/bpachter/headroom" target="_blank" rel="noopener">open test suite</a>.</p>
       </figure>
 
-      <p class="cs-more">More case studies in progress.</p>
+      <p class="cs-more">More: <a href="graph-ontology/">a practical guide to knowledge-graph architecture</a> · <a href="atlas/">the recon viewer &amp; 3D atlas</a></p>
     </div>
   </div>
 </div>

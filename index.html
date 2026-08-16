@@ -513,6 +513,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <a href="#contact" data-spy="contact"><span class="n">05</span> Contact <span class="bar"></span></a>
         <a href="case-studies.html" class="r-cross"><span class="n">↗</span> Case studies <span class="bar"></span></a>
         <a href="graph-ontology/" class="r-cross"><span class="n">↗</span> Graph ontology guide <span class="bar"></span></a>
+        <a href="atlas/" class="r-cross"><span class="n">↗</span> Recon viewer &amp; 3D atlas <span class="bar"></span></a>
       </nav>
       <div class="r-foot fade" style="--i:7">
         <a href="mailto:ben.pachter@bellsouth.net"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>ben.pachter@bellsouth.net</a>
@@ -562,8 +563,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               </details>
             </div>
             <div class="ir-meta">
-              <span class="st st-live"><span class="live-dot"></span>Live on AWS</span>
-              <a class="go" href="https://astraea.thessa.space" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <span class="st st-live"><span class="live-dot"></span>Live</span>
+              <a class="go" href="atlas/">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://gate.thessa.space/lookup" target="_blank" rel="noopener">Lookup API <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://portal.thessa.space/admin/" target="_blank" rel="noopener">Portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
@@ -578,7 +579,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <div class="chips"><span class="chip">Ontology design</span><span class="chip">React + TypeScript</span><span class="chip">SEC EDGAR · USAspending</span><span class="chip">Provenance-first</span><span class="chip">MIT</span></div>
               <a class="ir-shot" href="https://thessa.space" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/thessa.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
-            <div class="ir-desc">A knowledge graph of who depends on whom across space, defense, AI infrastructure and critical minerals — <b>39,606 typed nodes</b> across 10 types — 15,048 of them organizations, the rest programs, products, segments, people and materials — joined by <b>50,124 typed edges</b> across 20 relation kinds, and <b>78,226 federal awards worth $1.98T</b>, of which 97.5% resolve to a recipient already in the graph. The hard part isn't the join, it's deciding what earns a place: a filer must name any customer above 10% of revenue and state the dollar figure, so that edge carries an audited number, while a press release carries only an assertion. They are stored on different trust rungs — 2,803 edges from filings and federal records against 1,187 press-derived — and refuted claims stay in the audit ledger rather than quietly disappearing. Free, no paid tier, open source.</div>
+            <div class="ir-desc">A knowledge graph of who depends on whom across space, defense, AI infrastructure and critical minerals — <b>39,606 typed nodes</b> across 10 types — 15,048 of them organizations, the rest programs, products, segments, people and materials — joined by <b>50,124 typed edges</b> across 20 relation kinds, and <b>78,226 federal awards worth $1.98T</b>, of which 97.5% resolve to a recipient already in the graph. The hard part isn't the join, it's deciding what earns a place: a filer must name any customer above 10% of revenue and state the dollar figure, so that edge carries an audited number, while a press release carries only an assertion. They are stored on different trust rungs — 2,803 edges from filings and federal records against 1,187 press-derived — and refuted claims stay in the audit ledger rather than quietly disappearing. Free, no paid tier, open source.
+              <details class="walkthrough">
+                <summary>Watch the 12-second tour &darr;</summary>
+                <img src="media/thessa-tour.gif" alt="Thessa terminal tour: the landing page, the Signals wire, the companies screen, an NVIDIA company page, the supply-chain web, the data-center infrastructure map, the 3D Treasury yield-curve surface, and the grounded AI chat" loading="lazy">
+              </details></div>
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://thessa.space" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
@@ -642,7 +647,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <div class="chips"><span class="chip">AI safety evals</span><span class="chip">Ollama</span><span class="chip">Quantized open weights</span><span class="chip">Factorial design</span><span class="chip">Single 24 GB GPU</span></div>
               <a class="ir-shot" href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/ows.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
-            <div class="ir-desc">Measurement infrastructure for indirect prompt injection against the agents people actually run — quantized open-weight models on one consumer GPU. The outcome is binary and mechanically observable (did the model call a destructive tool no task requires?), so thousands of unattended trials mean something without an LLM-as-judge. The structural finding: attack success is not one number — <b>ASR = P(delivered) × P(obeys | delivered) × P(executes | obeys)</b> — and benchmarks reporting the product miss models that look safe only because they never called the carrier tool: one model recorded <b>0 successful attacks in 258 trials</b> without ever being attacked once. Three-armed controls (attack / clean / benign) keep the causal claim honest.</div>
+            <div class="ir-desc">Measurement infrastructure for indirect prompt injection against the agents people actually run — quantized open-weight models on one consumer GPU. The outcome is binary and mechanically observable (did the model call a destructive tool no task requires?), so thousands of unattended trials mean something without an LLM-as-judge. The structural finding: attack success is not one number — <b>ASR = P(delivered) × P(obeys | delivered) × P(executes | obeys)</b> — and benchmarks reporting the product miss models that look safe only because they never called the carrier tool: one model recorded <b>0 successful attacks in 258 trials</b> without ever being attacked once. Three-armed controls (attack / clean / benign) keep the causal claim honest.
+              <details class="walkthrough">
+                <summary>See the headline figure &darr;</summary>
+                <img src="media/owas-framing.png" alt="Bar chart of attack framing effectiveness with Wilson 95% confidence intervals: payloads phrased as a routine technical spec were obeyed most often; authority theater like SYSTEM OVERRIDE recorded no successes" loading="lazy">
+              </details></div>
             <div class="ir-meta">
               <span class="st st-wip">Paper · code</span>
               <a class="go" href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
