@@ -234,7 +234,24 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .rule{height:1px;background:var(--color-divider);border:0;margin:14px 0 0}
 
   /* intro */
-  .intro{padding:58px 0 30px;background:radial-gradient(120% 80% at 8% -12%,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 58%)}
+  .intro{position:relative;isolation:isolate;padding:58px 0 30px;background:radial-gradient(120% 80% at 8% -12%,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 58%)}
+  /* Hero backdrop — the regime-switching lab from the case studies, running
+     live rather than recorded. Same two-state hidden Markov chain driving
+     geometric Brownian motion; a few KB of maths stays sharp at any width,
+     follows the theme, and never loops, which no GIF can do. Bleeds past the
+     wrap padding on the right, and is masked away on the left so the
+     headline never competes with it. */
+  /* explicit width/height, not inset: a canvas is a replaced element, so an
+     auto size resolves to its intrinsic 300x150 and ignores left/right. */
+  .hero-sim{position:absolute;top:0;left:0;display:block;
+    width:calc(100% + clamp(28px,4.4vw,64px));height:100%;
+    z-index:0;pointer-events:none;opacity:.38;
+    -webkit-mask-image:linear-gradient(100deg,transparent 4%,rgba(0,0,0,.22) 30%,#000 66%),linear-gradient(180deg,#000 58%,transparent 97%);
+    mask-image:linear-gradient(100deg,transparent 4%,rgba(0,0,0,.22) 30%,#000 66%),linear-gradient(180deg,#000 58%,transparent 97%);
+    -webkit-mask-composite:source-in;mask-composite:intersect}
+  [data-theme="dark"] .hero-sim{opacity:.62}
+  .intro > *:not(.hero-sim){position:relative;z-index:1}
+  @media (max-width:760px){.hero-sim{opacity:.3}}
   .intro h1{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     font-size:clamp(34px,4.6vw,58px);line-height:1.02;letter-spacing:.005em;margin:0;max-width:16ch}
   .intro .line{display:block}
@@ -535,6 +552,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
       <div class="wrap">
 
         <section class="intro">
+          <canvas class="hero-sim" id="heroSim" aria-hidden="true"></canvas>
           <h1 class="fx-tr"><span class="line" style="--i:1">Forward deployed engineer.</span><span class="line" style="--i:2">AI and data platforms for the power grid.</span></h1>
           <p class="fade" style="--i:4">Knowledge graphs in production and the governance that keeps them honest — a <b>.NET</b> reconciliation gate that refuses to publish a number it can't prove, a <b>Django</b> approval path and a <b>React</b> viewer, live on <b>AWS</b> — alongside the geospatial platforms that decide where the grid can say yes.</p>
           <div class="stats reveal">
@@ -927,6 +945,183 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
     secs.forEach((s) => so.observe(s));
   }
+
+  // ---------- hero backdrop: the regime lab, live ----------
+  // The case-study simulator, re-run as a background. A recording was the
+  // obvious route and the wrong one: this is ~2KB of maths that stays crisp
+  // at any width, repaints itself when the theme flips, and never shows a
+  // loop seam. It also happens to be the honest version — the fan really is
+  // sampled, not drawn.
+  (function () {
+    const cv = document.getElementById('heroSim');
+    if (!cv || !cv.getContext) return;
+
+    // Two-state hidden Markov chain — calm and stressed — each state driving
+    // geometric Brownian motion with its own (mu, sigma). Same constants as
+    // the lab on the case-studies page.
+    const MU = [0.00045, -0.0012], SIG = [0.008, 0.026];
+    const TP = [[0.986, 0.014], [0.08, 0.92]];
+    const T = 240, HZN = 84, NPATH = 64;
+    const randn = () => {
+      let u = 0, v = 0;
+      while (!u) u = Math.random();
+      while (!v) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    };
+    const quant = (a, f) => {
+      const i = f * (a.length - 1), lo = Math.floor(i);
+      return a[lo] + (a[Math.min(lo + 1, a.length - 1)] - a[lo]) * (i - lo);
+    };
+
+    const states = [0], prices = [100];
+    for (let t = 1; t < T; t++) {
+      const prev = states[t - 1];
+      const s = Math.random() < TP[prev][prev] ? prev : 1 - prev;
+      states.push(s);
+      prices.push(prices[t - 1] * Math.exp(MU[s] + SIG[s] * randn()));
+    }
+
+    let fan = [], bands = [];
+    function runMC() {
+      const p0 = prices[prices.length - 1];
+      const s0 = states[states.length - 1];
+      fan = [];
+      for (let n = 0; n < NPATH; n++) {
+        let s = s0, p = p0;
+        const row = [p];
+        for (let k = 0; k < HZN; k++) {
+          s = Math.random() < TP[s][s] ? s : 1 - s;
+          p *= Math.exp(MU[s] + SIG[s] * randn());
+          row.push(p);
+        }
+        fan.push(row);
+      }
+      bands = [];
+      for (let k = 0; k <= HZN; k++) {
+        const col = fan.map((r) => r[k]).sort((x, y) => x - y);
+        bands.push([quant(col, 0.05), quant(col, 0.5), quant(col, 0.95)]);
+      }
+    }
+    runMC();
+
+    function tick() {
+      const prev = states[states.length - 1];
+      const s = Math.random() < TP[prev][prev] ? prev : 1 - prev;
+      states.push(s);
+      prices.push(prices[prices.length - 1] * Math.exp(MU[s] + SIG[s] * randn()));
+      if (prices.length > T) { states.shift(); prices.shift(); }
+    }
+
+    const cssVar = (n, fb) => (getComputedStyle(document.documentElement).getPropertyValue(n) || fb).trim();
+
+    function draw() {
+      const W = cv.clientWidth, Hc = cv.clientHeight;
+      if (!W || !Hc) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const pw = Math.round(W * dpr), ph = Math.round(Hc * dpr);
+      if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, Hc);
+
+      const ink = cssVar('--color-text', '#1d1f20');
+      const acc = cssVar('--color-accent', '#5980a6');
+      const total = T + HZN, padY = Hc * 0.16, histW = Math.min(58, W * 0.07);
+      const plotW = W - histW;
+      const X = (i) => (plotW * i) / (total - 1);
+
+      let mn = Infinity, mx = -Infinity;
+      for (const p of prices) { if (p < mn) mn = p; if (p > mx) mx = p; }
+      for (const b of bands) { if (b[0] < mn) mn = b[0]; if (b[2] > mx) mx = b[2]; }
+      const sp = (mx - mn) * 0.08 || 1;
+      mn -= sp; mx += sp;
+      const Y = (p) => padY + (Hc - 2 * padY) * (1 - (p - mn) / (mx - mn));
+
+      // stressed regimes, shaded — the chain the filter is trying to infer
+      ctx.fillStyle = acc; ctx.globalAlpha = 0.10;
+      let run = -1;
+      for (let t = 0; t <= T; t++) {
+        const st = t < T ? states[t] : 0;
+        if (st === 1 && run < 0) run = t;
+        if (st !== 1 && run >= 0) { ctx.fillRect(X(run), 0, X(t) - X(run), Hc); run = -1; }
+      }
+
+      // the realized path
+      ctx.globalAlpha = 0.42; ctx.strokeStyle = ink; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      prices.forEach((p, i) => { const x = X(i), y = Y(p); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+      ctx.stroke();
+
+      // the fan of futures
+      ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.globalAlpha = 0.05;
+      for (const row of fan) {
+        ctx.beginPath();
+        row.forEach((p, k) => { const x = X(T - 1 + k), y = Y(p); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+        ctx.stroke();
+      }
+
+      // 5–95 ribbon and the median
+      ctx.fillStyle = acc; ctx.globalAlpha = 0.14;
+      ctx.beginPath();
+      bands.forEach((b, k) => { const x = X(T - 1 + k), y = Y(b[2]); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+      for (let k = bands.length - 1; k >= 0; k--) ctx.lineTo(X(T - 1 + k), Y(bands[k][0]));
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 0.55; ctx.strokeStyle = acc; ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      bands.forEach((b, k) => { const x = X(T - 1 + k), y = Y(b[1]); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+      ctx.stroke();
+
+      // today
+      const xT = X(T - 1);
+      ctx.globalAlpha = 0.28; ctx.strokeStyle = ink; ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath(); ctx.moveTo(xT, padY * 0.4); ctx.lineTo(xT, Hc - padY * 0.4); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // terminal distribution, stacked at the cone's edge
+      const term = fan.map((r) => r[r.length - 1]);
+      const BINS = 22, bins = new Array(BINS).fill(0);
+      for (const p of term) {
+        let bi = Math.floor(((p - mn) / (mx - mn)) * BINS);
+        if (bi < 0) bi = 0; if (bi >= BINS) bi = BINS - 1;
+        bins[bi]++;
+      }
+      const bmax = Math.max.apply(null, bins) || 1;
+      ctx.fillStyle = acc; ctx.globalAlpha = 0.26;
+      for (let i = 0; i < BINS; i++) {
+        if (!bins[i]) continue;
+        const y1 = Y(mn + ((i + 1) / BINS) * (mx - mn));
+        const y0 = Y(mn + (i / BINS) * (mx - mn));
+        ctx.fillRect(plotW + 4, y1, (histW - 10) * (bins[i] / bmax), Math.max(1, y0 - y1 - 1.5));
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    const reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
+    let timer = null, onScreen = true, sinceMC = 0;
+
+    function frame() {
+      tick();
+      if (++sinceMC >= 9) { runMC(); sinceMC = 0; }
+      draw();
+    }
+    function running() { return onScreen && !document.hidden && !reduce.matches; }
+    function sync() {
+      if (running() && timer === null) timer = setInterval(frame, 130);
+      else if (!running() && timer !== null) { clearInterval(timer); timer = null; }
+    }
+
+    draw();
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; sync(); }, { threshold: 0 }).observe(cv);
+    }
+    document.addEventListener('visibilitychange', sync);
+    if (reduce.addEventListener) reduce.addEventListener('change', sync);
+    new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    let rz;
+    window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(draw, 160); });
+    sync();
+  })();
 });
 </script>
 
