@@ -277,6 +277,9 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .chip{font-size:11px;color:var(--color-mute);
     border:1px solid var(--color-divider);padding:3px 8px;white-space:nowrap}
   .ir-desc{font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 78%,transparent)}
+  /* inline links inside a description (the grouped-explainers row) — .pf a
+     strips link colour site-wide, so restore an AA-passing accent here */
+  .ir-desc a{color:var(--color-accent-700);text-decoration:underline;text-underline-offset:3px}
   .ir-desc b{color:var(--color-text)}
   .ir-meta{display:flex;flex-direction:column;align-items:flex-end;gap:11px}
   .st{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-heading);font-weight:600;
@@ -585,6 +588,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/headroom" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
 
@@ -599,6 +603,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/drawdown" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
 
@@ -613,11 +618,41 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/updraft/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/updraft" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
 
           <div class="idx-row reveal">
             <div class="ir-no">06</div>
+            <div class="ir-name">
+              <h3><a href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener">Open-Weight Agent Safety</a></h3>
+              <div class="ir-tagline">Prompt-injection research on local LLM agents</div>
+              <div class="chips"><span class="chip">AI safety evals</span><span class="chip">Ollama</span><span class="chip">Quantized open weights</span><span class="chip">Factorial design</span><span class="chip">Single 24 GB GPU</span></div>
+            </div>
+            <div class="ir-desc">Measurement infrastructure for indirect prompt injection against the agents people actually run — quantized open-weight models on one consumer GPU. The outcome is binary and mechanically observable (did the model call a destructive tool no task requires?), so thousands of unattended trials mean something without an LLM-as-judge. The structural finding: attack success is not one number — <b>ASR = P(delivered) × P(obeys | delivered) × P(executes | obeys)</b> — and benchmarks reporting the product miss models that look safe only because they never called the carrier tool: one model recorded <b>0 successful attacks in 258 trials</b> without ever being attacked once. Three-armed controls (attack / clean / benign) keep the causal claim honest.</div>
+            <div class="ir-meta">
+              <span class="st st-wip">Paper · code</span>
+              <a class="go" href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/open-weight-agent-safety/tree/main/papers/01-unattacked-not-unbreakable" target="_blank" rel="noopener">Paper <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="idx-row reveal">
+            <div class="ir-no">07</div>
+            <div class="ir-name">
+              <h3><a href="https://github.com/bpachter/aether" target="_blank" rel="noopener">Aether</a></h3>
+              <div class="ir-tagline">GPU-native physics rendering museum</div>
+              <div class="chips"><span class="chip">CUDA C++</span><span class="chip">RK4 geodesic integrator</span><span class="chip">RTX 4090</span><span class="chip">FFmpeg pipeline</span><span class="chip">React + FastAPI</span></div>
+            </div>
+            <div class="ir-desc">Black holes rendered the hard way: a compiled <b>CUDA C++</b> kernel per exhibit traces light through <b>Schwarzschild and Kerr</b> spacetimes by direct geodesic integration — RK4 on Hamilton's equations, no game-engine shortcuts — on a local RTX 4090. Frames leave the GPU as PNG sequences, an FFmpeg pipeline assembles them into looping WebM, and a React + KaTeX front end serves the museum from FastAPI so the physics plays on any device. The exhibit roadmap runs from the black holes through emission nebulae and electron orbitals to a Type Ia supernova.</div>
+            <div class="ir-meta">
+              <span class="st st-wip">In development</span>
+              <a class="go" href="https://github.com/bpachter/aether" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="idx-row reveal">
+            <div class="ir-no">08</div>
             <div class="ir-name">
               <h3><a href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener">Kernel</a></h3>
               <div class="ir-tagline">Python that runs in the browser</div>
@@ -627,60 +662,24 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-            </div>
-          </div>
-
-          <div class="idx-row reveal">
-            <div class="ir-no">07</div>
-            <div class="ir-name">
-              <h3><a href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Gradient</a></h3>
-              <div class="ir-tagline">Interactive course on neural networks</div>
-              <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">Canvas 2D</span><span class="chip">Live backprop</span><span class="chip">Zero deps</span></div>
-            </div>
-            <div class="ir-desc">A hand-sketched journey from the 1958 perceptron to the transformer, built from my <b>IBM AI Engineering</b> (13 courses) and <b>Stanford / DeepLearning.AI</b> notebooks. Real in-browser backprop, a tokenizer, attention arcs, an n-gram LM with temperature / top-k / top-p, plus LoRA, DPO and MoE.</div>
-            <div class="ir-meta">
-              <span class="st st-live"><span class="live-dot"></span>Live</span>
-              <a class="go" href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-            </div>
-          </div>
-
-          <div class="idx-row reveal">
-            <div class="ir-no">08</div>
-            <div class="ir-name">
-              <h3><a href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Entropy</a></h3>
-              <div class="ir-tagline">Interactive thermodynamics course</div>
-              <div class="chips"><span class="chip">React 18</span><span class="chip">react-three-fiber</span><span class="chip">Hand-written physics</span><span class="chip">Instanced WebGL</span></div>
-            </div>
-            <div class="ir-desc">Seven themed chapters, each pinning a live, physically-accurate sim you manipulate beside the narrative — a working Carnot cycle, Maxwell's demon, Hawking black-hole evaporation. A zero-dependency hard-sphere gas engine computes real quantities (<b>S = k ln W</b>, Landauer, Bekenstein–Hawking) on instanced WebGL particles.</div>
-            <div class="ir-meta">
-              <span class="st st-live"><span class="live-dot"></span>Live</span>
-              <a class="go" href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/kernel" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
 
           <div class="idx-row reveal">
             <div class="ir-no">09</div>
             <div class="ir-name">
-              <h3><a href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">The Great Attractor</a></h3>
-              <div class="ir-tagline">Interactive tour of the observable universe</div>
-              <div class="chips"><span class="chip">TypeScript</span><span class="chip">Canvas 2D</span><span class="chip">3-D cosmic web</span><span class="chip">Live physics toys</span><span class="chip">Zero deps</span></div>
+              <h3>Interactive Explainers</h3>
+              <div class="ir-tagline">Gradient · Entropy · The Great Attractor</div>
+              <div class="chips"><span class="chip">Canvas 2D · WebGL</span><span class="chip">Hand-written physics</span><span class="chip">Zero chart libraries</span><span class="chip">TypeScript · React</span></div>
             </div>
-            <div class="ir-desc">A chaptered tour of where you actually live: a pull-back from 1 AU to the two-billion-light-year <b>KBC void</b>, a cosmic web grown in your browser by void-repulsion and spun in 3-D, and a gravity-vs-dark-energy tug-of-war calibrated to the Local Group's real edge. The full hunt for the <b>Great Attractor</b> — the hidden mass reeling in every galaxy around us — through Laniakea, the observable-universe bubble, and a Big Bang that happened everywhere at once. Five parts · 18 chapters · 18 interactive figures, all live.</div>
+            <div class="ir-desc">Three courses built from scratch, on the theory that the fastest way to prove you understand a system is to make it run in a browser tab. <b>Gradient</b> (<a href="https://github.com/bpachter/bpachter.github.io/tree/main/gradient" target="_blank" rel="noopener">source</a>) walks the 1958 perceptron to the transformer with real in-browser backprop, a tokenizer and an n-gram LM. <b>Entropy</b> (<a href="https://github.com/bpachter/entropy" target="_blank" rel="noopener">source</a>) pins seven chapters of thermodynamics to a hand-rolled hard-sphere gas engine — a working Carnot cycle, Maxwell's demon, Hawking evaporation. <b>The Great Attractor</b> (<a href="https://github.com/bpachter/bpachter.github.io/tree/main/attractor" target="_blank" rel="noopener">source</a>) pulls back from 1 AU to the two-billion-light-year KBC void through 18 interactive figures. Every simulation hand-written; no chart libraries anywhere.</div>
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
-              <a class="go" href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Gradient <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Entropy <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">Attractor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
-          </div>
-
-          <div class="idx-row reveal">
-            <div class="ir-no">10</div>
-            <div class="ir-name">
-              <h3>Graph Algorithms</h3>
-              <div class="ir-tagline">Interactive graph-algorithm explorer</div>
-              <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">Canvas force layout</span><span class="chip">BFS / DFS</span><span class="chip">Graph theory</span></div>
-            </div>
-            <div class="ir-desc">A supply-chain graph you click through — BFS/DFS traversal, shortest path, and a <b>find the single point of failure</b> game that lights up sole-source nodes. The ontology and graph-theory core of my knowledge-graph work, with none of the proprietary data.</div>
-            <div class="ir-meta"><span class="st st-wip">In progress</span></div>
           </div>
         </section>
 
