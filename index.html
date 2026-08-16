@@ -511,7 +511,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <h1 class="r-name fx-tr"><span class="line" style="--i:1">Benjamin</span><span class="line" style="--i:2">Pachter<span class="sl">.</span></span></h1>
         <div class="r-role fade" style="--i:4">Forward Deployed Engineer · AI &amp; Data Platforms</div>
       </div>
-      <p class="r-bio fade" style="--i:5">I ship production ML/LLM platforms end to end, and own technical standards at principal-level scope across five organizations at Duke Energy — then rebuild the hard parts as things you can play with.</p>
+      <p class="r-bio fade" style="--i:5">I build and operate production AI and data platforms at Duke Energy, and set the technical standards that work follows across five organizations. The projects below apply the same engineering in public — knowledge graphs, verification gates, and grid-scale simulation.</p>
       <nav class="r-nav fade" style="--i:6">
         <a href="#work" data-spy="work"><span class="n">01</span> Work <span class="bar"></span></a>
         <a href="#experience" data-spy="experience"><span class="n">02</span> Experience <span class="bar"></span></a>
@@ -606,7 +606,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">DC power flow</span><span class="chip">PTDF · N-1</span><span class="chip">Unit-tested engine</span><span class="chip">Zero deps</span></div>
               <a class="ir-shot" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="media/shots/headroom-static.webp"><img src="media/shots/headroom.webp" alt="" loading="lazy" width="640" height="400"></picture></a>
             </div>
-            <div class="ir-desc">Drop a datacenter on a playable 14-bus transmission grid and watch line loadings redistribute, headroom recompute, and the answer flip from <b>energize</b> to <b>queued</b> — with the exact binding constraint named. Real screening math (B-θ power flow, PTDF sensitivities, N-1 sweep), validated against hand-solved cases in a zero-dependency test suite. The public, synthetic cousin of my Duke Energy screening platform.</div>
+            <div class="ir-desc">Drop a datacenter on an interactive 14-bus transmission grid and watch line loadings redistribute, headroom recompute, and the answer flip from <b>energize</b> to <b>queued</b> — with the exact binding constraint named. Real screening math (B-θ power flow, PTDF sensitivities, N-1 sweep), validated against hand-solved cases in a zero-dependency test suite. The public, synthetic cousin of my Duke Energy screening platform.</div>
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
@@ -619,10 +619,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div class="ir-name">
               <h3><a href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener">Drawdown</a></h3>
               <div class="ir-tagline">US natural gas supply and demand model</div>
-              <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">MapLibre GL</span><span class="chip">EIA-calibrated model</span><span class="chip">Convex price engine</span><span class="chip">Playable policy game</span></div>
+              <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">MapLibre GL</span><span class="chip">EIA-calibrated model</span><span class="chip">Convex price engine</span><span class="chip">Policy simulator</span></div>
               <a class="ir-shot" href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="media/shots/drawdown-static.webp"><img src="media/shots/drawdown.webp" alt="" loading="lazy" width="640" height="400"></picture></a>
             </div>
-            <div class="ir-desc">A six-module terminal for the US gas balance 2026–2036, where contracted LNG exports and the AI datacenter buildout run into a real production ceiling. Pull the levers and watch storage leave its five-year band in <b>2028</b> while the forward curve stays flat; drop a campus anywhere on the <b>Atlas</b> map and it scores the site against basins, pipeline corridors and LNG competition, then prices its burn. Ends with <b>The Operator</b> — run US energy policy for a decade, quarterly, with real build lags. Independent model built from public data (EIA, FERC, 96 sources) and calibrated against it: model spot $2.86 vs an actual $2.80, October storage within 4 Bcf of EIA's own projection. Nobody has beaten 2030 yet.</div>
+            <div class="ir-desc">A six-module terminal for the US gas balance 2026–2036, where contracted LNG exports and the AI datacenter buildout run into a real production ceiling. Pull the levers and watch storage leave its five-year band in <b>2028</b> while the forward curve stays flat; drop a campus anywhere on the <b>Atlas</b> map and it scores the site against basins, pipeline corridors and LNG competition, then prices its burn. Ends with <b>The Operator</b> — run US energy policy for a decade, quarterly, with real build lags. Independent model built from public data (EIA, FERC, 96 sources) and calibrated against it: model spot $2.86 vs an actual $2.80, October storage within 4 Bcf of EIA's own projection.</div>
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
@@ -1035,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!opened) {
         opened = true;
         reveal(bubble('bot', ''),
-          'Hi! 👋 I\'m the guide to Ben Pachter\'s work — knowledge graphs, LLM pipelines, and the odd hand-built physics engine. Ask me anything: what he does at Duke Energy, how his projects work, what he\'s built for fun. What are you curious about?');
+          'Hi — I\'m the guide to Ben Pachter\'s work: production knowledge graphs, AI data platforms, and the systems on this site. Ask me anything — what he does at Duke Energy, how Thessa or Astraea works, or where to start. What are you curious about?');
       }
       setTimeout(function () { input.focus(); }, 220);
     }
