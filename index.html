@@ -6,7 +6,12 @@
 <title>Benjamin Pachter — Enterprise Engineer &amp; Data Architect</title>
 <meta name="description" content="Principal-level AI &amp; data architect. Production ML/LLM platforms end to end — knowledge graphs, multi-model inference, and the geospatial platforms that decide where the grid can say yes.">
     <link rel="canonical" href="https://bpachter.github.io/">
-    <meta name="theme-color" content="#0a0e14">
+    <!-- Paired, so the browser chrome matches the theme the page will actually
+         paint for a first-time visitor instead of always claiming dark. The
+         toggle rewrites these media queries when someone picks a theme by
+         hand, so an explicit choice still wins over the OS. -->
+    <meta name="theme-color" content="#f2f2f3" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)">
 
     <!-- Social preview. Without these a pasted link renders as a bare URL in
          LinkedIn, Slack and iMessage — which is where this link actually
@@ -27,7 +32,13 @@
     <meta name="twitter:image" content="https://bpachter.github.io/media/og-card.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
-<script>try{if(localStorage.getItem('bp-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<!-- Runs before first paint so the page never flashes the wrong theme. A stored
+     choice wins; with nothing stored the OS setting decides, which is what an
+     OS-dark visitor arriving for the first time expects to see. Two try blocks,
+     not one: localStorage throws outright in some privacy modes, and that must
+     not take the media query down with it. -->
+<script>(function(){var s=null;try{s=localStorage.getItem('bp-theme')}catch(e){}
+try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
@@ -789,15 +800,42 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // dark-mode toggle (persisted; matches bpachter.github.io aurora palette)
+  // dark-mode toggle (persisted; matches bpachter.github.io aurora palette).
+  // An explicit choice is stored and always wins. With nothing stored the page
+  // follows the OS — at load via the bootstrap in <head>, and live, so someone
+  // who flips their system appearance mid-visit sees the page follow.
   const root = document.documentElement;
-  try { if (localStorage.getItem('bp-theme') === 'dark') root.setAttribute('data-theme', 'dark'); } catch (e) {}
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const stored = () => { try { return localStorage.getItem('bp-theme'); } catch (e) { return null; } };
+
+  // The paired <meta name="theme-color"> tags handle the follow-the-OS case on
+  // their own; once the choice is explicit the OS query is the wrong question,
+  // so force the matching tag to win by rewriting both media attributes.
+  const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+  const darkMeta = metas.find((m) => /dark/.test(m.getAttribute('media') || ''));
+  const lightMeta = metas.find((m) => m !== darkMeta);
+  const syncMeta = (dark) => {
+    if (!darkMeta || !lightMeta) return;
+    darkMeta.media = dark ? 'all' : 'not all';
+    lightMeta.media = dark ? 'not all' : 'all';
+  };
+
+  const apply = (dark) => {
+    if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    syncMeta(dark);
+  };
+  apply(stored() ? stored() === 'dark' : mq.matches);
+
   const tbtn = document.getElementById('themeToggle');
   if (tbtn) tbtn.addEventListener('click', () => {
-    const dark = root.getAttribute('data-theme') === 'dark';
-    if (dark) root.removeAttribute('data-theme'); else root.setAttribute('data-theme', 'dark');
-    try { localStorage.setItem('bp-theme', dark ? 'light' : 'dark'); } catch (e) {}
+    const dark = root.getAttribute('data-theme') !== 'dark';
+    apply(dark);
+    try { localStorage.setItem('bp-theme', dark ? 'dark' : 'light'); } catch (e) {}
   });
+
+  const onScheme = (e) => { if (!stored()) apply(e.matches); };
+  if (mq.addEventListener) mq.addEventListener('change', onScheme);
+  else if (mq.addListener) mq.addListener(onScheme);
 
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 

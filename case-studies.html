@@ -6,7 +6,17 @@
 <title>Case Studies — Benjamin Pachter</title>
 <meta name="description" content="Scenarios &amp; work, in depth — an animated BMW production-line diagram, a 10-factor real-estate scoring model with a live comp map, and a regime-switching Monte Carlo / hidden-Markov lab.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
-<script>try{if(localStorage.getItem('bp-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<!-- Paired, so the browser chrome matches the theme the page will actually
+     paint for a first-time visitor. The toggle rewrites these media queries
+     when someone picks a theme by hand, so an explicit choice still wins. -->
+<meta name="theme-color" content="#f2f2f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)">
+<!-- Runs before first paint so the page never flashes the wrong theme. A stored
+     choice wins; with nothing stored the OS setting decides. Two try blocks,
+     not one: localStorage throws outright in some privacy modes, and that must
+     not take the media query down with it. -->
+<script>(function(){var s=null;try{s=localStorage.getItem('bp-theme')}catch(e){}
+try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
@@ -492,14 +502,42 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // Theme. An explicit choice is stored and always wins; with nothing stored
+  // the page follows the OS, at load via the bootstrap in <head> and live via
+  // the change listener below. Setting data-theme is also what drives the
+  // Leaflet basemap swap further down, through its MutationObserver.
   const root = document.documentElement;
-  try { if (localStorage.getItem('bp-theme') === 'dark') root.setAttribute('data-theme', 'dark'); } catch (e) {}
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const stored = () => { try { return localStorage.getItem('bp-theme'); } catch (e) { return null; } };
+
+  // The paired <meta name="theme-color"> tags handle the follow-the-OS case on
+  // their own; once the choice is explicit the OS query is the wrong question,
+  // so force the matching tag to win by rewriting both media attributes.
+  const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+  const darkMeta = metas.find((m) => /dark/.test(m.getAttribute('media') || ''));
+  const lightMeta = metas.find((m) => m !== darkMeta);
+  const syncMeta = (d) => {
+    if (!darkMeta || !lightMeta) return;
+    darkMeta.media = d ? 'all' : 'not all';
+    lightMeta.media = d ? 'not all' : 'all';
+  };
+
+  const apply = (d) => {
+    if (d) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    syncMeta(d);
+  };
+  apply(stored() ? stored() === 'dark' : mq.matches);
+
   const t = document.getElementById('themeToggle');
   if (t) t.addEventListener('click', () => {
-    const d = root.getAttribute('data-theme') === 'dark';
-    if (d) root.removeAttribute('data-theme'); else root.setAttribute('data-theme', 'dark');
-    try { localStorage.setItem('bp-theme', d ? 'light' : 'dark'); } catch (e) {}
+    const d = root.getAttribute('data-theme') !== 'dark';
+    apply(d);
+    try { localStorage.setItem('bp-theme', d ? 'dark' : 'light'); } catch (e) {}
   });
+
+  const onScheme = (e) => { if (!stored()) apply(e.matches); };
+  if (mq.addEventListener) mq.addEventListener('change', onScheme);
+  else if (mq.addListener) mq.addListener(onScheme);
 
   document.querySelectorAll('.bmw').forEach((bmw) => {
     bmw.querySelectorAll('.bmw-mode').forEach((btn) => {
