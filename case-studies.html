@@ -91,6 +91,12 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .cs-top{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px clamp(24px,4.4vw,56px);border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-bg) 84%,transparent);backdrop-filter:blur(9px)}
   .cs-back{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--color-text);display:inline-flex;align-items:center;gap:9px}
   .cs-back:hover{color:var(--color-accent)}
+  /* WCAG 2.5.8 wants a 24px target; .cs-back rendered 21.7px tall on a 375px
+     viewport and the .go link 19.4px. Both are expanded with an absolutely
+     positioned overlay, which grows the target without moving the layout. */
+  .cs-back,.go{position:relative}
+  .cs-back::after,.go::after{content:"";position:absolute;left:0;right:0;
+    top:50%;height:24px;transform:translateY(-50%)}
   .theme-toggle{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer;transition:border-color .18s,color .18s;flex:none}
   .theme-toggle:hover{border-color:var(--color-accent);color:var(--color-accent)}
   .theme-toggle svg{width:16px;height:16px;stroke-width:1.5}
@@ -167,7 +173,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .fx-wnum{font-size:11px;color:var(--color-mute-2);font-feature-settings:"tnum" 1;text-align:right}
   .fx-bar{position:absolute;left:0;right:0;bottom:-1px;height:2px;pointer-events:none}
   .fx-bar i{display:block;height:100%;background:var(--color-accent);width:0;transition:width .25s var(--ease-out)}
-  input.fx-val,input.fx-wt{-webkit-appearance:none;appearance:none;height:22px;background:transparent;cursor:ew-resize;border:0;margin:0}
+  /* 24px, not 22 — these twenty sliders are the whole interaction on this
+     card, and two pixels is the difference between clearing WCAG 2.5.8 and
+     missing it. The track and thumb stay centred, so nothing looks different. */
+  input.fx-val,input.fx-wt{-webkit-appearance:none;appearance:none;height:24px;background:transparent;cursor:ew-resize;border:0;margin:0}
   .fx-row .fx-val,.fx-row .fx-wt{width:100%;min-width:0}
   input.fx-val::-webkit-slider-runnable-track,input.fx-wt::-webkit-slider-runnable-track{height:2px;background:var(--color-divider)}
   input.fx-val::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-5.5px;border-radius:0;background:var(--color-accent);border:1px solid var(--color-accent-700)}
@@ -199,7 +208,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   @media (max-width:430px){.fx-cols,.fx-row{grid-template-columns:82px 1fr 26px 46px 30px;gap:6px}.fx-label{font-size:10.5px}}
   .fx-map{position:relative;z-index:0;height:320px;border:1px solid var(--color-divider);margin-bottom:26px;background:var(--color-surface);font-family:var(--font-body)}
   .fx-map-tag{position:absolute;top:10px;left:10px;z-index:500;font-family:var(--font-heading);font-weight:600;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;background:var(--color-bg);border:1px solid var(--color-divider);color:var(--color-mute);pointer-events:none}
-  .fx-pin{display:block;width:12px;height:12px;box-sizing:border-box;border:1.5px solid var(--color-accent-700);background:var(--color-bg)}
+  .fx-pin{position:relative;display:block;width:12px;height:12px;box-sizing:border-box;border:1.5px solid var(--color-accent-700);background:var(--color-bg)}
+  /* The pins are 16px icons Leaflet positions absolutely from their anchor, so
+     the target is expanded on the inner span: touching the wrapper would move
+     the pin off the coordinate it is marking. */
+  .fx-pin::after{content:"";position:absolute;top:50%;left:50%;width:24px;height:24px;transform:translate(-50%,-50%)}
   .fx-pin--subject{width:16px;height:16px;background:var(--color-accent);border:1px solid var(--color-accent-700);box-shadow:0 0 0 5px color-mix(in srgb,var(--color-accent) 22%,transparent)}
   .fx-tip{background:var(--color-bg);border:1px solid var(--color-divider);border-radius:0;color:var(--color-text);font-family:var(--font-body);font-size:11.5px;box-shadow:var(--shadow-sm);padding:5px 9px}
   .fx-tip::before{display:none}
