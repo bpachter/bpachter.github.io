@@ -183,12 +183,14 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
     display:flex;flex-direction:column;gap:26px;overflow:hidden}
   .rail > *{position:relative;z-index:1}
   .rail > .aurora,.rail > .rail-grid{z-index:0}
-  .aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;display:none}
+  /* Aurora runs in both themes now — light gets a heavily dimmed wash so the
+     rail reads as paper with a hint of colour, not a nightclub. */
+  .aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.3}
   .aurora .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
-  .aurora .b1{width:360px;height:320px;left:-20%;top:-4%;background:radial-gradient(circle,#2dd4bf,transparent 68%)}
-  .aurora .b2{width:380px;height:340px;right:-26%;top:10%;background:radial-gradient(circle,#6d63f0,transparent 66%);opacity:.42}
-  .aurora .b3{width:300px;height:300px;left:14%;top:40%;background:radial-gradient(circle,#38bdf8,transparent 70%);opacity:.3}
-  .rail-grid{position:absolute;inset:0;pointer-events:none;display:none}
+  .aurora .b1{width:360px;height:320px;left:-20%;top:-4%;background:radial-gradient(circle,#2dd4bf,transparent 68%);animation:drift1 22s var(--ease-out) infinite alternate}
+  .aurora .b2{width:380px;height:340px;right:-26%;top:10%;background:radial-gradient(circle,#6d63f0,transparent 66%);opacity:.42;animation:drift2 27s ease-in-out infinite alternate}
+  .aurora .b3{width:300px;height:300px;left:14%;top:40%;background:radial-gradient(circle,#38bdf8,transparent 70%);opacity:.3;animation:drift3 31s ease-in-out infinite alternate}
+  .rail-grid{position:absolute;inset:0;pointer-events:none;display:block;opacity:.12;background-image:linear-gradient(var(--color-divider) 1px,transparent 1px),linear-gradient(90deg,var(--color-divider) 1px,transparent 1px);background-size:38px 38px;-webkit-mask-image:radial-gradient(circle at 50% 22%,#000,transparent 72%);mask-image:radial-gradient(circle at 50% 22%,#000,transparent 72%)}
   .theme-toggle{position:absolute;top:18px;right:18px;z-index:3;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer;transition:border-color .18s,color .18s}
   .theme-toggle:hover{border-color:var(--color-accent);color:var(--color-accent)}
   .theme-toggle svg{width:16px;height:16px;stroke-width:1.5}
@@ -232,7 +234,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .rule{height:1px;background:var(--color-divider);border:0;margin:14px 0 0}
 
   /* intro */
-  .intro{padding:58px 0 30px}
+  .intro{padding:58px 0 30px;background:radial-gradient(120% 80% at 8% -12%,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 58%)}
   .intro h1{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     font-size:clamp(34px,4.6vw,58px);line-height:1.02;letter-spacing:.005em;margin:0;max-width:16ch}
   .intro .line{display:block}
@@ -277,9 +279,15 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .chip{font-size:11px;color:var(--color-mute);
     border:1px solid var(--color-divider);padding:3px 8px;white-space:nowrap}
   .ir-desc{font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 78%,transparent)}
-  /* inline links inside a description (the grouped-explainers row) — .pf a
-     strips link colour site-wide, so restore an AA-passing accent here */
+  /* inline links inside a description — .pf a strips link colour site-wide,
+     so restore an AA-passing accent here */
   .ir-desc a{color:var(--color-accent-700);text-decoration:underline;text-underline-offset:3px}
+  /* project thumbnails — real screenshots of each app, captured headlessly.
+     Decorative duplicates of the Launch link: aria-hidden, out of tab order. */
+  .ir-shot{display:block;margin-top:12px;border:1px solid var(--color-divider);overflow:hidden;background:color-mix(in srgb,var(--color-text) 3%,transparent)}
+  .ir-shot img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top;transition:transform .35s var(--ease-out)}
+  .ir-shot:hover img{transform:scale(1.035)}
+  @media (prefers-reduced-motion:reduce){.ir-shot img{transition:none}.ir-shot:hover img{transform:none}}
   .ir-desc b{color:var(--color-text)}
   .ir-meta{display:flex;flex-direction:column;align-items:flex-end;gap:11px}
   .st{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-heading);font-weight:600;
@@ -340,8 +348,9 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .cap{display:grid;grid-template-columns:190px 1fr;gap:26px;padding:16px 0;
     border-bottom:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)}
   .cap:last-child{border-bottom:0}
-  .cap-k{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  .cap-k{display:flex;align-items:flex-start;gap:9px;font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.06em;
     font-size:15px;color:var(--color-accent-700)}
+  .cap-k svg{width:16px;height:16px;flex:none;stroke-width:1.6;margin-top:2px}
   .cap-v{font-size:14.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 80%,transparent)}
 
   /* contact */
@@ -468,17 +477,14 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   }
   [data-theme="dark"] :is(.r-name,.intro h1,.contact-plate h3,.ir-name h3,.ir-name h3 a,.xp-role,.stat .v,.cert h3){color:#eef4fb}
   [data-theme="dark"] .intro{background:radial-gradient(120% 80% at 8% -12%,rgba(45,212,191,.12),transparent 58%)}
-  [data-theme="dark"] .aurora{display:block}
-  [data-theme="dark"] .aurora .b1{animation:drift1 22s var(--ease-out) infinite alternate}
-  [data-theme="dark"] .aurora .b2{animation:drift2 27s ease-in-out infinite alternate}
-  [data-theme="dark"] .aurora .b3{animation:drift3 31s ease-in-out infinite alternate}
-  [data-theme="dark"] .rail-grid{display:block;opacity:.26;background-image:linear-gradient(var(--color-divider) 1px,transparent 1px),linear-gradient(90deg,var(--color-divider) 1px,transparent 1px);background-size:38px 38px;-webkit-mask-image:radial-gradient(circle at 50% 22%,#000,transparent 72%);mask-image:radial-gradient(circle at 50% 22%,#000,transparent 72%)}
+  [data-theme="dark"] .aurora{opacity:1}
+  [data-theme="dark"] .rail-grid{opacity:.26}
   [data-theme="dark"] .theme-toggle .ic-sun{display:block}
   [data-theme="dark"] .theme-toggle .ic-moon{display:none}
   @keyframes drift1{to{transform:translate(70px,40px) scale(1.16)}}
   @keyframes drift2{to{transform:translate(-60px,30px) scale(1.12)}}
   @keyframes drift3{to{transform:translate(30px,55px) scale(1.22)}}
-  @media (prefers-reduced-motion:reduce){[data-theme="dark"] .aurora .blob{animation:none}}
+  @media (prefers-reduced-motion:reduce){.aurora .blob{animation:none}}
 </style>
 </head>
 <body>
@@ -524,10 +530,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           <h1 class="fx-tr"><span class="line" style="--i:1">Software engineer.</span><span class="line" style="--i:2">AI and data platforms for the power grid.</span></h1>
           <p class="fade" style="--i:4">Knowledge graphs in production and the governance that keeps them honest — a <b>.NET</b> reconciliation gate that refuses to publish a number it can't prove, a <b>Django</b> approval path and a <b>React</b> viewer, live on <b>AWS</b> — alongside the geospatial platforms that decide where the grid can say yes.</p>
           <div class="stats reveal">
-            <div class="stat"><div class="v">100+ GW</div><div class="k">Large-load screened</div></div>
-            <div class="stat"><div class="v">2–4 wks → day</div><div class="k">Study turnaround</div></div>
-            <div class="stat"><div class="v">$1.98T</div><div class="k">Federal awards mapped</div></div>
-            <div class="stat"><div class="v">$10.9B</div><div class="k">Contracts the gate protected</div></div>
+            <div class="stat"><div class="v">250+ GW</div><div class="k">Data-center &amp; large-load interconnection screened</div></div>
+            <div class="stat"><div class="v">150+</div><div class="k">Hyperscaler site analyses, six-state territory</div></div>
+            <div class="stat"><div class="v">$7B+</div><div class="k">Mortgage portfolio risk-scored with production ML</div></div>
+            <div class="stat"><div class="v">~$13M</div><div class="k">Supply-chain savings engineered at BMW</div></div>
           </div>
         </section>
 
@@ -542,6 +548,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Astraea</a></h3>
               <div class="ir-tagline">Governance layer for a knowledge graph</div>
               <div class="chips"><span class="chip">.NET 8</span><span class="chip">Django 5</span><span class="chip">React + three.js</span><span class="chip">AWS App Runner</span><span class="chip">ECR + S3</span><span class="chip">Docker</span><span class="chip">Governed AI</span></div>
+              <a class="ir-shot" href="https://astraea.thessa.space" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/astraea.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">The governance layer of my knowledge-graph work, running live on <b>AWS</b>: AI agents propose facts, a typed <b>C# reconciliation gate</b> refuses what doesn't tie out — named failure modes, never "failed" — and a <b>Django</b> portal makes approval structurally impossible without a passing verdict. Its first run against the production graph refused type demotions on nodes holding <b>$10.9B</b> in federal contracts that a name-shape heuristic had misread. Two containerized services on App Runner behind a versioned lookup API over <b>24,240</b> entities, plus a 3D <b>layered-omics atlas</b> from Human-GEM: 2,848 genes rising through 12,931 reactions to 8,461 metabolites. Portal demo: <code>demo / astraea-demo</code>.
               <!-- Inside .ir-desc on purpose. .idx-row is a four-column grid
@@ -569,6 +576,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://thessa.space" target="_blank" rel="noopener">Thessa</a></h3>
               <div class="ir-tagline">Supply-chain knowledge graph</div>
               <div class="chips"><span class="chip">Ontology design</span><span class="chip">React + TypeScript</span><span class="chip">SEC EDGAR · USAspending</span><span class="chip">Provenance-first</span><span class="chip">MIT</span></div>
+              <a class="ir-shot" href="https://thessa.space" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/thessa.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">A knowledge graph of who depends on whom across space, defense, AI infrastructure and critical minerals — <b>39,606 typed nodes</b> across 10 types — 15,048 of them organizations, the rest programs, products, segments, people and materials — joined by <b>50,124 typed edges</b> across 20 relation kinds, and <b>78,226 federal awards worth $1.98T</b>, of which 97.5% resolve to a recipient already in the graph. The hard part isn't the join, it's deciding what earns a place: a filer must name any customer above 10% of revenue and state the dollar figure, so that edge carries an audited number, while a press release carries only an assertion. They are stored on different trust rungs — 2,803 edges from filings and federal records against 1,187 press-derived — and refuted claims stay in the audit ledger rather than quietly disappearing. Free, no paid tier, open source.</div>
             <div class="ir-meta">
@@ -584,6 +592,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener">Headroom</a></h3>
               <div class="ir-tagline">Power-grid capacity simulator</div>
               <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">DC power flow</span><span class="chip">PTDF · N-1</span><span class="chip">Unit-tested engine</span><span class="chip">Zero deps</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/headroom.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">Drop a datacenter on a playable 14-bus transmission grid and watch line loadings redistribute, headroom recompute, and the answer flip from <b>energize</b> to <b>queued</b> — with the exact binding constraint named. Real screening math (B-θ power flow, PTDF sensitivities, N-1 sweep), validated against hand-solved cases in a zero-dependency test suite. The public, synthetic cousin of my Duke Energy screening platform.</div>
             <div class="ir-meta">
@@ -599,6 +608,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener">Drawdown</a></h3>
               <div class="ir-tagline">US natural gas supply and demand model</div>
               <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">MapLibre GL</span><span class="chip">EIA-calibrated model</span><span class="chip">Convex price engine</span><span class="chip">Playable policy game</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/drawdown.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">A six-module terminal for the US gas balance 2026–2036, where contracted LNG exports and the AI datacenter buildout run into a real production ceiling. Pull the levers and watch storage leave its five-year band in <b>2028</b> while the forward curve stays flat; drop a campus anywhere on the <b>Atlas</b> map and it scores the site against basins, pipeline corridors and LNG competition, then prices its burn. Ends with <b>The Operator</b> — run US energy policy for a decade, quarterly, with real build lags. Independent model built from public data (EIA, FERC, 96 sources) and calibrated against it: model spot $2.86 vs an actual $2.80, October storage within 4 Bcf of EIA's own projection. Nobody has beaten 2030 yet.</div>
             <div class="ir-meta">
@@ -614,6 +624,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://bpachter.github.io/updraft/" target="_blank" rel="noopener">Updraft</a></h3>
               <div class="ir-tagline">Data-center waste-heat reuse atlas</div>
               <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">MapLibre GL</span><span class="chip">R data pipeline</span><span class="chip">4 public datasets</span><span class="chip">Provenance-first</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/updraft/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/updraft.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">The environmental other-half of Drawdown: every watt a datacenter draws leaves as 30–45 °C heat — the exact grade a winter greenhouse wants. Updraft scores <b>1,474 US data centers</b> and <b>179 ethanol plants</b> against December light and heating demand (NASA POWER climatology, MERRA-2 cells) and maps the frontier where the AI buildout's exhaust is agricultural infrastructure: <b>50.3%</b> of data centers qualify, <b>76.5%</b> of ethanol plants — and <b>94 golden pairs</b> put near-pure fermentation CO₂ within 50 km of a frontier datacenter. Six-document brief, full provenance table, every number compiled offline from IM3, EPA GHGRP, EIA and NASA sources.</div>
             <div class="ir-meta">
@@ -629,6 +640,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <h3><a href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener">Open-Weight Agent Safety</a></h3>
               <div class="ir-tagline">Prompt-injection research on local LLM agents</div>
               <div class="chips"><span class="chip">AI safety evals</span><span class="chip">Ollama</span><span class="chip">Quantized open weights</span><span class="chip">Factorial design</span><span class="chip">Single 24 GB GPU</span></div>
+              <a class="ir-shot" href="https://github.com/bpachter/open-weight-agent-safety" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/ows.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">Measurement infrastructure for indirect prompt injection against the agents people actually run — quantized open-weight models on one consumer GPU. The outcome is binary and mechanically observable (did the model call a destructive tool no task requires?), so thousands of unattended trials mean something without an LLM-as-judge. The structural finding: attack success is not one number — <b>ASR = P(delivered) × P(obeys | delivered) × P(executes | obeys)</b> — and benchmarks reporting the product miss models that look safe only because they never called the carrier tool: one model recorded <b>0 successful attacks in 258 trials</b> without ever being attacked once. Three-armed controls (attack / clean / benign) keep the causal claim honest.</div>
             <div class="ir-meta">
@@ -641,23 +653,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           <div class="idx-row reveal">
             <div class="ir-no">07</div>
             <div class="ir-name">
-              <h3><a href="https://github.com/bpachter/aether" target="_blank" rel="noopener">Aether</a></h3>
-              <div class="ir-tagline">GPU-native physics rendering museum</div>
-              <div class="chips"><span class="chip">CUDA C++</span><span class="chip">RK4 geodesic integrator</span><span class="chip">RTX 4090</span><span class="chip">FFmpeg pipeline</span><span class="chip">React + FastAPI</span></div>
-            </div>
-            <div class="ir-desc">Black holes rendered the hard way: a compiled <b>CUDA C++</b> kernel per exhibit traces light through <b>Schwarzschild and Kerr</b> spacetimes by direct geodesic integration — RK4 on Hamilton's equations, no game-engine shortcuts — on a local RTX 4090. Frames leave the GPU as PNG sequences, an FFmpeg pipeline assembles them into looping WebM, and a React + KaTeX front end serves the museum from FastAPI so the physics plays on any device. The exhibit roadmap runs from the black holes through emission nebulae and electron orbitals to a Type Ia supernova.</div>
-            <div class="ir-meta">
-              <span class="st st-wip">In development</span>
-              <a class="go" href="https://github.com/bpachter/aether" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-            </div>
-          </div>
-
-          <div class="idx-row reveal">
-            <div class="ir-no">08</div>
-            <div class="ir-name">
               <h3><a href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener">Kernel</a></h3>
               <div class="ir-tagline">Python that runs in the browser</div>
               <div class="chips"><span class="chip">CPython on WASM</span><span class="chip">pandas</span><span class="chip">scikit-learn</span><span class="chip">SQL</span><span class="chip">Pyodide</span><span class="chip">Zero backend</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/kernel.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
             <div class="ir-desc">A live <b>CPython</b> interpreter compiled to WebAssembly and booted in the browser — not a syntax-highlighted screenshot, an actual kernel you can type into. Four editable cells walk the real workflow on nine years of weekly EIA gas-storage data: a <b>pandas</b> ingest, a <b>SQL</b> query against an in-memory SQLite database, a hand-rolled seasonal forecast graded against EIA's own published five-year band, and a <b>gradient-boosted</b> model that beats a persistence baseline by 19% on held-out weeks. Edit any cell, break it, re-run it — nothing you type leaves the tab.</div>
             <div class="ir-meta">
@@ -668,18 +667,50 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           </div>
 
           <div class="idx-row reveal">
-            <div class="ir-no">09</div>
+            <div class="ir-no">08</div>
             <div class="ir-name">
-              <h3>Interactive Explainers</h3>
-              <div class="ir-tagline">Gradient · Entropy · The Great Attractor</div>
-              <div class="chips"><span class="chip">Canvas 2D · WebGL</span><span class="chip">Hand-written physics</span><span class="chip">Zero chart libraries</span><span class="chip">TypeScript · React</span></div>
+              <h3><a href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Gradient</a></h3>
+              <div class="ir-tagline">Interactive course on neural networks</div>
+              <div class="chips"><span class="chip">Vanilla JS</span><span class="chip">Canvas 2D</span><span class="chip">Live backprop</span><span class="chip">Zero deps</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/gradient.webp" alt="" loading="lazy" width="640" height="400"></a>
             </div>
-            <div class="ir-desc">Three courses built from scratch, on the theory that the fastest way to prove you understand a system is to make it run in a browser tab. <b>Gradient</b> (<a href="https://github.com/bpachter/bpachter.github.io/tree/main/gradient" target="_blank" rel="noopener">source</a>) walks the 1958 perceptron to the transformer with real in-browser backprop, a tokenizer and an n-gram LM. <b>Entropy</b> (<a href="https://github.com/bpachter/entropy" target="_blank" rel="noopener">source</a>) pins seven chapters of thermodynamics to a hand-rolled hard-sphere gas engine — a working Carnot cycle, Maxwell's demon, Hawking evaporation. <b>The Great Attractor</b> (<a href="https://github.com/bpachter/bpachter.github.io/tree/main/attractor" target="_blank" rel="noopener">source</a>) pulls back from 1 AU to the two-billion-light-year KBC void through 18 interactive figures. Every simulation hand-written; no chart libraries anywhere.</div>
+            <div class="ir-desc">A hand-sketched journey from the 1958 perceptron to the transformer, built from my <b>IBM AI Engineering</b> (13 courses) and <b>Stanford / DeepLearning.AI</b> notebooks. Real in-browser backprop, a tokenizer, attention arcs, an n-gram LM with temperature / top-k / top-p, plus LoRA, DPO and MoE.</div>
             <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
-              <a class="go" href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Gradient <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              <a class="go" href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Entropy <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              <a class="go" href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">Attractor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/gradient/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/gradient" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="idx-row reveal">
+            <div class="ir-no">09</div>
+            <div class="ir-name">
+              <h3><a href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Entropy</a></h3>
+              <div class="ir-tagline">Interactive thermodynamics course</div>
+              <div class="chips"><span class="chip">React 18</span><span class="chip">react-three-fiber</span><span class="chip">Hand-written physics</span><span class="chip">Instanced WebGL</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/entropy.webp" alt="" loading="lazy" width="640" height="400"></a>
+            </div>
+            <div class="ir-desc">Seven themed chapters, each pinning a live, physically-accurate sim you manipulate beside the narrative — a working Carnot cycle, Maxwell's demon, Hawking black-hole evaporation. A zero-dependency hard-sphere gas engine computes real quantities (<b>S = k ln W</b>, Landauer, Bekenstein–Hawking) on instanced WebGL particles.</div>
+            <div class="ir-meta">
+              <span class="st st-live"><span class="live-dot"></span>Live</span>
+              <a class="go" href="https://bpachter.github.io/entropy/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/entropy" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="idx-row reveal">
+            <div class="ir-no">10</div>
+            <div class="ir-name">
+              <h3><a href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">The Great Attractor</a></h3>
+              <div class="ir-tagline">Interactive tour of the observable universe</div>
+              <div class="chips"><span class="chip">TypeScript</span><span class="chip">Canvas 2D</span><span class="chip">3-D cosmic web</span><span class="chip">Live physics toys</span><span class="chip">Zero deps</span></div>
+              <a class="ir-shot" href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="media/shots/attractor.webp" alt="" loading="lazy" width="640" height="400"></a>
+            </div>
+            <div class="ir-desc">A chaptered tour of where you actually live: a pull-back from 1 AU to the two-billion-light-year <b>KBC void</b>, a cosmic web grown in your browser by void-repulsion and spun in 3-D, and a gravity-vs-dark-energy tug-of-war calibrated to the Local Group's real edge. The full hunt for the <b>Great Attractor</b> — the hidden mass reeling in every galaxy around us — through Laniakea, the observable-universe bubble, and a Big Bang that happened everywhere at once. Five parts · 18 chapters · 18 interactive figures, all live.</div>
+            <div class="ir-meta">
+              <span class="st st-live"><span class="live-dot"></span>Live</span>
+              <a class="go" href="https://bpachter.github.io/attractor/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/attractor" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
           </div>
         </section>
@@ -696,7 +727,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div>
               <div class="xp-role">Senior Business Analyst · <span class="xp-org">Duke Energy</span></div>
               <p class="xp-det"><b>Analyst is the org-chart title; the scope is platform ownership</b> — I designed the system, and I set the standards five organizations build against.</p>
-              <p class="xp-det">Architected and delivered a spatial transmission-capacity platform (ArcGIS Pro + Python toolbox) that generates a continuous MW-headroom raster (IDW on tower-level TrLim), screens <b>100+ GW</b> of large-load requests and has supported <b>150+ hyperscaler site analyses</b> across a six-state territory — cutting PSS/E load-study turnaround from 2–4 weeks to same-day (~200 engineering hours/month). Built prompt-driven, agentic LangChain workflows for screening and feasibility narratives; own the platform roadmap and technical standards across five internal organizations.</p>
+              <p class="xp-det">Architected and delivered a spatial transmission-capacity platform (ArcGIS Pro + Python toolbox) that generates a continuous MW-headroom raster (IDW on tower-level TrLim), screens <b>250+ GW</b> of large-load requests and has supported <b>150+ hyperscaler site analyses</b> across a six-state territory — cutting PSS/E load-study turnaround from 2–4 weeks to same-day (~200 engineering hours/month). Built prompt-driven, agentic LangChain workflows for screening and feasibility narratives; own the platform roadmap and technical standards across five internal organizations.</p>
               <div class="chips xp-tags"><span class="chip">ArcGIS Pro</span><span class="chip">Python toolbox</span><span class="chip">IDW rasters</span><span class="chip">LangChain</span><span class="chip">PSS/E</span><span class="chip">AWS</span><span class="chip">SAP S/4HANA</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-duke">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </div>
@@ -742,14 +773,14 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <section class="sec" id="capabilities">
           <div class="sec-head"><h2 class="kick">03 · Capabilities</h2></div>
           <hr class="rule">
-          <div class="cap reveal"><div class="cap-k">AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
-          <div class="cap reveal"><div class="cap-k">Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
-          <div class="cap reveal"><div class="cap-k">Knowledge graphs</div><div class="cap-v">Ontology design · LLM entity / relationship extraction · GraphRAG · embeddings (ChromaDB, pgvector, Qdrant) · provenance-first verification flywheels</div></div>
-          <div class="cap reveal"><div class="cap-k">ML / deep learning</div><div class="cap-v">PyTorch · TensorFlow · Transformers · XGBoost / LightGBM · CNNs · time-series forecasting · MLflow / W&amp;B</div></div>
-          <div class="cap reveal"><div class="cap-k">Backend &amp; services</div><div class="cap-v">C# / .NET 8 · ASP.NET Core minimal APIs · xUnit · Python / Django 5 · Django REST Framework · gunicorn · FastAPI · Node / TypeScript · versioned REST APIs · OpenTelemetry tracing</div></div>
-          <div class="cap reveal"><div class="cap-k">Data &amp; cloud</div><div class="cap-v">SQL · Pandas / PySpark · Airflow · ETL / ELT · AWS (App Runner, ECR, S3 + CloudFront, Lambda, EventBridge, SQS, DynamoDB, Secrets Manager, Bedrock, X-Ray, CloudWatch, IAM / OIDC, CDK, Glue, Athena, Redshift, SageMaker) · Docker / Kubernetes · Postgres · SQLite · CUDA · GitHub Actions CI/CD</div></div>
-          <div class="cap reveal"><div class="cap-k">Geospatial</div><div class="cap-v">ArcGIS Pro · Python toolboxes · spatial raster modeling · IDW interpolation · transmission-capacity analysis · PSS/E</div></div>
-          <div class="cap reveal"><div class="cap-k">Frontend &amp; dataviz</div><div class="cap-v">React · TypeScript · Vite · MUI · three.js / react-three-fiber · D3 · Plotly · MapLibre GL · Recharts</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="8" r="2.4"/><circle cx="10" cy="18" r="2.4"/><path d="M8.4 6.7l7.2 1M7 8.2l2.3 7.5M16.4 9.9l-4.8 6.2"/></svg>Knowledge graphs</div><div class="cap-v">Ontology design · LLM entity / relationship extraction · GraphRAG · embeddings (ChromaDB, pgvector, Qdrant) · provenance-first verification flywheels</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/><rect x="10" y="10" width="4" height="4"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>ML / deep learning</div><div class="cap-v">PyTorch · TensorFlow · Transformers · XGBoost / LightGBM · CNNs · time-series forecasting · MLflow / W&amp;B</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Backend &amp; services</div><div class="cap-v">C# / .NET 8 · ASP.NET Core minimal APIs · xUnit · Python / Django 5 · Django REST Framework · gunicorn · FastAPI · Node / TypeScript · versioned REST APIs · OpenTelemetry tracing</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M7 18a4.5 4.5 0 1 1 .8-8.9A6 6 0 0 1 19 11a3.5 3.5 0 0 1-1 7z"/></svg>Data &amp; cloud</div><div class="cap-v">SQL · Pandas / PySpark · Airflow · ETL / ELT · AWS (App Runner, ECR, S3 + CloudFront, Lambda, EventBridge, SQS, DynamoDB, Secrets Manager, Bedrock, X-Ray, CloudWatch, IAM / OIDC, CDK, Glue, Athena, Redshift, SageMaker) · Docker / Kubernetes · Postgres · SQLite · CUDA · GitHub Actions CI/CD</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 21s-6.8-5.4-6.8-10.2a6.8 6.8 0 1 1 13.6 0C18.8 15.6 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.4"/></svg>Geospatial</div><div class="cap-v">ArcGIS Pro · Python toolboxes · spatial raster modeling · IDW interpolation · transmission-capacity analysis · PSS/E</div></div>
+          <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M10 9v11"/></svg>Frontend &amp; dataviz</div><div class="cap-v">React · TypeScript · Vite · MUI · three.js / react-three-fiber · D3 · Plotly · MapLibre GL · Recharts</div></div>
         </section>
 
         <section class="sec" id="education">
