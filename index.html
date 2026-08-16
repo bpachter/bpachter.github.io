@@ -39,12 +39,38 @@
      not take the media query down with it. -->
 <script>(function(){var s=null;try{s=localStorage.getItem('bp-theme')}catch(e){}
 try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap">
-<noscript><link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap"></noscript>
+<!-- Barlow, self-hosted. These files used to arrive from Google's font CDN,
+     which put a third-party DNS lookup, TLS handshake and stylesheet in front
+     of every glyph on the page: two round trips before the browser even
+     learned which .woff2 files it needed, on a site whose entire point is that
+     it does not depend on anything it does not control. Inlining the
+     @font-face rules collapses that to one request per file, from the origin
+     that already served the HTML — and the repo already self-hosts woff2 for
+     drawdown/ and updraft/, so this is the portfolio catching up to itself.
+     Latin subset only, carrying Google's own unicode-range. Everything here is
+     English, and the glyphs outside that range (→ ↗ ✦) were never in the latin
+     file to begin with — they fell through to system-ui before and still do.
+     The two files preloaded are the ones first paint needs: Barlow 400 for
+     body copy, Barlow Condensed 600 for the name block and every heading. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/barlow-latin-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/barlow-condensed-latin-600.woff2">
+<style>
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/barlow-latin-400.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;
+    src:url(fonts/barlow-latin-500.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;
+    src:url(fonts/barlow-latin-700.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;
+    src:url(fonts/barlow-condensed-latin-400.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;
+    src:url(fonts/barlow-condensed-latin-600.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
 <style>
   /* Industry — design-system tokens and component classes (subset used here) */
   :root{

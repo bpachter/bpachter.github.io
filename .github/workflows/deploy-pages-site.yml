@@ -22,6 +22,7 @@ on:
       - 'sitemap.xml'
       - '404.html'
       - 'assets/**'
+      - 'fonts/**'
       - 'media/**'
       - 'astraea/**'
       - 'gradient/**'
@@ -70,6 +71,9 @@ jobs:
             if [ -f "$f" ]; then cp "$f" "_site/$f"; fi
           done
           if [ -d assets ]; then cp -r assets _site/assets; fi
+          # Both pages @font-face against fonts/ — if this line is ever dropped
+          # the site keeps rendering, in the fallback system font, silently.
+          if [ -d fonts ]; then cp -r fonts _site/fonts; fi
           if [ -d media ]; then cp -r media _site/media; fi
           # Vite build output — no src/ or build script to strip.
           if [ -d astraea ]; then cp -r astraea _site/astraea; fi
@@ -90,7 +94,7 @@ jobs:
           # portfolio links to. This is the check that would have caught
           # astraea/ and updraft/ going 404 instead of shipping it.
           missing=0
-          for d in astraea attractor drawdown gradient kernel updraft media; do
+          for d in astraea attractor drawdown fonts gradient kernel updraft media; do
             if [ -d "$d" ] && [ ! -e "_site/$d" ]; then
               echo "::error::$d is tracked but was not copied into _site"
               missing=1
