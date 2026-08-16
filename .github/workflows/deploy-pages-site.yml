@@ -107,15 +107,29 @@ jobs:
           # "is it up?" check passes while it is dead. Astraea shipped exactly
           # that way once, when Git Bash rewrote its /astraea/assets/... paths
           # to /Program Files/Git/astraea/assets/..., which 404s.
-          while IFS= read -r page; do
-            grep -oE '(src|href)="/[^"]+\.(js|css)"' "$page" 2>/dev/null \n              | sed -E 's/^(src|href)="//; s/"$//' \n            | while IFS= read -r url; do
-                if [ ! -f "_site$url" ]; then
-                  echo "::error::$page references $url which is not in the artifact"
-                  echo bad >> _site/.assetfail
-                fi
-              done
-          done < <(find _site -name index.html)
-          if [ -f _site/.assetfail ]; then rm -f _site/.assetfail; missing=1; fi
+          #
+          # Both loops read from process substitution rather than a pipe: a
+          # `... | while` loop runs in a subshell, so any `missing=1` it set
+          # would evaporate at the closing `done`. (The previous revision of
+          # this check worked around that with a _site/.assetfail sentinel —
+          # and never ran at all, because its line continuations had been
+          # written as two-character backslash-n escapes inside this block
+          # scalar, which YAML preserves verbatim rather than turning into
+          # newlines: sed was handed a file named `n`, died, and the loop
+          # never saw a single URL.)
+          # -h keeps grep from prefixing "file:" onto the match, -print0/-d ''
+          # survive paths with spaces, and every page is checked, not just
+          # index.html — case-studies.html links bundles too.
+          while IFS= read -r -d '' page; do
+            while IFS= read -r url; do
+              [ -n "$url" ] || continue
+              if [ ! -f "_site$url" ]; then
+                echo "::error::$page references $url which is not in the artifact"
+                missing=1
+              fi
+            done < <(grep -ohE '(src|href)="/[^"]+\.(js|css)"' "$page" 2>/dev/null \
+                     | sed -E 's/^(src|href)="//; s/"$//')
+          done < <(find _site -name '*.html' -print0)
 
           [ "$missing" -eq 0 ] || exit 1
 
