@@ -902,11 +902,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var fab = document.createElement('button');
     fab.className = 'pf-fab'; fab.type = 'button';
     fab.setAttribute('aria-label', "Ask AI about Benjamin's work");
+    // The fab is a disclosure for the panel, so it has to say which state it is
+    // in. Announcing "collapsed"/"expanded" is also what tells a screen-reader
+    // user that pressing it again closes what they just opened.
+    fab.setAttribute('aria-expanded', 'false');
+    fab.setAttribute('aria-controls', 'pf-panel');
     fab.innerHTML = '<span class="pf-fab-ico" aria-hidden="true">✦</span>' +
       '<span class="pf-fab-txt">Ask AI</span>';
 
     var panel = document.createElement('div');
-    panel.className = 'pf-panel'; panel.setAttribute('role', 'dialog');
+    panel.className = 'pf-panel'; panel.id = 'pf-panel'; panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', "Ask AI about Benjamin's work"); panel.hidden = true;
     panel.innerHTML =
       '<div class="pf-head"><span class="pf-title">Ask AI</span>' +
@@ -981,6 +986,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function openPanel() {
       panel.hidden = false; fab.classList.add('pf-hidden');
+      fab.setAttribute('aria-expanded', 'true');
       requestAnimationFrame(function () { panel.classList.add('pf-show'); });
       if (!opened) {
         opened = true;
@@ -991,6 +997,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function closePanel() {
       panel.classList.remove('pf-show'); fab.classList.remove('pf-hidden');
+      fab.setAttribute('aria-expanded', 'false');
+      // Hand focus back to the launcher. Closing used to drop it: the element
+      // holding focus was inside the panel, the panel then went hidden, and
+      // focus fell back to <body> — so the next Tab restarted at the top of a
+      // page with forty-odd links, nowhere near where the visitor was. The fab
+      // loses .pf-hidden on the line above, so it is focusable by the time this
+      // runs, and it has to run before the panel is hidden 220ms from now.
+      fab.focus();
       setTimeout(function () { panel.hidden = true; }, 220);
     }
     fab.addEventListener('click', openPanel);
