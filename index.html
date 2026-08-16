@@ -961,7 +961,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // the lab on the case-studies page.
     const MU = [0.00045, -0.0012], SIG = [0.008, 0.026];
     const TP = [[0.986, 0.014], [0.08, 0.92]];
-    const T = 240, HZN = 84, NPATH = 64;
+    const T = 240, HZN = 84, NPATH = 44;
     const randn = () => {
       let u = 0, v = 0;
       while (!u) u = Math.random();
@@ -1014,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const cssVar = (n, fb) => (getComputedStyle(document.documentElement).getPropertyValue(n) || fb).trim();
 
-    function draw() {
+    function draw(frac) {
       const W = cv.clientWidth, Hc = cv.clientHeight;
       if (!W || !Hc) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1028,7 +1028,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const acc = cssVar('--color-accent', '#5980a6');
       const total = T + HZN, padY = Hc * 0.16, histW = Math.min(58, W * 0.07);
       const plotW = W - histW;
-      const X = (i) => (plotW * i) / (total - 1);
+      // Sub-tick scroll. The world advances one day every TICK ms, but the
+      // series is drawn at whatever fraction of that day has actually
+      // elapsed, so it glides instead of jumping a whole index at a time.
+      const shift = (frac || 0) * (plotW / (total - 1));
+      const X = (i) => (plotW * i) / (total - 1) - shift;
 
       let mn = Infinity, mx = -Infinity;
       for (const p of prices) { if (p < mn) mn = p; if (p > mx) mx = p; }
@@ -1097,29 +1101,48 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.globalAlpha = 1;
     }
 
+    // Simulation clock and render clock are separate. A setInterval that both
+    // stepped and painted ran the whole thing at 7.7fps — it never dropped a
+    // frame, it just moved the series ~3px at a time, which reads as a
+    // stutter. Now the world advances one day every TICK ms while rAF paints
+    // at the display's rate and interpolates between days.
     const reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
-    let timer = null, onScreen = true, sinceMC = 0;
+    const TICK = 120;
+    let raf = null, onScreen = true, last = 0;
 
-    function frame() {
-      tick();
-      if (++sinceMC >= 9) { runMC(); sinceMC = 0; }
-      draw();
-    }
     function running() { return onScreen && !document.hidden && !reduce.matches; }
+
+    function loop(now) {
+      if (!running()) { raf = null; return; }
+      if (!last) last = now;
+      let elapsed = now - last;
+      // A tab that was backgrounded hands back a huge delta; walk on rather
+      // than replaying the whole gap.
+      if (elapsed > TICK * 4) { last = now - TICK; elapsed = TICK; }
+      while (elapsed >= TICK) {
+        // resample the fan on every day, like the lab does — at 0.05 alpha a
+        // fresh draw reads as shimmer rather than a pop, and it is what makes
+        // the cone look alive instead of pasted on
+        tick(); runMC();
+        last += TICK; elapsed -= TICK;
+      }
+      draw(elapsed / TICK);
+      raf = requestAnimationFrame(loop);
+    }
     function sync() {
-      if (running() && timer === null) timer = setInterval(frame, 130);
-      else if (!running() && timer !== null) { clearInterval(timer); timer = null; }
+      if (running() && raf === null) { last = 0; raf = requestAnimationFrame(loop); }
+      else if (!running() && raf !== null) { cancelAnimationFrame(raf); raf = null; }
     }
 
-    draw();
+    draw(0);
     if ('IntersectionObserver' in window) {
       new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; sync(); }, { threshold: 0 }).observe(cv);
     }
     document.addEventListener('visibilitychange', sync);
     if (reduce.addEventListener) reduce.addEventListener('change', sync);
-    new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    new MutationObserver(() => draw(0)).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     let rz;
-    window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(draw, 160); });
+    window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => draw(0), 160); });
     sync();
   })();
 });
