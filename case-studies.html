@@ -104,15 +104,18 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   html{scroll-behavior:smooth}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   body{margin:0;background:var(--color-bg);color:var(--color-text);text-wrap:pretty}
-  .cs a{color:var(--color-accent);text-decoration:none}
+  /* accent-700, not accent: raw accent text on --color-bg is 3.71:1 in light
+     mode, under the 4.5:1 AA floor — the same lift index.html's CTA got. */
+  .cs a{color:var(--color-accent-700);text-decoration:none}
   .cs ::selection{background:color-mix(in srgb,var(--color-accent) 30%,transparent)}
   .cs b{font-weight:700;color:var(--color-text)}
   .cs{position:relative;min-height:100vh}
   .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(24px,4.4vw,56px)}
   .cs-top,.cs-body{position:relative;z-index:1}
   .cs-top{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px clamp(24px,4.4vw,56px);border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-bg) 84%,transparent);backdrop-filter:blur(9px)}
-  .cs-back{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--color-text);display:inline-flex;align-items:center;gap:9px}
-  .cs-back:hover{color:var(--color-accent)}
+  /* .cs .cs-back so it outranks the .cs a accent rule above */
+  .cs .cs-back{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--color-text);display:inline-flex;align-items:center;gap:9px}
+  .cs .cs-back:hover{color:var(--color-accent-700)}
   /* WCAG 2.5.8 wants a 24px target; .cs-back rendered 21.7px tall on a 375px
      viewport and the .go link 19.4px. Both are expanded with an absolutely
      positioned overlay, which grows the target without moving the layout. */
@@ -144,7 +147,9 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .bmw-seg{display:inline-flex;border:1px solid var(--color-divider)}
   .bmw-mode{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:12px;padding:8px 16px;background:transparent;color:var(--color-mute);border:0;cursor:pointer;transition:background .18s,color .18s}
   .bmw-mode + .bmw-mode{border-left:1px solid var(--color-divider)}
-  .bmw-mode[aria-pressed="true"]{background:var(--color-accent);color:var(--color-bg)}
+  /* accent-700 background: --color-bg text on raw accent is 3.71:1 (light),
+     under AA; accent-700 lifts it to 5.78:1 and darkens dark mode too. */
+  .bmw-mode[aria-pressed="true"]{background:var(--color-accent-700);color:var(--color-bg)}
   .ro-note{font-size:13px;line-height:1.62;color:color-mix(in srgb,var(--color-text) 80%,transparent);margin:18px 0 0}
 
   /* alt svg diagrams */
