@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graph Ontology — A Practical Guide to Knowledge-Graph Architecture</title>
+<meta name="description" content="A practical guide to knowledge-graph memory architecture for business: ontology design, trust tiers, provenance, write-path governance, and multi-system federation — with working figures you can play with.">
+<link rel="canonical" href="https://bpachter.github.io/graph-ontology/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Benjamin Pachter">
+<meta property="og:title" content="Graph Ontology — A Practical Guide to Knowledge-Graph Architecture">
+<meta property="og:description" content="How to give a business one memory: ontology design, trust tiers, provenance, write-path governance, and multi-system federation.">
+<meta property="og:url" content="https://bpachter.github.io/graph-ontology/">
+<meta property="og:image" content="https://bpachter.github.io/media/og-card.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
+<!-- Paired, so the browser chrome matches the theme the page will actually
+     paint for a first-time visitor. The toggle rewrites these media queries
+     when someone picks a theme by hand, so an explicit choice still wins. -->
+<meta name="theme-color" content="#f2f2f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)">
+<!-- Runs before first paint so the page never flashes the wrong theme. A stored
+     choice wins; with nothing stored the OS setting decides. -->
+<script>(function(){var s=null;try{s=localStorage.getItem('bp-theme')}catch(e){}
+try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<!-- Barlow, self-hosted from the site root — see index.html for the reasoning. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/barlow-latin-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/barlow-condensed-latin-600.woff2">
+<style>
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;
+    src:url(../fonts/barlow-latin-400.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;
+    src:url(../fonts/barlow-latin-500.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;
+    src:url(../fonts/barlow-latin-700.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;
+    src:url(../fonts/barlow-condensed-latin-400.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+  @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;
+    src:url(../fonts/barlow-condensed-latin-600.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+</style>
+<style>
+  /* Industry — design-system tokens (subset used here) */
+  :root{
+    --color-bg:#f2f2f3;
+    --color-surface:#e9e9ea;
+    --color-text:#1d1f20;
+    --color-accent:#5980a6;
+    --color-divider:color-mix(in srgb,#1d1f20 16%,transparent);
+    /* Muted scale — every step clears 4.5:1 once composited; light is the
+       binding theme. Same treatment as index.html and case-studies.html. */
+    --color-mute:color-mix(in srgb,var(--color-text) 68%,transparent);
+    --color-mute-2:color-mix(in srgb,var(--color-text) 66%,transparent);
+    --color-mute-3:color-mix(in srgb,var(--color-text) 64%,transparent);
+    --color-accent-100:#eef6ff;
+    --color-accent-700:#416180;
+    --color-accent-800:#2c455d;
+    --font-heading:"Barlow Condensed",system-ui,sans-serif;
+    --font-body:"Barlow",system-ui,sans-serif;
+    --ease-out:cubic-bezier(.16,1,.3,1);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;font-family:var(--font-body);font-size:15px;line-height:1.55;background:var(--color-bg);color:var(--color-text);text-wrap:pretty}
+  h1,h2,h3{font-family:var(--font-heading);font-weight:600;line-height:1.12;letter-spacing:-.015em;margin:0 0 7px}
+  p{margin:0 0 10px}
+  :focus{outline:none}
+  :focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+  ::selection{background:color-mix(in srgb,var(--color-accent) 30%,transparent)}
+
+  .blueprint{position:relative;border:1px solid var(--color-divider);border-radius:0}
+  .blueprint>.corner{position:absolute;width:11px;height:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)}
+  .blueprint>.corner::before,.blueprint>.corner::after{content:"";position:absolute;background:currentColor}
+  .blueprint>.corner::before{left:5px;top:0;width:1px;height:100%}
+  .blueprint>.corner::after{top:5px;left:0;width:100%;height:1px}
+  .blueprint>.corner.tl{top:-6px;left:-6px}
+  .blueprint>.corner.tr{top:-6px;right:-6px}
+  .blueprint>.corner.bl{bottom:-6px;left:-6px}
+  .blueprint>.corner.br{bottom:-6px;right:-6px}
+
+  /* accent-700, not accent — the AA floor, same as everywhere else on the site */
+  .eg a{color:var(--color-accent-700);text-decoration:none}
+  .eg b{font-weight:700;color:var(--color-text)}
+  .eg{position:relative;min-height:100vh}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(24px,4.4vw,56px)}
+  .eg-top,.eg-body{position:relative;z-index:1}
+  .eg-top{position:sticky;top:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px clamp(24px,4.4vw,56px);border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-bg) 84%,transparent);backdrop-filter:blur(9px)}
+  .eg .eg-back{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;color:var(--color-text);display:inline-flex;align-items:center;gap:9px}
+  .eg .eg-back:hover{color:var(--color-accent-700)}
+  .eg-back{position:relative}
+  .eg-back::after{content:"";position:absolute;left:0;right:0;top:50%;height:24px;transform:translateY(-50%)}
+  .theme-toggle{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-divider);background:transparent;color:var(--color-text);cursor:pointer;transition:border-color .18s,color .18s;flex:none}
+  .theme-toggle:hover{border-color:var(--color-accent);color:var(--color-accent)}
+  .theme-toggle svg{width:16px;height:16px;stroke-width:1.5}
+  .theme-toggle .ic-sun{display:none}
+  [data-theme="dark"] .theme-toggle .ic-sun{display:block}
+  [data-theme="dark"] .theme-toggle .ic-moon{display:none}
+
+  .eg-intro{padding:56px 0 8px}
+  .kick{font-family:var(--font-heading);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)}
+  .eg-title{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:clamp(34px,5vw,60px);line-height:1.0;letter-spacing:.005em;margin:12px 0 0;color:var(--color-text)}
+  .eg-lead{font-size:clamp(15px,1.6vw,18px);line-height:1.55;max-width:62ch;margin:20px 0 0;color:color-mix(in srgb,var(--color-text) 82%,transparent)}
+  .eg-ground{font-size:13px;line-height:1.6;max-width:62ch;margin:14px 0 0;color:var(--color-mute-2)}
+
+  /* table of contents */
+  .toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1px;background:var(--color-divider);border:1px solid var(--color-divider);margin:34px 0 8px}
+  .toc a{display:block;background:var(--color-bg);padding:12px 14px;font-family:var(--font-heading);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--color-mute);transition:background .18s,color .18s}
+  .toc a:hover{background:color-mix(in srgb,var(--color-accent) 8%,transparent);color:var(--color-accent-700)}
+  .toc a .n{color:var(--color-accent-700);margin-right:8px;font-feature-settings:"tnum" 1}
+
+  /* chapters */
+  .ch{margin:44px 0 0;scroll-margin-top:88px}
+  .ch-head{margin:0 0 14px}
+  .ch-title{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:26px;letter-spacing:.01em;margin:5px 0 0;color:var(--color-text)}
+  .ch p{max-width:72ch;font-size:14.5px;line-height:1.66;color:color-mix(in srgb,var(--color-text) 82%,transparent)}
+  .ch .rule-note{font-size:13px;line-height:1.62;color:var(--color-mute-2);border-left:2px solid var(--color-accent);padding:2px 0 2px 14px;max-width:70ch;margin:16px 0}
+  .ch code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:color-mix(in srgb,var(--color-text) 6%,transparent);padding:1px 5px;border-radius:0}
+
+  /* figure frame */
+  .fig{position:relative;margin:24px 0 10px;padding:clamp(18px,2.6vw,30px)}
+  .fig-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 18px}
+  .fig-cap{font-family:var(--font-heading);font-weight:600;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-mute-3)}
+  .fig-note{font-size:12.5px;line-height:1.6;color:var(--color-mute-2);margin:14px 0 0;max-width:72ch}
+  .seg{display:inline-flex;border:1px solid var(--color-divider)}
+  .seg button{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:12px;padding:8px 16px;background:transparent;color:var(--color-mute);border:0;cursor:pointer;transition:background .18s,color .18s;min-height:24px}
+  .seg button + button{border-left:1px solid var(--color-divider)}
+  .seg button[aria-pressed="true"]{background:var(--color-accent-700);color:var(--color-bg)}
+
+  /* svg diagrams */
+  .alt-svg{display:block;width:100%;height:auto}
+  .alt-svg text{font-family:var(--font-body);fill:color-mix(in srgb,var(--color-text) 72%,transparent)}
+  .alt-svg .svg-k{font-family:var(--font-heading);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  .alt-svg .mut{fill:var(--color-mute-2)}
+  .alt-svg .acc{fill:var(--color-accent-700)}
+  .alt-svg .tp{fill:var(--color-text)}
+  .alt-svg .ink{stroke:color-mix(in srgb,var(--color-text) 65%,transparent);fill:none;stroke-width:1.5}
+  .alt-svg .ln{stroke:var(--color-divider);stroke-width:1.4}
+  .alt-svg .dash{stroke:color-mix(in srgb,var(--color-text) 52%,transparent);stroke-dasharray:4 4;fill:none;stroke-width:1.4}
+  .alt-svg .wire{stroke:color-mix(in srgb,var(--color-text) 38%,transparent);fill:none;stroke-width:1.2;transition:opacity .45s var(--ease-out)}
+  .alt-svg .spine{stroke:var(--color-accent);fill:none;stroke-width:1.8;opacity:0;transition:opacity .45s var(--ease-out)}
+  .alt-svg .hub{fill:var(--color-accent);opacity:0;transition:opacity .45s var(--ease-out)}
+  .fig[data-mode="spine"] .alt-svg .wire{opacity:.14}
+  .fig[data-mode="spine"] .alt-svg .spine{opacity:1}
+  .fig[data-mode="spine"] .alt-svg .hub{opacity:.9}
+  .alt-svg .t-spine{display:none}
+  .fig[data-mode="spine"] .alt-svg .t-mesh{display:none}
+  .fig[data-mode="spine"] .alt-svg .t-spine{display:inline}
+
+  /* ontology explorer */
+  .onto-types{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .onto-type{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:12px;padding:7px 13px;background:transparent;color:var(--color-mute);border:1px solid var(--color-divider);cursor:pointer;transition:background .18s,color .18s,border-color .18s;min-height:24px}
+  .onto-type:hover{border-color:var(--color-accent);color:var(--color-accent-700)}
+  .onto-type[aria-pressed="true"]{background:var(--color-accent-700);border-color:var(--color-accent-700);color:var(--color-bg)}
+  .onto-board{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-divider);border:1px solid var(--color-divider)}
+  .onto-cell{background:var(--color-bg);padding:16px 18px;min-height:170px}
+  .onto-k{display:block;font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-mute-3);margin-bottom:8px}
+  .onto-rel{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);font-size:13px}
+  .onto-rel:last-child{border-bottom:0}
+  .onto-rel .rk{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--color-accent-700)}
+  .onto-rel .rt{color:var(--color-mute);font-size:12px}
+  .onto-name{font-family:var(--font-heading);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:.01em;color:var(--color-text)}
+  @media (max-width:700px){.onto-board{grid-template-columns:1fr}}
+
+  /* trust ladder */
+  .ladder{border:1px solid var(--color-divider)}
+  .rung{display:grid;grid-template-columns:minmax(140px,1fr) 2fr minmax(46px,.3fr);gap:12px;align-items:center;width:100%;text-align:left;padding:12px 16px;background:transparent;border:0;border-bottom:1px solid var(--color-divider);cursor:pointer;font-family:inherit;transition:background .18s;min-height:24px}
+  .rung:last-of-type{border-bottom:0}
+  .rung:hover{background:color-mix(in srgb,var(--color-accent) 7%,transparent)}
+  .rung[aria-pressed="true"]{background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
+  .rung .rn{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:13px;color:var(--color-text)}
+  .rung .rq{font-size:12.5px;color:var(--color-mute-2);line-height:1.4}
+  .rung .rc{font-family:var(--font-heading);font-weight:600;font-size:13px;text-align:right;font-feature-settings:"tnum" 1;color:var(--color-accent-700)}
+  .claim-card{margin-top:14px;padding:16px 18px;border:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-text) 2.5%,transparent)}
+  .claim-card .ck{display:block;font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-mute-3);margin:10px 0 2px}
+  .claim-card .ck:first-child{margin-top:0}
+  .claim-card .cv{font-size:13.5px;color:color-mix(in srgb,var(--color-text) 84%,transparent)}
+  .claim-card .cv code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:color-mix(in srgb,var(--color-text) 6%,transparent);padding:1px 5px}
+  @media (max-width:640px){.rung{grid-template-columns:minmax(120px,1fr) minmax(46px,.3fr)}.rung .rq{display:none}}
+
+  /* gate simulator */
+  .gate-grid{display:grid;grid-template-columns:minmax(240px,1fr) 1.4fr;gap:clamp(16px,2.5vw,28px);align-items:start}
+  @media (max-width:760px){.gate-grid{grid-template-columns:1fr}}
+  .gate-props{display:flex;flex-direction:column;gap:8px}
+  .gate-prop{text-align:left;font-family:inherit;padding:11px 14px;background:transparent;border:1px solid var(--color-divider);cursor:pointer;transition:background .18s,border-color .18s;min-height:24px}
+  .gate-prop:hover{border-color:var(--color-accent)}
+  .gate-prop[aria-pressed="true"]{border-color:var(--color-accent-700);background:color-mix(in srgb,var(--color-accent) 10%,transparent)}
+  .gate-prop .gp-n{display:block;font-family:var(--font-heading);font-weight:600;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--color-text)}
+  .gate-prop .gp-d{display:block;font-size:12px;color:var(--color-mute-2);margin-top:2px}
+  .gate-out{border:1px solid var(--color-divider);padding:18px 20px}
+  .gate-rows{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.9;color:color-mix(in srgb,var(--color-text) 80%,transparent);border-bottom:1px solid var(--color-divider);padding-bottom:12px;margin-bottom:12px}
+  .gate-rows .sum{color:var(--color-text);font-weight:700}
+  .gate-verdict{display:inline-flex;align-items:center;gap:8px;font-family:ui-monospace,Consolas,monospace;font-size:13px;padding:6px 12px;border:1px solid var(--color-divider)}
+  .gate-verdict[data-ok="true"]{border-color:var(--color-accent);background:var(--color-accent-100);color:var(--color-accent-800)}
+  [data-theme="dark"] .gate-verdict[data-ok="true"]{background:color-mix(in srgb,#2dd4bf 14%,transparent);color:#9bf0e4;border-color:#2dd4bf}
+  .gate-verdict[data-ok="false"]{border-color:color-mix(in srgb,var(--color-text) 40%,transparent);color:var(--color-text)}
+  .gate-why{font-size:12.5px;line-height:1.6;color:var(--color-mute-2);margin:10px 0 14px}
+  .gate-approve{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:13px;padding:9px 16px;border:1px solid var(--color-accent-700);background:var(--color-accent-700);color:var(--color-bg);cursor:pointer;min-height:24px}
+  .gate-approve:hover{opacity:.92}
+  .gate-http{font-family:ui-monospace,Consolas,monospace;font-size:12px;margin-top:10px;min-height:18px;color:var(--color-mute)}
+  .gate-http .ok{color:var(--color-accent-800)}
+  [data-theme="dark"] .gate-http .ok{color:#9bf0e4}
+
+  /* build-order blueprint */
+  .steps{counter-reset:step;border:1px solid var(--color-divider)}
+  .step{display:grid;grid-template-columns:56px 1fr;border-bottom:1px solid var(--color-divider)}
+  .step:last-child{border-bottom:0}
+  .step::before{counter-increment:step;content:counter(step,decimal-leading-zero);display:flex;align-items:flex-start;justify-content:center;padding:16px 0;font-family:var(--font-heading);font-weight:600;font-size:15px;color:var(--color-accent-700);border-right:1px solid var(--color-divider);font-feature-settings:"tnum" 1}
+  .step>div{padding:14px 18px 15px}
+  .step h3{font-size:16px;text-transform:uppercase;letter-spacing:.02em;margin:0 0 4px}
+  .step p{font-size:13.5px;margin:0;color:color-mix(in srgb,var(--color-text) 80%,transparent);max-width:78ch}
+
+  .eg-foot{font-size:13px;color:var(--color-mute-2);border-top:1px solid var(--color-divider);margin-top:48px;padding:24px 0 64px;line-height:1.7}
+
+  /* aurora — dark only */
+  .eg-aurora{position:absolute;top:0;left:0;right:0;height:440px;overflow:hidden;pointer-events:none;display:none;z-index:0}
+  [data-theme="dark"] .eg-aurora{display:block}
+  .eg-aurora .blob{position:absolute;border-radius:50%;filter:blur(72px);opacity:.5;will-change:transform}
+  .eg-aurora .b1{width:420px;height:360px;left:-6%;top:-34%;background:radial-gradient(circle,#2dd4bf,transparent 68%)}
+  .eg-aurora .b2{width:460px;height:380px;right:-6%;top:-42%;background:radial-gradient(circle,#6d63f0,transparent 66%);opacity:.4}
+  .eg-aurora .b3{width:360px;height:320px;left:42%;top:-26%;background:radial-gradient(circle,#38bdf8,transparent 70%);opacity:.3}
+
+  /* dark theme */
+  [data-theme="dark"]{
+    --color-bg:#0a0e14;--color-surface:#111823;--color-text:#cdd8e4;
+    --color-divider:color-mix(in srgb,#cdd8e4 15%,transparent);
+    --color-mute:color-mix(in srgb,var(--color-text) 60%,transparent);
+    --color-mute-2:color-mix(in srgb,var(--color-text) 58%,transparent);
+    --color-mute-3:color-mix(in srgb,var(--color-text) 56%,transparent);
+    --color-accent:#2dd4bf;--color-accent-100:color-mix(in srgb,#2dd4bf 14%,transparent);
+    --color-accent-700:#4fdecb;--color-accent-800:#9bf0e4;
+  }
+  [data-theme="dark"] :is(.eg-title,.ch-title,.onto-name){color:#eef4fb}
+
+  /* reveal on scroll */
+  .fade{opacity:0;animation:fadeUp .7s var(--ease-out) forwards;animation-delay:calc(var(--i,0)*90ms)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  body.motion .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+  body.motion .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.fade{animation:none;opacity:1}body.motion .reveal{opacity:1;transform:none}.eg-aurora .blob{animation:none}}
+</style>
+</head>
+<body>
+<div class="eg">
+  <div class="eg-aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <header class="eg-top">
+    <a class="eg-back" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:15px;height:15px;stroke-width:1.6"><path d="M15 18l-6-6 6-6"/></svg>Benjamin Pachter</a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </header>
+
+  <div class="eg-body">
+    <div class="wrap">
+
+      <section class="eg-intro">
+        <span class="kick fade">Architecture guide</span>
+        <h1 class="eg-title fade" style="--i:1">Graph Ontology</h1>
+        <p class="eg-lead fade" style="--i:2">A practical guide to giving a business one memory: how to design the ontology, the trust model, and the write-path governance for a knowledge graph that spans many systems, many nodes, and many business domains — and why the ontology, not the database, is the hard part.</p>
+        <p class="eg-ground fade" style="--i:3">Written for architects and engineering leads standing up a graph in an ordinary enterprise — ERP, CRM, contracts, suppliers, customers — not a research lab. Every figure on this page runs live in your tab: toggle it, click it, try to break it.</p>
+
+        <nav class="toc reveal" aria-label="Chapters">
+          <a href="#problem"><span class="n">01</span>Enterprise amnesia</a>
+          <a href="#ontology"><span class="n">02</span>The ontology is the contract</a>
+          <a href="#claims"><span class="n">03</span>An edge is a claim</a>
+          <a href="#write-path"><span class="n">04</span>The write path</a>
+          <a href="#federation"><span class="n">05</span>Multi-system federation</a>
+          <a href="#recall"><span class="n">06</span>Recall — serving memory to AI</a>
+          <a href="#build-order"><span class="n">07</span>The build order</a>
+        </nav>
+      </section>
+
+      <!-- ================= 01 ENTERPRISE AMNESIA ================= -->
+      <section class="ch reveal" id="problem">
+        <div class="ch-head">
+          <span class="kick">01</span>
+          <h2 class="ch-title">Enterprise amnesia</h2>
+        </div>
+        <p>Every system in a business remembers something, and none of them remember the same thing. The ERP knows a supplier as a vendor number. The CRM knows the same company as an account. The contract repository knows it as a counterparty; the risk system as an exposure; a regulatory registry knows it as a legal entity with an official name. Five systems, five names, five partial memories — and the fact that they describe <b>one real thing</b> lives nowhere except in the heads of the people who work across them.</p>
+        <p>That is the actual problem a knowledge graph solves. Not search, not visualization — <b>identity and relationship across systems that were never designed to agree</b>. Databases store state: the current row, the latest balance. Knowledge is different. Knowledge is <i>who depends on whom</i>, <i>what was true when</i>, <i>who said so, and how much that source is worth</i>. No operational system holds that, because every operational system was scoped to its own domain on purpose.</p>
+        <p>The default integration answer is point-to-point: sync the vendor master to the CRM, the CRM to the contract system, and so on. With <i>n</i> systems that is <i>n(n−1)/2</i> mappings, each one a private, undocumented ontology negotiated between two teams. The graph replaces that mesh with a spine: <b>each system maps once, to a shared identity layer</b>, and every cross-system question becomes a graph traversal instead of a new integration project.</p>
+
+        <figure class="fig blueprint reveal" data-mode="mesh" id="fig-spine">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="fig-head">
+            <span class="fig-cap">Fig. 01 — integration topology</span>
+            <div class="seg" role="group" aria-label="Topology mode">
+              <button type="button" data-mode="mesh" aria-pressed="true">Point-to-point</button>
+              <button type="button" data-mode="spine" aria-pressed="false">Identity spine</button>
+            </div>
+          </div>
+          <svg class="alt-svg" viewBox="0 0 920 330" role="img" aria-label="Six enterprise systems connected point-to-point versus through a shared graph spine">
+            <g id="sysBoxes"></g>
+            <g id="meshWires"></g>
+            <g id="spineWires"></g>
+            <circle class="hub" cx="460" cy="163" r="34"></circle>
+            <text class="svg-k t-hub" x="460" y="167" text-anchor="middle" font-size="11" style="fill:var(--color-bg);opacity:0" id="hubLabel">GRAPH</text>
+            <text x="24" y="318" font-size="11" class="t-mesh mut">15 bilateral mappings for 6 systems — each one a private ontology two teams negotiated</text>
+            <text x="24" y="318" font-size="11" class="t-spine mut">6 mappings for 6 systems — each maps once, to the shared identity spine</text>
+          </svg>
+          <p class="fig-note">Toggle the topology. The mesh grows as <i>n(n−1)/2</i>; the spine grows as <i>n</i>. But the real difference is not the wire count — it is that the spine forces every system to answer the same question once: <b>which real-world entity is this row about?</b></p>
+        </figure>
+      </section>
+
+      <!-- ================= 02 ONTOLOGY ================= -->
+      <section class="ch reveal" id="ontology">
+        <div class="ch-head">
+          <span class="kick">02</span>
+          <h2 class="ch-title">The ontology is the contract</h2>
+        </div>
+        <p>An ontology is the answer to two questions, written down before any data arrives: <b>what kinds of things exist</b>, and <b>what kinds of statements about them are legal</b>. It is not documentation of the graph — it is the type system the graph is compiled against. Get it wrong and every downstream consumer inherits the confusion; get it right and the graph can refuse bad data mechanically, without a human in the loop.</p>
+        <p>Below is a reference ontology for a typical operating business — eight node types and the relations they may participate in. The specific nouns matter less than the properties: every type is <b>disjoint and mechanically decidable</b>, every relation <b>declares what it may connect</b> (and the database enforces it — a CHECK constraint is an ontology law that cannot be forgotten), and anything that fits no declared shape is not "flexible data" — it is a rejected write.</p>
+        <div class="rule-note"><b>Design rule — types are laws, not labels.</b> A node type must be decidable by code: an organization is a thing that can hold a registration, a contract, an obligation. If two types cannot be told apart mechanically, they are one type. If a "miscellaneous" type appears, the ontology has already failed — it is where meaning goes to die.</div>
+        <div class="rule-note"><b>Design rule — records are evidence, not structure.</b> Contracts, invoices, filings, and tickets are not nodes. They are the <i>records</i> that edges cite as provenance. Model them as nodes and every document becomes a hairball hub; model them as evidence and every relationship can answer "says who?". The graph holds who-relates-to-whom; the record store holds why you believe it.</div>
+
+        <figure class="fig blueprint reveal" id="fig-onto">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="fig-head">
+            <span class="fig-cap">Fig. 02 — a reference ontology for an operating business. Select a type.</span>
+          </div>
+          <div class="onto-types" id="ontoTypes" role="group" aria-label="Node types"></div>
+          <div class="onto-board">
+            <div class="onto-cell">
+              <span class="onto-k">Type</span>
+              <div class="onto-name" id="ontoName">—</div>
+              <span class="onto-k" style="margin-top:10px">What it is</span>
+              <div class="cv" id="ontoDef" style="font-size:13px;line-height:1.6;color:var(--color-mute)">Select a node type.</div>
+            </div>
+            <div class="onto-cell">
+              <span class="onto-k">Declared relations</span>
+              <div id="ontoRels"></div>
+            </div>
+          </div>
+          <p class="fig-note">A reference model, not a straitjacket: rename the types to your domain's nouns, add domain extensions — but keep the properties. Under ten core types is a feature, not a gap. And put the ontology laws in the schema itself where you can: <code>relation TEXT NOT NULL CHECK(relation IN (…))</code> survives every refactor that a code comment does not.</p>
+        </figure>
+      </section>
+
+      <!-- ================= 03 CLAIMS ================= -->
+      <section class="ch reveal" id="claims">
+        <div class="ch-head">
+          <span class="kick">03</span>
+          <h2 class="ch-title">An edge is a claim, not a fact</h2>
+        </div>
+        <p>The single most consequential design decision in a knowledge-graph memory: <b>edges are claims with provenance, not bare facts</b>. Two statements can look identical in the graph — <i>company A supplies company B</i> — and be worth entirely different amounts. One arrives on a signed contract in your ERP; the other arrives in a press release someone wanted printed. Store them as if they were the same and the graph's value converges to that of its worst source.</p>
+        <p>So every edge carries its evidence — the source record, the retrieval date, the figure if one exists — and a <b>trust tier</b> assigned by <i>source class</i>, never by how plausible the claim sounds. Plausibility is exactly the property a wrong number is optimized for. Five tiers are enough; the ladder below is a reference taxonomy you can adopt as-is.</p>
+        <div class="rule-note"><b>Design rule — derive the tier at read time; never store it.</b> Make the tier a pure function of the edge's evidence: its best source class, how it was inferred, and its latest audit verdict. Then attaching one better piece of evidence <i>silently promotes</i> the claim on its next read — no rewrite sweep, no stale labels, and no stored "confidence score" drifting away from measured reality.</div>
+        <p>Just as important is what happens to claims that fail review: <b>they stay</b>. Nothing is ever deleted from a graph memory — a claim the ontology moved gets a forwarding marker; a claim an audit killed gets a retirement stamp and the auditor's reasoning; a relationship that simply ended gets a supersession date. And a <i>refuted</i> claim becomes a durable negative fact: the next time an extraction pipeline proposes the same pair, it is rejected automatically with the original refutation attached — because "we checked this and it was wrong" is itself knowledge, arguably the most expensive kind. Memory that silently forgets its own corrections will re-learn the same falsehood from the next scrape. New evidence can still beat old memory — but it takes a human to say so.</p>
+
+        <figure class="fig blueprint reveal" id="fig-ladder">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="fig-head">
+            <span class="fig-cap">Fig. 03 — a reference trust ladder. Select a tier.</span>
+          </div>
+          <div class="ladder" id="ladder"></div>
+          <div class="claim-card" id="claimCard" hidden></div>
+          <p class="fig-note">The tier is assigned by <b>source class</b> — what kind of record the claim arrived on. "Verified" is the promotion tier: the rung a third-party claim <i>earns</i> when it is independently confirmed against a primary source. Promotion is free when a stronger record shows up on its own (a claim you extracted from the news later matching a transaction in your ERP) — no judge model, no spend, no re-review.</p>
+        </figure>
+      </section>
+
+      <!-- ================= 04 WRITE PATH ================= -->
+      <section class="ch reveal" id="write-path">
+        <div class="ch-head">
+          <span class="kick">04</span>
+          <h2 class="ch-title">The write path: AI proposes, code verifies, humans publish</h2>
+        </div>
+        <p>LLMs made graph <i>extraction</i> cheap: agents can propose thousands of typed facts a day from contracts, filings, and records. The same property makes ungoverned extraction fatal, because the one thing an LLM must never be able to do is publish a plausible wrong number into the organization's memory. The architecture answer is a division of labor with hard boundaries:</p>
+        <p><b>AI proposes.</b> Extraction agents read source documents and emit typed proposals — never writes. <b>Deterministic code verifies.</b> A gate service (deterministic validation wants a compiler and a type system) reconciles each proposal against its own source: extracted figures earn the one passing verdict, <code>publishable</code>, only if they tie to an anchor figure from the same document within a stated tolerance. Failures come back <b>named</b> — <code>undetected_rollup</code>, <code>duplicate_facts</code>, <code>no_consolidated</code>, <code>unreconciled</code>, <code>no_segments</code> — never a bare "failed", because a named failure mode is a routable work item and an unnamed one is a shrug. <b>Humans publish.</b> A review surface (human-in-the-loop curation is a CRUD-and-permissions problem — use the most boring machinery you have) holds the final approve action, and approval is <b>structurally impossible</b> without a passing verdict, three ways at once: the API is read-only (no update endpoint exists that could quietly move a proposal to approved), the approve action refuses with <code>HTTP 409</code> unless the verdict is <code>publishable</code>, and every gate field is read-only in the review UI so a curator cannot type a verdict into a form. Rejection, meanwhile, is a free bulk action — refusing never needs a verdict. The asymmetry is the whole point.</p>
+        <p>Close the loop with <b>calibration</b>: every human approve/reject decision becomes ground truth, and a periodically refitted table converts the extractor's raw confidence into <i>what a confidence of this size has empirically been worth</i>. Two implementation rules keep it honest. When there are too few adjudications to fit a meaningful table, refuse to fit one — and when no table exists, the API returns 404 rather than inventing a number. And when a verifier returns no parseable score, <i>defer</i> the proposal rather than stamping a default — a provider outage should leave a queue of honest "not yet judged", never a queue of fabricated 0.5s.</p>
+        <div class="rule-note"><b>Design rule — absence is honest.</b> A sum that is off by 26% must not publish, even though every row looks reasonable, because a plausible wrong figure is undetectable downstream. The gate's job is not to maximize throughput; it is to make the graph's silence trustworthy.</div>
+
+        <figure class="fig blueprint reveal" id="fig-gate">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="fig-head">
+            <span class="fig-cap">Fig. 04 — reconciliation gate, live in this tab. Pick a proposal, then try to approve it.</span>
+          </div>
+          <div class="gate-grid">
+            <div class="gate-props" id="gateProps" role="group" aria-label="Proposals"></div>
+            <div class="gate-out">
+              <div class="gate-rows" id="gateRows"></div>
+              <span class="gate-verdict" id="gateVerdict" data-ok="false">—</span>
+              <p class="gate-why" id="gateWhy">Select a proposal to run it through the gate.</p>
+              <button type="button" class="gate-approve" id="gateApprove">Approve → publish to graph</button>
+              <div class="gate-http" id="gateHttp" aria-live="polite"></div>
+            </div>
+          </div>
+          <p class="fig-note">A working miniature of a production reconciliation gate — same checks, same order, same 2% tolerance, in ~50 lines of page JavaScript. The scenario: an extractor has pulled a revenue breakdown from a report, and the gate ties the rows back to the total stated in the same document. The failure modes are real ones, learned by shipping something wrong: a "Total" row riding along doubles the sum <i>exactly</i>; two dimensions flattened into one list double it <i>plausibly</i>. Serve the taxonomy as data (<code>GET /failure-modes</code>) and reuse the same names as your metric dimensions and review-queue filters — one vocabulary of refusal across every runtime.</p>
+        </figure>
+      </section>
+
+      <!-- ================= 05 FEDERATION ================= -->
+      <section class="ch reveal" id="federation">
+        <div class="ch-head">
+          <span class="kick">05</span>
+          <h2 class="ch-title">Multi-system, multi-node, multi-domain</h2>
+        </div>
+        <p>One graph, one ontology, one gate — that covers a domain. An enterprise is many domains — procurement, sales, legal, risk, operations — and the architecture has to say precisely what is shared and what is owned.</p>
+        <p><b>Shared: the identity spine and the core ontology.</b> Entity identity — <i>which real-world thing is this</i> — is decided exactly once, at a single chokepoint every writer goes through. Anchor it on external identifiers wherever they exist: legal-entity identifiers, company-registry numbers, tax ids — a registry number makes the join <i>deterministic</i>, and name matching becomes a hard gate rather than a score bonus, because two companies sharing a word is how unrelated entities get married. Normalize names for every alphabet your counterparties actually use, or one foreign-language sweep will mint thousands of duplicates. And when normalized names still collide, resolve only to a node that carries an external identifier — one identified candidate is an anchor; zero or two is a refusal. A merge, once made, is a permanent auto-resolution rule for every future write, so the survivor is always chosen on <b>substance</b> — live edges, attached records, identity bridges — never on which name looks cleaner.</p>
+        <p><b>Owned: domain extensions.</b> Each domain extends the core ontology with its own types and relations, and owns its own extraction pipelines and source connectors. A domain can evolve its extension without a cross-enterprise change board — but it cannot redefine identity, and it cannot bypass the gate.</p>
+        <p><b>The integration surface is a versioned, read-only API</b> — not database access, not a shared warehouse schema. Consumers integrate against the contract, and the graph's internals stay free to change. Writes have exactly one door, and the gate is standing in it.</p>
+        <p><b>The pipeline is queued, idempotent, and one-proposal-per-message.</b> A scheduled sweep fans work onto a queue — one message per unit, batch size one, because a batch lets one bad document fail three good ones back into the queue. An extractor proposes, the gate verdicts, and the result lands durably under a deterministic idempotency key — so when (not if) a permissions gap or a crash causes completed work to be redelivered, the redeliveries rewrite one record each instead of duplicating the graph's input. Poison messages dead-letter after three attempts and page a human. And let the verdict taxonomy double as the metrics taxonomy: every named failure mode becomes a dashboard dimension, so the operations view speaks the same language as the code.</p>
+        <p><b>Every hop is observable — and observability fails silent by default.</b> Trace the review-surface→gate hop end to end, or the interesting question — <i>how much of my latency is the gate?</i> — has no answer. Then pin your telemetry dependencies like you pin everything else: a wildcard version that silently freezes a trace-id generator produces the worst failure class in distributed systems — a healthy service, a running collector, spans leaving the process, and nothing arriving, with no error on any surface.</p>
+
+        <figure class="fig blueprint reveal" id="fig-topo">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div class="fig-head">
+            <span class="fig-cap">Fig. 05 — reference pipeline topology</span>
+          </div>
+          <svg class="alt-svg" viewBox="0 0 920 400" role="img" aria-label="Queued knowledge graph pipeline: scheduled sweep through extraction, gate, verdict ledger, human review, publication, and serving" id="topoSvg">
+            <!-- drawn by JS for maintainability -->
+          </svg>
+          <p class="fig-note">Every box maps to a boring managed service — a cron rule, two small functions, a queue with a dead-letter twin, two containers, one table — and the whole plane can run for single-digit dollars a month. Scope the deploy credentials so they cannot repoint production at an arbitrary image. Note what converges: automated proposals and the human review queue are separate populations, but <b>both face the same verdict engine</b>. And scale asymmetrically on purpose: reads scale by replicating the published snapshot behind the versioned API; writes stay serialized through the single gate, because write throughput is never the bottleneck — write <i>correctness</i> is.</p>
+        </figure>
+      </section>
+
+      <!-- ================= 06 RECALL ================= -->
+      <section class="ch reveal" id="recall">
+        <div class="ch-head">
+          <span class="kick">06</span>
+          <h2 class="ch-title">Recall: serving memory to AI</h2>
+        </div>
+        <p>The graph earns its keep when AI systems start reading from it. Vector retrieval answers <i>what text sounds relevant</i>; the graph answers <i>what is actually connected, according to which source, at what trust tier</i> — and for an agent making decisions, those are different questions with different failure modes. Hallucinated similarity is embarrassing; hallucinated dependency is expensive.</p>
+        <p>The serving pattern that works is not "give the model the database". Expose a <b>small set of named, typed, bounded query operations</b> — <i>who supplies X</i>, <i>what depends on Y</i>, <i>sole-source components of Z</i> — each with a hard result limit and a uniform envelope. An agent asks one bounded, typed question and gets one compact, high-signal answer, instead of crawling raw tables and inferring types from column names. This is also a cost decision: a legible ontology is a token-economics lever, and the cheapest model call is the one your intent router resolved deterministically for free.</p>
+        <p>Three guards make graph-backed AI trustworthy. <b>The serving filter is the hallucination guard:</b> apply the same live-edge predicate inside every query tool, so a refuted or retired claim is invisible <i>to the model</i>, not merely unrendered in the UI. <b>Citations are attached out-of-band:</b> every tool records the provenance it touched and the platform renders the sources — the model is never trusted to write its own citations, and web-search results are labeled distinctly so "we searched for this" never reads as "we track this". <b>Access is enforced in code:</b> what the model may reveal is set by the authenticated session, never by anything said in the conversation — a request to "ignore that" changes nothing, because there is nothing at the prompt layer to ignore.</p>
+        <p>And close this loop too: audit a rolling sample of served claims, and let the results <b>re-price the writers</b>. A writer — human pipeline or model — whose confirmed/refuted record falls below par gets an absolute cap on the confidence it can assert, and a fixed golden set of adjudicated claims separates real improvement from sampling luck. The claims a change <i>kills</i> that the golden set expected to survive are the most important list your quality process produces.</p>
+        <div class="rule-note"><b>Design rule — memory is the eval.</b> The same provenance discipline that governs writes gives you the evaluation harness for free: any AI answer that cites the graph can be checked mechanically against the cited claims. The graph is not just what the AI knows — it is how you measure whether the AI is lying.</div>
+      </section>
+
+      <!-- ================= 07 BUILD ORDER ================= -->
+      <section class="ch reveal" id="build-order">
+        <div class="ch-head">
+          <span class="kick">07</span>
+          <h2 class="ch-title">The build order</h2>
+        </div>
+        <p>Sequencing is most of the risk. The failure pattern is building the impressive parts first — extraction agents, chat interfaces — on top of an identity layer that does not exist yet. The order that works, each step producing something inspectable before the next begins:</p>
+        <div class="steps reveal">
+          <div class="step"><div><h3>Identity spine</h3><p>One node per real-world entity, external identifiers as anchors, every system's local keys mapped onto it, and a merge procedure with an audit trail. Boring, decisive, first. Every later step assumes it.</p></div></div>
+          <div class="step"><div><h3>Core ontology, versioned</h3><p>The types and relations every domain must share, written as schema-enforceable laws with a version number. Small is correct: a core ontology under ten types is a feature, not a gap — domains will extend it.</p></div></div>
+          <div class="step"><div><h3>First domain, end to end</h3><p>One domain's sources flowing through extraction to published, provenance-carrying edges — before any second domain starts. The first domain debugs the architecture; the second debugs the federation.</p></div></div>
+          <div class="step"><div><h3>The gate</h3><p>Deterministic verification with named failure modes, with the failure taxonomy unit-tested as the spec. From this point forward nothing reaches the graph unverified — including backfills.</p></div></div>
+          <div class="step"><div><h3>Adjudication</h3><p>The human approval surface, with approval structurally impossible without a passing verdict. Reviewers see the proposal, its source, its verdict, and its history — and their decisions feed calibration.</p></div></div>
+          <div class="step"><div><h3>The flywheel</h3><p>Queued extraction at volume, now that every proposal it emits meets a gate it cannot pass by being plausible. Scale the proposers only after the refusal machinery is proven.</p></div></div>
+          <div class="step"><div><h3>Serving &amp; evals</h3><p>The versioned read API, typed query operations for agents, trust tiers surfaced in every answer — and the graph doubling as the evaluation harness for every AI system that cites it.</p></div></div>
+        </div>
+        <p style="margin-top:18px">The standards to write down on day one, because retrofitting them is an archaeology project: the identity-merge procedure, the ontology versioning policy, the trust-tier taxonomy, the named failure-mode list, and the rule that no consumer ever integrates below the API. Five documents. Each one is a page. Together they are the difference between a knowledge graph and a very expensive cache of unverified strings.</p>
+      </section>
+
+      <p class="eg-foot">This guide is distilled from two production systems the author built and operates — a supply-chain knowledge graph and its governance plane, both open source (<a href="https://github.com/bpachter/thessa" target="_blank" rel="noopener">Thessa</a>, <a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Astraea</a>). Questions, disagreements, war stories: <a href="mailto:ben.pachter@bellsouth.net">ben.pachter@bellsouth.net</a> · <a href="../index.html">back to the portfolio</a>.</p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // ---------- theme (same contract as the rest of the site) ----------
+  const root = document.documentElement;
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const stored = () => { try { return localStorage.getItem('bp-theme'); } catch (e) { return null; } };
+  const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+  const darkMeta = metas.find((m) => /dark/.test(m.getAttribute('media') || ''));
+  const lightMeta = metas.find((m) => m !== darkMeta);
+  const syncMeta = (dark) => { if (!darkMeta || !lightMeta) return;
+    darkMeta.media = dark ? 'all' : 'not all'; lightMeta.media = dark ? 'not all' : 'all'; };
+  const apply = (dark) => { if (dark) root.setAttribute('data-theme','dark'); else root.removeAttribute('data-theme'); syncMeta(dark); };
+  apply(stored() ? stored() === 'dark' : mq.matches);
+  const tbtn = document.getElementById('themeToggle');
+  if (tbtn) tbtn.addEventListener('click', () => {
+    const dark = root.getAttribute('data-theme') !== 'dark';
+    apply(dark);
+    try { localStorage.setItem('bp-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  });
+  const onScheme = (e) => { if (!stored()) apply(e.matches); };
+  if (mq.addEventListener) mq.addEventListener('change', onScheme);
+  else if (mq.addListener) mq.addListener(onScheme);
+
+  // ---------- reveal on scroll ----------
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if (!reduce && 'IntersectionObserver' in window) {
+    document.body.classList.add('motion');
+    const revs = document.querySelectorAll('.reveal');
+    let fired = false;
+    const ro = new IntersectionObserver((entries) => {
+      fired = true;
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+    revs.forEach((el) => ro.observe(el));
+    setTimeout(() => { if (!fired) revs.forEach((el) => el.classList.add('in')); }, 1500);
+  }
+
+  // ---------- fig 01: mesh vs spine ----------
+  (function () {
+    const fig = document.getElementById('fig-spine');
+    if (!fig) return;
+    const NAMES = ['ERP', 'CRM', 'CONTRACTS', 'RISK', 'HR', 'TICKETS'];
+    const cx = 460, cy = 163, R = 128;
+    const pts = NAMES.map((n, i) => {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / NAMES.length);
+      return { n, x: cx + Math.cos(a) * (R + 150), y: cy + Math.sin(a) * (R * 0.86) };
+    });
+    const boxes = fig.querySelector('#sysBoxes');
+    const mesh = fig.querySelector('#meshWires');
+    const spine = fig.querySelector('#spineWires');
+    const NS = 'http://www.w3.org/2000/svg';
+    pts.forEach((p) => {
+      const g = document.createElementNS(NS, 'g');
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('class', 'ink'); r.setAttribute('x', p.x - 52); r.setAttribute('y', p.y - 17);
+      r.setAttribute('width', 104); r.setAttribute('height', 34);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('class', 'svg-k tp'); t.setAttribute('x', p.x); t.setAttribute('y', p.y + 4);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '11'); t.textContent = p.n;
+      g.appendChild(r); g.appendChild(t); boxes.appendChild(g);
+    });
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const l = document.createElementNS(NS, 'line');
+      l.setAttribute('class', 'wire');
+      l.setAttribute('x1', pts[i].x); l.setAttribute('y1', pts[i].y);
+      l.setAttribute('x2', pts[j].x); l.setAttribute('y2', pts[j].y);
+      mesh.appendChild(l);
+    }
+    pts.forEach((p) => {
+      const l = document.createElementNS(NS, 'line');
+      l.setAttribute('class', 'spine');
+      l.setAttribute('x1', p.x); l.setAttribute('y1', p.y);
+      l.setAttribute('x2', cx); l.setAttribute('y2', cy);
+      spine.appendChild(l);
+    });
+    const hubLabel = fig.querySelector('#hubLabel');
+    fig.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
+      fig.dataset.mode = b.dataset.mode;
+      fig.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      hubLabel.style.opacity = b.dataset.mode === 'spine' ? '1' : '0';
+    }));
+  })();
+
+  // ---------- fig 02: reference ontology explorer ----------
+  (function () {
+    const TYPES = [
+      { k: 'Organization', d: 'Any legal or operating entity — customers, suppliers, competitors, regulators. The thing that can hold a registration, a contract, an obligation.', rels: [
+        ['supplies', 'Organization', 'what flows is carried on the edge'],
+        ['makes', 'Product / Component', 'exactly one maker per product'],
+        ['has_capability', 'Capability', ''],
+        ['competes_with', 'Organization', 'symmetric'],
+        ['owns / invests_in', 'Organization', 'control cluster'],
+        ['employs', 'Person', ''],
+        ['operates', 'Facility', '']] },
+      { k: 'Person', d: 'Officers, key contacts, owners. Never merged on a bare surname — single tokens collide across unrelated people.', rels: [
+        ['officer_of', 'Organization', ''],
+        ['sits_on', 'Organization', 'board membership'],
+        ['owns', 'Organization', '']] },
+      { k: 'Product', d: 'A thing that is sold. Exactly one maker — anything claimed by two organizations is a category, not a product.', rels: [
+        ['depends_on', 'Component / Material', ''],
+        ['made_by', 'Organization', 'inverse of makes']] },
+      { k: 'Component', d: 'A part that flows between organizations. The object a supply edge carries.', rels: [
+        ['input_to', 'Product', ''],
+        ['depends_on', 'Material', '']] },
+      { k: 'Material', d: 'A raw input traced through the chain — the thing supply exposure ultimately bottoms out on.', rels: [
+        ['input_to', 'Component / Product', ''],
+        ['produced_in', 'Facility', '']] },
+      { k: 'Capability', d: 'Something an organization can do — a certification, a process, a clearance. Mostly a target: organizations point at it.', rels: [
+        ['held_by', 'Organization', 'inverse of has_capability']] },
+      { k: 'Facility', d: 'A plant, warehouse, or office — where things are made, stored, or done. Where geography enters the graph.', rels: [
+        ['operated_by', 'Organization', 'inverse of operates'],
+        ['produces', 'Material / Component', '']] },
+      { k: 'Business unit', d: 'A reporting division of one organization. Scoped to its owner and never shared — a shared unit sums two companies’ numbers.', rels: [
+        ['part_of', 'Organization', 'id scoped as unit:<owner>:<slug>'],
+        ['reports', '— revenue records attach here as evidence', '']] }
+    ];
+    const wrap = document.getElementById('ontoTypes');
+    const relBox = document.getElementById('ontoRels');
+    const nameEl = document.getElementById('ontoName');
+    const def = document.getElementById('ontoDef');
+    if (!wrap) return;
+    TYPES.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'onto-type'; b.textContent = t.k;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => select(i));
+      wrap.appendChild(b);
+    });
+    function select(i) {
+      const t = TYPES[i];
+      wrap.querySelectorAll('.onto-type').forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+      nameEl.textContent = t.k;
+      def.textContent = t.d;
+      relBox.innerHTML = '';
+      t.rels.forEach(([rk, rt, note]) => {
+        const div = document.createElement('div');
+        div.className = 'onto-rel';
+        div.innerHTML = '<span class="rk">' + rk + '</span><span class="rt">→ ' + rt + (note ? ' · ' + note : '') + '</span>';
+        relBox.appendChild(div);
+      });
+    }
+    select(0);
+  })();
+
+  // ---------- fig 03: trust ladder ----------
+  (function () {
+    const RUNGS = [
+      { n: 'System of record', q: 'A signed contract, an ERP transaction, a bank record', r: 'T4', ex: {
+        claim: 'Supplier X delivered under PO 4471 — amount, date, and terms as transacted.',
+        src: 'Your own ERP / contract repository — the record has transactional or legal weight.',
+        why: 'The strongest tier: someone was paid, or someone signed. Disputing it means disputing a document, not an opinion.' } },
+      { n: 'Official record', q: 'A government registry, regulatory filing, court record', r: 'T3', ex: {
+        claim: 'Company Y is a registered legal entity with this official name, id, and registered parent.',
+        src: 'Company registry / regulator — authoritative for what it states, silent beyond it.',
+        why: 'Authoritative but scoped: a registry proves existence and identity, not performance.' } },
+      { n: 'Verified', q: 'A third-party claim independently confirmed against a primary source', r: 'T2', ex: {
+        claim: 'A partnership first seen in the news, later matched to a transaction in your own records.',
+        src: 'Two sources: the assertion, and the primary record that confirmed it.',
+        why: 'The promotion tier. A claim earns its way up — and the promotion is free when the stronger record shows up on its own.' } },
+      { n: 'Reported', q: 'Press, a vendor’s website, an analyst note', r: 'T1', ex: {
+        claim: 'A supply relationship announced in a press release.',
+        src: 'The publication itself — an assertion someone wanted printed.',
+        why: 'Stored, labeled, useful — and never confused with a transacted figure. Most of your graph starts here.' } },
+      { n: 'Unverified', q: 'Model-extracted or single-source, not yet corroborated', r: 'T0', ex: {
+        claim: 'An extracted statement awaiting any corroboration.',
+        src: 'A single non-primary mention.',
+        why: 'Held visibly at the bottom — not deleted, not promoted, not trusted, and never silently blended into an average.' } }
+    ];
+    const ladder = document.getElementById('ladder');
+    const card = document.getElementById('claimCard');
+    if (!ladder) return;
+    RUNGS.forEach((r, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'rung'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="rn">' + r.n + '</span>' +
+        '<span class="rq">' + r.q + '</span>' +
+        '<span class="rc">' + r.r + '</span>';
+      b.addEventListener('click', () => {
+        ladder.querySelectorAll('.rung').forEach((x, j) => x.setAttribute('aria-pressed', String(i === j)));
+        card.hidden = false;
+        card.innerHTML =
+          '<span class="ck">Example claim on this tier</span><div class="cv">' + r.ex.claim + '</div>' +
+          '<span class="ck">Evidence carried on the edge</span><div class="cv"><code>' + r.ex.src + '</code></div>' +
+          '<span class="ck">Why this tier</span><div class="cv">' + r.ex.why + '</div>';
+      });
+      ladder.appendChild(b);
+    });
+  })();
+
+  // ---------- fig 04: gate simulator ----------
+  (function () {
+    const PROPS = [
+      { n: 'Clean extraction', d: 'Four segments; the sum ties to the total stated in the report.', segs: [['Hardware', 41.2], ['Software', 27.9], ['Services', 18.4], ['Other', 6.1]], consolidated: 93.6 },
+      { n: 'Total row rode along', d: 'The report’s own "Total" row was extracted as a fifth segment.', segs: [['Hardware', 41.2], ['Software', 27.9], ['Services', 18.4], ['Other', 6.1], ['Total', 93.6]], consolidated: 93.6 },
+      { n: 'Two dimensions flattened', d: 'Product and regional breakdowns merged into one list — every dollar counted twice.', segs: [['Hardware', 41.2], ['Software', 27.9], ['Services', 18.4], ['Other', 6.1], ['Americas', 61.0], ['International', 32.6]], consolidated: 93.6 },
+      { n: 'A repeated row', d: '"Software" extracted twice — once with a trailing space.', segs: [['Software', 30.0], ['software ', 30.0], ['Hardware', 33.6]], consolidated: 93.6 },
+      { n: 'No anchor figure', d: 'Segment rows extracted, but the total from the same report is missing.', segs: [['Hardware', 41.2], ['Software', 27.9], ['Services', 18.4], ['Other', 6.1]], consolidated: null },
+      { n: 'Plausible but wrong', d: 'Every row looks reasonable; the sum is off by 26%.', segs: [['Hardware', 41.2], ['Software', 27.9], ['Services', 18.4], ['Other', 6.1]], consolidated: 74.0 },
+      { n: 'Nothing to reconcile', d: 'The extractor returned no rows at all.', segs: [], consolidated: 93.6 }
+    ];
+    const TOL = 0.02; // 2% relative tolerance
+    const propsBox = document.getElementById('gateProps');
+    const rows = document.getElementById('gateRows');
+    const verdictEl = document.getElementById('gateVerdict');
+    const why = document.getElementById('gateWhy');
+    const approve = document.getElementById('gateApprove');
+    const http = document.getElementById('gateHttp');
+    if (!propsBox) return;
+    let current = null;
+
+    // Same checks, same order as a production reconciliation engine. Order is
+    // load-bearing: the more specific diagnosis fires first (a smuggled total
+    // also lands near 2x, and must NOT be called duplicate_facts).
+    function within(actual, expected) { return expected !== 0 && Math.abs(actual - expected) / Math.abs(expected) <= TOL; }
+    function reconcile(p) {
+      if (!p.segs.length) return { v: 'no_segments', why: 'Nothing to reconcile. Say so, loudly — an empty extraction must not publish as an empty truth.' };
+      if (p.consolidated == null) return { v: 'no_consolidated', why: 'Rows exist, but the anchor figure from the same document is missing. An unanchored sum is unverifiable, so it must not publish.' };
+      const norm = (n) => n.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const seen = new Set();
+      for (const [n] of p.segs) { const k = norm(n); if (seen.has(k)) return { v: 'duplicate_facts', why: 'The same fact appears more than once — a repeated row. "Software" and "software " are one segment, not two.' }; seen.add(k); }
+      if (p.segs.length >= 3) {
+        for (let i = 0; i < p.segs.length; i++) {
+          const sib = p.segs.reduce((a, [, x], j) => j === i ? a : a + x, 0);
+          if (sib > 0 && within(p.segs[i][1], sib)) return { v: 'undetected_rollup', why: 'One row equals the sum of its siblings — a total row rode along in the list, doubling the sum while every individual row looks correct.' };
+        }
+      }
+      const sum = p.segs.reduce((a, [, x]) => a + x, 0);
+      if (within(sum, p.consolidated * 2)) return { v: 'duplicate_facts', why: 'The sum lands at a perfectly plausible ≈ 2× the anchor — two reporting dimensions flattened into one list, every dollar counted twice.' };
+      const rel = Math.abs(sum - p.consolidated) / p.consolidated;
+      if (rel > TOL) return { v: 'unreconciled', why: 'The sum is off by ' + Math.round(rel * 100) + '%. Every row looks reasonable, which is exactly why it must not publish — absence is honest.' };
+      return { v: 'publishable', why: 'The sum ties to the anchor figure within the 2% tolerance. Now — and only now — may this proposal be put in front of a human.' };
+    }
+
+    function fmt(x) { return '$' + x.toFixed(1) + 'M'; }
+
+    function select(i) {
+      current = PROPS[i];
+      propsBox.querySelectorAll('.gate-prop').forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+      const sum = current.segs.reduce((a, [, x]) => a + x, 0);
+      rows.innerHTML = current.segs.map(([n, x]) => n + ' — ' + fmt(x)).join('<br>') +
+        (current.segs.length ? '<br><span class="sum">sum — ' + fmt(sum) + '</span>' : '<span class="sum">(no rows)</span>') +
+        '<br><span class="sum">stated total — ' + (current.consolidated == null ? 'missing' : fmt(current.consolidated)) + '</span>';
+      const r = reconcile(current);
+      current.verdict = r.v;
+      verdictEl.textContent = r.v;
+      verdictEl.dataset.ok = String(r.v === 'publishable');
+      why.textContent = r.why;
+      http.textContent = '';
+    }
+
+    PROPS.forEach((p, i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'gate-prop'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="gp-n">' + p.n + '</span><span class="gp-d">' + p.d + '</span>';
+      b.addEventListener('click', () => select(i));
+      propsBox.appendChild(b);
+    });
+
+    approve.addEventListener('click', () => {
+      if (!current) { http.textContent = 'Select a proposal first.'; return; }
+      if (current.verdict === 'publishable') {
+        http.innerHTML = '<span class="ok">HTTP 200</span> — approved, with verdict and provenance attached. A human owned this decision.';
+      } else {
+        http.innerHTML = 'HTTP 409 Conflict — "Refusing to publish — gate verdict is ’' + current.verdict + '’. Nothing publishes unless it reconciles." Not policy — a refusal in code.';
+      }
+    });
+    select(0);
+  })();
+
+  // ---------- fig 05: topology diagram ----------
+  (function () {
+    const svg = document.getElementById('topoSvg');
+    if (!svg) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    function box(x, y, w, h, title, sub) {
+      const g = document.createElementNS(NS, 'g');
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('class', 'ink'); r.setAttribute('x', x); r.setAttribute('y', y);
+      r.setAttribute('width', w); r.setAttribute('height', h);
+      g.appendChild(r);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('class', 'svg-k tp'); t.setAttribute('x', x + w / 2); t.setAttribute('y', y + (sub ? h / 2 - 3 : h / 2 + 4));
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '11.5'); t.textContent = title;
+      g.appendChild(t);
+      if (sub) {
+        const s = document.createElementNS(NS, 'text');
+        s.setAttribute('class', 'mut'); s.setAttribute('x', x + w / 2); s.setAttribute('y', y + h / 2 + 13);
+        s.setAttribute('text-anchor', 'middle'); s.setAttribute('font-size', '9.5'); s.textContent = sub;
+        g.appendChild(s);
+      }
+      svg.appendChild(g);
+    }
+    function arrow(x1, y1, x2, y2, dashed) {
+      const l = document.createElementNS(NS, 'path');
+      l.setAttribute('class', dashed ? 'dash' : 'ink');
+      l.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2);
+      svg.appendChild(l);
+      const a = Math.atan2(y2 - y1, x2 - x1);
+      const hx = x2 - 9 * Math.cos(a), hy = y2 - 9 * Math.sin(a);
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('class', 'ink');
+      p.setAttribute('d', 'M' + (hx + 5 * Math.sin(a)) + ' ' + (hy - 5 * Math.cos(a)) + ' L' + x2 + ' ' + y2 + ' L' + (hx - 5 * Math.sin(a)) + ' ' + (hy + 5 * Math.cos(a)));
+      svg.appendChild(p);
+    }
+    function label(x, y, txt, cls) {
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('class', cls || 'mut'); t.setAttribute('x', x); t.setAttribute('y', y);
+      t.setAttribute('font-size', '9.5'); t.textContent = txt;
+      svg.appendChild(t);
+    }
+    // flywheel lane
+    box(24, 40, 122, 44, 'SWEEP', 'scheduled · cheap');
+    box(182, 40, 122, 44, 'PLANNER', 'enumerates work');
+    box(340, 40, 122, 44, 'QUEUE', 'one unit per message');
+    box(340, 126, 122, 36, 'DLQ', '3 strikes → a human');
+    box(498, 40, 140, 44, 'EXTRACTOR', 'LLM proposes');
+    box(688, 40, 140, 44, 'GATE', 'deterministic verdicts');
+    box(688, 126, 140, 40, 'VERDICTS', 'durable · idempotent key');
+    // adjudication + serving lanes
+    box(498, 196, 140, 44, 'REVIEW', 'human approve');
+    box(688, 236, 140, 44, 'GRAPH', 'published memory');
+    box(688, 326, 140, 40, 'READ API', 'versioned · read-only');
+    box(452, 326, 140, 40, 'CONSUMERS', 'agents · apps · BI');
+    label(24, 380, 'every box is a boring managed service · scoped deploy roles, no long-lived keys · a trace on every hop', 'mut');
+    arrow(146, 62, 182, 62);
+    arrow(304, 62, 340, 62);
+    arrow(462, 62, 498, 62);
+    arrow(638, 62, 688, 62);
+    label(642, 54, 'proposal', 'acc');
+    arrow(401, 84, 401, 126, true);
+    arrow(758, 84, 758, 126);
+    label(764, 110, 'named verdict', 'acc');
+    arrow(568, 196, 700, 84, true);
+    label(560, 184, 'run gate → 409 unless publishable', 'acc');
+    arrow(638, 226, 700, 246);
+    label(600, 260, 'approved only', 'acc');
+    arrow(758, 280, 758, 326);
+    arrow(688, 346, 592, 346);
+    arrow(592, 326, 688, 268, true);
+    label(556, 306, 'reads, never writes', 'mut');
+  })();
+});
+</script>
+</body>
+</html>

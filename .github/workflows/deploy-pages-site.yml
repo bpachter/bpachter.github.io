@@ -30,6 +30,7 @@ on:
       - 'drawdown/**'
       - 'kernel/**'
       - 'updraft/**'
+      - 'graph-ontology/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -88,13 +89,14 @@ jobs:
           if [ -d drawdown ]; then cp -r drawdown _site/drawdown; fi
           if [ -d kernel ]; then cp -r kernel _site/kernel; fi
           if [ -d updraft ]; then cp -r updraft _site/updraft; fi
+          if [ -d graph-ontology ]; then cp -r graph-ontology _site/graph-ontology; fi
           touch _site/.nojekyll
 
           # Fail the build rather than publish a site missing an app the
           # portfolio links to. This is the check that would have caught
           # astraea/ and updraft/ going 404 instead of shipping it.
           missing=0
-          for d in astraea attractor drawdown fonts gradient kernel updraft media; do
+          for d in astraea attractor drawdown graph-ontology fonts gradient kernel updraft media; do
             if [ -d "$d" ] && [ ! -e "_site/$d" ]; then
               echo "::error::$d is tracked but was not copied into _site"
               missing=1
