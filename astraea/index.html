@@ -4,12 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Architecture Recon</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- This build is superseded by /atlas/, which is what the portfolio links.
+         It stays served so that any link already pointing here keeps working,
+         but the canonical tells search engines the two are one page so they are
+         not indexed as duplicate content. -->
+    <link rel="canonical" href="https://bpachter.github.io/atlas/" />
+    <!-- Barlow served from this origin rather than fonts.googleapis.com — the
+         Google stylesheet was render-blocking. See /atlas/index.html. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/barlow-latin-400.woff2">
+    <style>
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;
+        src:url(/fonts/barlow-latin-400.woff2) format('woff2')}
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;
+        src:url(/fonts/barlow-latin-500.woff2) format('woff2')}
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;
+        src:url(/fonts/barlow-latin-700.woff2) format('woff2')}
+      @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;
+        src:url(/fonts/barlow-condensed-latin-400.woff2) format('woff2')}
+      @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;
+        src:url(/fonts/barlow-condensed-latin-600.woff2) format('woff2')}
+    </style>
     <script type="module" crossorigin src="/astraea/assets/index-Bw4OplPt.js"></script>
     <link rel="stylesheet" crossorigin href="/astraea/assets/index-DN6rO98m.css">
   </head>

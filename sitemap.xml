@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- /astraea/ is deliberately absent: it is a superseded build of the same app
+     as /atlas/ and carries a canonical pointing there. Listing both would submit
+     duplicate content for indexing. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bpachter.github.io/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/case-studies.html</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/graph-ontology/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/atlas/</loc><changefreq>monthly</changefreq></url>
-  <url><loc>https://bpachter.github.io/astraea/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/attractor/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/drawdown/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/entropy/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/gradient/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/headroom/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/kernel/</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://bpachter.github.io/nullius/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/updraft/</loc><changefreq>monthly</changefreq></url>
 </urlset>

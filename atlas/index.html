@@ -4,16 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Architecture Recon</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Barlow is served from this origin, not fonts.googleapis.com. The Google
+         stylesheet was render-blocking, so a third-party DNS lookup and TLS
+         handshake sat in front of first paint on every visit — the same reason
+         the portfolio self-hosts. /fonts/ already carries the exact five weights
+         the Google request asked for. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/barlow-latin-400.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/barlow-condensed-latin-600.woff2">
+    <style>
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;
+        src:url(/fonts/barlow-latin-400.woff2) format('woff2')}
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;
+        src:url(/fonts/barlow-latin-500.woff2) format('woff2')}
+      @font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;
+        src:url(/fonts/barlow-latin-700.woff2) format('woff2')}
+      @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;
+        src:url(/fonts/barlow-condensed-latin-400.woff2) format('woff2')}
+      @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;
+        src:url(/fonts/barlow-condensed-latin-600.woff2) format('woff2')}
+    </style>
     <script type="module" crossorigin src="/atlas/assets/index-B7q62qgP.js"></script>
     <link rel="stylesheet" crossorigin href="/atlas/assets/index-DN6rO98m.css">
   </head>
   <body>
+    <!-- Back to the portfolio. Outside #root and inline-styled on purpose:
+         this is a React app, and a visitor who arrives from the portfolio
+         should be able to leave without the browser's back button and without
+         a working bundle. NOTE: this file is Vite build output — re-add this
+         block AND the self-hosted font block above to the SOURCE index.html,
+         or the next rebuild drops them again. That has already happened twice:
+         once to astraea/, and again here when atlas/ was built from a source
+         that never carried them. -->
+    <a href="https://bpachter.github.io/" aria-label="Back to portfolio"
+       style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;
+              align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+              font:500 12px/1 Barlow,system-ui,sans-serif;letter-spacing:.06em;
+              text-transform:uppercase;text-decoration:none;color:#e8ecf1;
+              background:rgba(14,17,22,.72);border:1px solid rgba(232,236,241,.22);
+              backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"
+    >&#8592; Portfolio</a>
     <div id="root"></div>
   </body>
 </html>

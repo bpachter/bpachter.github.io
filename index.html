@@ -732,11 +732,18 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             </div>
             <div class="ir-body">
   <div class="ir-desc">The governance layer of my knowledge-graph work, running live on <b>AWS</b>: AI agents propose facts, a typed <b>C# reconciliation gate</b> refuses what doesn't tie out — named failure modes, never "failed" — and a <b>Django</b> portal makes approval structurally impossible without a passing verdict. Its first run against the production graph refused type demotions on nodes holding <b>$10.9B</b> in federal contracts that a name-shape heuristic had misread. Two containerized services on App Runner behind a versioned lookup API over <b>24,240</b> entities, plus a 3D <b>layered-omics atlas</b> from Human-GEM: 2,848 genes rising through 12,931 reactions to 8,461 metabolites. Portal demo: <code>demo / astraea-demo</code>.
-              <!-- Inside .ir-desc on purpose. .idx-row is a four-column grid
-                   (No / Project / What it does / Status); as a fifth direct child
-                   this landed in the Status column and pushed .ir-meta onto an
-                   implicit row at the far left, stranding the Live badge and
-                   every link underneath the row. -->
+              <!-- STRUCTURAL INVARIANT for every .idx-row on this page.
+                   .idx-row is a THREE-column grid (No / Project / What it does)
+                   and must have exactly three direct children:
+                     .ir-no, .ir-name, .ir-body
+                   .ir-body holds both .ir-desc and .ir-meta. A fourth direct
+                   child does not get a column — it lands on an implicit row at
+                   the far left, which is how the Live badge and every link once
+                   ended up stranded underneath the row. Rows are also siblings:
+                   nesting one inside another still balances its tags, so a
+                   tag-counting check will pass while the page blows past the
+                   viewport. Verify with querySelectorAll('.idx-row') and assert
+                   every match has the same parent and exactly three children. -->
             </div>
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
