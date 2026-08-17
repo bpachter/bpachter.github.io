@@ -498,6 +498,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
     font-size:15px;color:var(--color-accent-700)}
   .cap-k svg{width:16px;height:16px;flex:none;stroke-width:1.6;margin-top:2px}
   .cap-v{font-size:14.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 80%,transparent)}
+  .cap-v p{margin:0 0 9px}
+  .cap-v p:last-of-type{margin-bottom:11px}
+  .cap-v b{color:var(--color-text)}
+  .inc-lead{max-width:78ch;font-size:15px;line-height:1.6;color:var(--color-mute);margin:0 0 22px}
 
   /* contact */
   .contact-plate{position:relative;border:1px solid var(--color-divider);padding:clamp(28px,3.4vw,44px);margin-top:8px}
@@ -666,9 +670,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
       <nav class="r-nav fade" style="--i:6">
         <a href="#work" data-spy="work"><span class="n">01</span> Work <span class="bar"></span></a>
         <a href="#experience" data-spy="experience"><span class="n">02</span> Experience <span class="bar"></span></a>
-        <a href="#capabilities" data-spy="capabilities"><span class="n">03</span> Capabilities <span class="bar"></span></a>
-        <a href="#education" data-spy="education"><span class="n">04</span> Education <span class="bar"></span></a>
-        <a href="#contact" data-spy="contact"><span class="n">05</span> Contact <span class="bar"></span></a>
+        <a href="#incidents" data-spy="incidents"><span class="n">03</span> Incidents <span class="bar"></span></a>
+        <a href="#capabilities" data-spy="capabilities"><span class="n">04</span> Capabilities <span class="bar"></span></a>
+        <a href="#education" data-spy="education"><span class="n">05</span> Education <span class="bar"></span></a>
+        <a href="#contact" data-spy="contact"><span class="n">06</span> Contact <span class="bar"></span></a>
         <span class="r-navsep">Deep dives</span>
         <a href="case-studies.html" class="r-cross"><span class="n">↗</span> Case studies <span class="bar"></span></a>
         <a href="graph-ontology/" class="r-cross"><span class="n">↗</span> Graph ontology guide <span class="bar"></span></a>
@@ -984,8 +989,46 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           </div>
         </section>
 
+        <section class="sec" id="incidents">
+          <div class="sec-head"><h2 class="kick">03 · When this site broke</h2></div>
+          <hr class="rule">
+          <p class="inc-lead reveal">Three deploy failures of this page. The third is the one worth reading: a check written to catch the second never ran at all, and the build that should have failed reported success. Every commit below is linked at a pinned SHA.</p>
+
+          <div class="cap reveal">
+            <div class="cap-k">A deploy could delete the live site</div>
+            <div class="cap-v">
+              <p><b>Symptom.</b> <code>/astraea/</code> and <code>/updraft/</code> served 404 while both sat in the repository.</p>
+              <p><b>Cause.</b> A directory has to appear in two places — the push-path filter and the copy step — and these were in neither. The assemble step opens with <code>rm -rf _site</code>, so a deploy triggered by any other path rebuilt the whole site without them. <code>astraea/</code> was missing from every published artifact for <b>3 h 56 m across six successful deploys</b>; <code>updraft/</code> for 1 h 20 m across three.</p>
+              <p><b>Now.</b> The build fails instead of publishing: every tracked directory the page links to must be present in <code>_site</code> before the artifact is uploaded.</p>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/blob/102d4898109ce4d98a92f32ad3c3738097fcfd47/.github/workflows/deploy-pages-site.yml#L83-L93" target="_blank" rel="noopener">The guard <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="cap reveal">
+            <div class="cap-k">200 OK, and blank</div>
+            <div class="cap-v">
+              <p><b>Symptom.</b> The page returned 200 and rendered nothing.</p>
+              <p><b>Cause.</b> The app was built from a Git Bash shell, and MSYS rewrote the bundle path: the deployed HTML asked for <code>/Program&nbsp;Files/Git/astraea/assets/index-Bw4OplPt.js</code>. The shell loaded, the script 404'd, the app never mounted. I made this mistake twice; the second time it reached a deploy and was live for <b>5 m 25 s</b>.</p>
+              <p><b>Why the first check missed it.</b> It asked whether the directory was in the artifact, and it was. Every check I ran said the page was up, and every one of them was telling the truth — an app whose HTML ships but whose bundle does not is worse than a missing app, because uptime monitoring cannot see it.</p>
+              <p><b>Now.</b> The build reads every <code>.js</code> and <code>.css</code> URL out of every HTML file in the artifact and fails if the file behind it is not there.</p>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/blob/efe9712bc97573936db7ba09c36dc474ff2d8cba/astraea/index.html#L13-L14" target="_blank" rel="noopener">The mangled paths <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+
+          <div class="cap reveal">
+            <div class="cap-k">The check that didn't check</div>
+            <div class="cap-v">
+              <p><b>Symptom.</b> None. That is the entry.</p>
+              <p><b>Cause.</b> The guard above was born broken, in the very commit that fixed the failure it was written for. Its line continuations had been written as two-character <code>\n</code> escapes inside a YAML block scalar, which YAML preserves verbatim rather than turning into newlines — so <code>sed</code> was handed a file named <code>n</code>, died, and the loop never saw a single URL. The run log says <code>sed: can't read n: No such file or directory</code>, in a build that concluded <b>success</b>.</p>
+              <p><b>Blast radius.</b> No URL died. The guard was simply inert for <b>46 h across four deploys</b> — a capability gap rather than an outage, and the kind that is only ever found by reading logs from a build that passed.</p>
+              <p><b>Now.</b> Both loops read from process substitution rather than a pipe, because <code>… | while</code> runs in a subshell and the failure flag it set evaporated at the closing <code>done</code>. A check that cannot fail loudly is not a check.</p>
+              <a class="go" href="https://github.com/bpachter/bpachter.github.io/blob/1b9f229de8d26ce18df9868dfa0ad751ad0a2301/.github/workflows/deploy-pages-site.yml#L123-L132" target="_blank" rel="noopener">The repair <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+        </section>
+
         <section class="sec" id="capabilities">
-          <div class="sec-head"><h2 class="kick">03 · Capabilities</h2></div>
+          <div class="sec-head"><h2 class="kick">04 · Capabilities</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
@@ -998,7 +1041,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="education">
-          <div class="sec-head"><h2 class="kick">04 · Education &amp; certifications</h2></div>
+          <div class="sec-head"><h2 class="kick">05 · Education &amp; certifications</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k">Education</div><div class="cap-v">
             <div class="edu-row">
@@ -1031,7 +1074,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="contact" style="padding-bottom:24px">
-          <div class="sec-head"><h2 class="kick">05 · Contact</h2></div>
+          <div class="sec-head"><h2 class="kick">06 · Contact</h2></div>
           <hr class="rule">
           <div class="contact-plate reveal">
             <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
