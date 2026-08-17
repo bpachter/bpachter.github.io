@@ -293,7 +293,13 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   @media (prefers-reduced-motion:reduce){.intro p.intro-cue::after{animation:none}}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);
     border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);margin-top:36px}
-  .stat{padding:20px 22px 18px;border-left:1px solid var(--color-divider)}
+  /* Each stat is a link to the case study that documents it. The affordance is
+     the hairline background shift on hover — same idiom as .idx-row — and
+     deliberately nothing more: an arrow glyph on a number reads as a button,
+     and four buttons under the intro is a landing page, not a portfolio. */
+  .stat{display:block;color:inherit;padding:20px 22px 18px;border-left:1px solid var(--color-divider);
+    transition:background .18s var(--ease-out)}
+  a.stat:hover{background:color-mix(in srgb,var(--color-text) 4%,transparent)}
   .stat:first-child{border-left:0}
   .stat .v{font-family:var(--font-heading);font-weight:600;font-size:clamp(24px,2.4vw,32px);
     line-height:1;letter-spacing:.01em;font-feature-settings:"tnum" 1}
@@ -670,14 +676,14 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <section class="intro">
           <canvas class="hero-sim" id="heroSim" aria-hidden="true"></canvas>
           <h1 class="fx-tr"><span class="line" style="--i:1">Enterprise business architect.</span><span class="line accent" style="--i:2">AI and data platforms.</span></h1>
-          <p class="fade" style="--i:4">Welcome to my portfolio. I am a digital architect who simply seeks to help as many folks as possible through advanced and efficient process improvement. I have re-designed businesses from small to large to allow them to operate effectively in the rapidly evolving world of artificial intelligence. Augmenting full-stack capabilities with AI allows for me to truly operate at the very tip of the technology spear. I love cats, cars, and computers.</p>
-          <p class="fade" style="--i:5">My mission in all domains is simple: clearly define signal and noise through a redefined <b>business graph ontology</b> — the most practical and powerful data augmentation setup for businesses with AI going into 2027 — so that multiple siloed systems can be streamlined into a single architecture.</p>
-          <p class="intro-cue fade" style="--i:6">Scroll down to view some of my ongoing personal projects.</p>
+          <p class="fade" style="--i:4">I build data systems whose numbers can be checked. That is a constraint enforced in code rather than a slogan: the first tool on the list below re-runs fifteen checks against known values on load and refuses to display a number it cannot reproduce, and the reconciliation gate in front of my knowledge graph names its failure mode instead of returning “failed”. I have rebuilt how companies from small to enterprise operate around AI, and the hard part is always the same — deciding what is allowed to count as a fact.</p>
+          <p class="fade" style="--i:5">My mission in all domains is simple: clearly define signal and noise through a redefined <b>business graph ontology</b>, so that multiple siloed systems can be streamlined into a single architecture.</p>
+          <p class="intro-cue fade" style="--i:6">Eleven systems below. Ten of them are running right now — open one and check it.</p>
           <div class="stats reveal">
-            <div class="stat"><div class="v">250+ GW</div><div class="k">Data-center &amp; large-load interconnection screened</div></div>
-            <div class="stat"><div class="v">2–4 wks → day</div><div class="k">Interconnection study turnaround</div></div>
-            <div class="stat"><div class="v">$7B+</div><div class="k">Mortgage portfolio risk-scored with production ML</div></div>
-            <div class="stat"><div class="v">~$13M</div><div class="k">Supply-chain savings engineered at BMW</div></div>
+            <a class="stat" href="case-studies.html#cs-duke"><div class="v">250+ GW</div><div class="k">Data-center &amp; large-load interconnection screened</div></a>
+            <a class="stat" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener"><div class="v">2–4 wks → day</div><div class="k">Interconnection study turnaround</div></a>
+            <a class="stat" href="case-studies.html#cs-nymt"><div class="v">$7B+</div><div class="k">Mortgage portfolio risk-scored with production ML</div></a>
+            <a class="stat" href="case-studies.html#cs-bmw"><div class="v">~$13M</div><div class="k">Supply-chain savings engineered at BMW</div></a>
           </div>
         </section>
 
@@ -718,6 +724,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://thessa.space" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="case-studies.html#cs-thessa">Case study: the wrong number that looks right <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/thessa" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
@@ -731,7 +738,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <a class="ir-shot" href="atlas/" tabindex="-1" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="media/shots/astraea-static.webp"><img src="media/shots/astraea.webp" alt="" loading="lazy" width="640" height="400"></picture></a>
             </div>
             <div class="ir-body">
-  <div class="ir-desc">The governance layer of my knowledge-graph work, running live on <b>AWS</b>: AI agents propose facts, a typed <b>C# reconciliation gate</b> refuses what doesn't tie out — named failure modes, never "failed" — and a <b>Django</b> portal makes approval structurally impossible without a passing verdict. Its first run against the production graph refused type demotions on nodes holding <b>$10.9B</b> in federal contracts that a name-shape heuristic had misread. Two containerized services on App Runner behind a versioned lookup API over <b>24,240</b> entities, plus a 3D <b>layered-omics atlas</b> from Human-GEM: 2,848 genes rising through 12,931 reactions to 8,461 metabolites. Portal demo: <code>demo / astraea-demo</code>.
+  <div class="ir-desc">The governance layer of my knowledge-graph work, running live on <b>AWS</b>: AI agents propose facts, a typed <b>C# reconciliation gate</b> refuses what doesn't tie out — named failure modes, never "failed" — and a <b>Django</b> portal makes approval structurally impossible without a passing verdict. Its first run against the production graph refused type demotions on nodes holding <b>$10.9B</b> in federal contracts that a name-shape heuristic had misread. Two containerized services on App Runner behind a versioned lookup API over <b>24,240</b> entities, plus a 3D <b>layered-omics atlas</b> built from Human-GEM 2.0.0 (CC-BY-4.0): 2,848 genes rising through 12,931 reactions to 8,461 metabolite species across 147 subsystems and 9 compartments — 4,165 distinct compounds, counted once per compartment they occur in. <b>8,454 carry a chemical formula; 3,838 a KEGG identifier, 3,633 ChEBI, 2,179 HMDB</b> — which is what decides whether a layer like this can be joined to anything outside the model, or only looked at. Portal demo: <code>demo / astraea-demo</code>.
               <!-- STRUCTURAL INVARIANT for every .idx-row on this page.
                    .idx-row is a THREE-column grid (No / Project / What it does)
                    and must have exactly three direct children:
@@ -750,6 +757,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <a class="go" href="atlas/">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://gate.thessa.space/lookup" target="_blank" rel="noopener">Lookup API <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://portal.thessa.space/admin/" target="_blank" rel="noopener">Portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="case-studies.html#cs-astraea">Case study: the gate that said no <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
@@ -763,10 +771,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <a class="ir-shot" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="media/shots/headroom-static.webp"><img src="media/shots/headroom.webp" alt="" loading="lazy" width="640" height="400"></picture></a>
             </div>
             <div class="ir-body">
-  <div class="ir-desc">Drop a datacenter on an interactive 14-bus transmission grid and watch line loadings redistribute, headroom recompute, and the answer flip from <b>energize</b> to <b>queued</b> — with the exact binding constraint named. Real screening math (B-θ power flow, PTDF sensitivities, N-1 sweep), validated against hand-solved cases in a zero-dependency test suite. The public, synthetic cousin of my Duke Energy screening platform.</div>
+  <div class="ir-desc">Drop a datacenter on an interactive 14-bus transmission grid and watch line loadings redistribute, headroom recompute, and the answer flip from <b>energize</b> to <b>queued</b> — with the exact binding constraint named. Real screening math (B-θ power flow, PTDF sensitivities, N-1 sweep). The closed-form headroom solver is checked against a deliberately dumb brute-force bisection that re-solves the whole network — and every N-1 contingency — at forty probes, and the three-bus current-division case asserts exact thirds rather than rounded decimals. <b>43 assertions, no test framework, no dependencies</b>; the file is linked below, so the claim is not the evidence. The public, synthetic cousin of my Duke Energy screening platform.</div>
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/headroom/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://github.com/bpachter/headroom/blob/563b669f239efaf1a83da9f75240ce420daafd5c/test/engine.test.js" target="_blank" rel="noopener">Validation suite <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/headroom" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
@@ -784,6 +793,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/drawdown/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/drawdown/#/model/method" target="_blank" rel="noopener">Calibration table <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/drawdown" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
@@ -801,6 +811,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/updraft/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/updraft/#/data" target="_blank" rel="noopener">Provenance table <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/updraft" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
@@ -835,10 +846,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <a class="ir-shot" href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="media/shots/kernel-static.webp"><img src="media/shots/kernel.webp" alt="" loading="lazy" width="640" height="400"></picture></a>
             </div>
             <div class="ir-body">
-  <div class="ir-desc">A live <b>CPython</b> interpreter compiled to WebAssembly and booted in the browser — not a syntax-highlighted screenshot, an actual kernel you can type into. Four editable cells walk the real workflow on nine years of weekly EIA gas-storage data: a <b>pandas</b> ingest, a <b>SQL</b> query against an in-memory SQLite database, a hand-rolled seasonal forecast graded against EIA's own published five-year band, and a <b>gradient-boosted</b> model that beats a persistence baseline by 19% on held-out weeks. Edit any cell, break it, re-run it — nothing you type leaves the tab.</div>
+  <div class="ir-desc">A live <b>CPython</b> interpreter compiled to WebAssembly and booted in the browser — not a syntax-highlighted screenshot, an actual kernel you can type into. Four editable cells walk the real workflow on nine years of weekly EIA gas-storage data: a <b>pandas</b> ingest, a <b>SQL</b> query against an in-memory SQLite database, a hand-rolled seasonal forecast graded against EIA's own published five-year band, and a <b>gradient-boosted</b> model trained on 354 weeks and scored on 89 held-out ones. Nothing in that last figure is written into the page: press run and the cell computes and prints <b>36.4 Bcf/week against a 44.8 persistence baseline</b> — 19% better — along with which features it actually leaned on. Edit any cell, break it, re-run it — nothing you type leaves the tab.</div>
   <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/kernel/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              <a class="go" href="https://bpachter.github.io/kernel/#model" target="_blank" rel="noopener">Re-run the benchmark <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/bpachter.github.io/tree/main/kernel" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
             </div>
             </div>
