@@ -682,12 +682,12 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             </div>
             <div class="ir-body">
   <div class="ir-desc">When a protein structure is published, every atom looks equally certain. It isn't — the experiment measures an electron-density cloud and a person decides where the atoms go. This shows, atom by atom, <b>which parts of a molecule the measurement actually supports</b>. Paste a target and get every ligand ever modelled into it, ranked worst-evidence-first from a precomputed <b>1.9M-row index</b> of the whole PDB — one request, ~50&nbsp;ms, no backend. Open one and the electron density is fetched and decoded <b>in the browser</b> by a from-scratch <b>BinaryCIF</b> reader verified byte-identical to Mol*, then sampled at every atom. An <b>AlphaFold</b> band sits beside the experimental one, deliberately never merged with it: a measurement and a prediction are different kinds of claim. The app re-runs 15 checks against known values on load and <b>refuses to display numbers it cannot reproduce</b>.</div>
-            </div>
-  <div class="ir-meta">
+              <div class="ir-meta">
               <span class="st st-live"><span class="live-dot"></span>Live</span>
               <a class="go" href="https://bpachter.github.io/density-check/" target="_blank" rel="noopener">Launch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://bpachter.github.io/density-check/#t/P00533" target="_blank" rel="noopener">EGFR coverage <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
               <a class="go" href="https://github.com/bpachter/density-check" target="_blank" rel="noopener">Source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
             </div>
             </div>
           <div class="idx-row reveal">
