@@ -3,7 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Architecture Recon</title>
+    <title>Layered-Omics Atlas — Benjamin Pachter</title>
+    <meta name="description" content="A 3D atlas of human metabolism built from Human-GEM 2.0.0: 2,848 genes rising through 12,931 reactions to 8,461 metabolite species, across 147 subsystems and 9 compartments.">
+    <link rel="canonical" href="https://bpachter.github.io/atlas/">
+    <!-- Paired the same way the homepage pairs them, so the browser chrome
+         matches the theme actually painted rather than always claiming dark. -->
+    <meta name="theme-color" content="#f2f2f3" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Benjamin Pachter">
+    <meta property="og:title" content="Layered-Omics Atlas — Benjamin Pachter">
+    <meta property="og:description" content="A 3D atlas of human metabolism built from Human-GEM 2.0.0: 2,848 genes rising through 12,931 reactions to 8,461 metabolite species, across 147 subsystems and 9 compartments.">
+    <meta property="og:url" content="https://bpachter.github.io/atlas/">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
     <!-- Barlow is served from this origin, not fonts.googleapis.com. The Google
          stylesheet was render-blocking, so a third-party DNS lookup and TLS
          handshake sat in front of first paint on every visit — the same reason
@@ -13,15 +26,20 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/barlow-condensed-latin-600.woff2">
     <style>
       @font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;
-        src:url(/fonts/barlow-latin-400.woff2) format('woff2')}
+        src:url(/fonts/barlow-latin-400.woff2) format('woff2');
+        unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
       @font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;
-        src:url(/fonts/barlow-latin-500.woff2) format('woff2')}
+        src:url(/fonts/barlow-latin-500.woff2) format('woff2');
+        unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
       @font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;
-        src:url(/fonts/barlow-latin-700.woff2) format('woff2')}
+        src:url(/fonts/barlow-latin-700.woff2) format('woff2');
+        unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
       @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;
-        src:url(/fonts/barlow-condensed-latin-400.woff2) format('woff2')}
+        src:url(/fonts/barlow-condensed-latin-400.woff2) format('woff2');
+        unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
       @font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;
-        src:url(/fonts/barlow-condensed-latin-600.woff2) format('woff2')}
+        src:url(/fonts/barlow-condensed-latin-600.woff2) format('woff2');
+        unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
     </style>
     <script type="module" crossorigin src="/atlas/assets/index-B7q62qgP.js"></script>
     <link rel="stylesheet" crossorigin href="/atlas/assets/index-DN6rO98m.css">
