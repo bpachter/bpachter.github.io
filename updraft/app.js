@@ -1,8 +1,15 @@
 /* UPDRAFT — shell: boot, routing, BRIEF, DATA.
    Sibling apps: DRAWDOWN (what the machines take) · HEADROOM (where the grid says yes).
-   Every number below is compiled offline into data/*.json; the browser only renders. */
+   Every number below is compiled offline into data/*.json; the browser only renders.
+   Reproduce the headline numbers yourself: node pipeline/verify.mjs */
 (() => {
   const $ = s => document.querySelector(s);
+  const { esc, fmt } = globalThis.UD_SHARED;
+
+  // warm the data + map library fetches behind the boot screen instead of after it;
+  // allSettled: a failure here surfaces as the atlas/data error note, not an unhandled rejection
+  const warm = Promise.allSettled([UD.load()]);
+  Atlas.preload();
 
   // ── boot
   const BOOT = [
@@ -12,20 +19,28 @@
     ['provenance', 'IM3 · GHGRP · EIA · retrieved 2026-08-09'],
   ];
   function boot() {
-    const lines = $('#bootlines'), bar = $('#bootbar');
-    let i = 0;
-    const step = () => {
-      if (i < BOOT.length) {
-        lines.innerHTML += `<b>·</b> ${BOOT[i][0]} <span style="color:var(--ink-faint)">— ${BOOT[i][1]}</span>\n`;
-        bar.style.width = (100 * (i + 1) / BOOT.length) + '%';
-        i++; setTimeout(step, 130);
-      } else setTimeout(() => {
-        $('#boot').classList.add('done');
-        $('#app').classList.add('on');
-        route();
-      }, 220);
-    };
-    step();
+    // the mask dismisses when BOTH the animation and the real data fetch are done,
+    // so it covers actual loading instead of adding fixed-duration theater on top;
+    // repeat visits this session skip the animation but still gate on the data
+    const seen = (() => { try { return sessionStorage.getItem('ud-boot'); } catch { return null; } })();
+    const anim = seen ? Promise.resolve() : new Promise(res => {
+      const lines = $('#bootlines'), bar = $('#bootbar');
+      let i = 0;
+      const step = () => {
+        if (i < BOOT.length) {
+          lines.innerHTML += `<b>·</b> ${BOOT[i][0]} <span style="color:var(--ink-faint)">— ${BOOT[i][1]}</span>\n`;
+          bar.style.width = (100 * (i + 1) / BOOT.length) + '%';
+          i++; setTimeout(step, 130);
+        } else setTimeout(res, 220);
+      };
+      step();
+    });
+    Promise.all([anim, warm]).then(() => {
+      $('#boot').classList.add('done');
+      $('#app').classList.add('on');
+      try { sessionStorage.setItem('ud-boot', '1'); } catch { /* private mode */ }
+      route();
+    });
   }
 
   // ── clock
@@ -33,13 +48,22 @@
     $('#clock').textContent = new Date().toISOString().slice(11, 19);
   }, 1000);
 
-  // ── routing
+  // ── routing (hash may carry atlas view params after '?' — route on the path only)
   const routes = { atlas: renderAtlas, brief: renderBrief, data: renderData };
   let current = '';
   function route() {
-    const r = (location.hash.replace('#/', '') || 'atlas').split('/')[0];
+    const r = (location.hash.replace('#/', '') || 'atlas').split(/[/?]/)[0];
     const name = routes[r] ? r : 'atlas';
-    if (name === current) return;
+    if (name === current) {
+      // param-only change while the atlas is active (a pasted deep link):
+      // re-render so the new view/threshold params actually apply. Plain
+      // '#/atlas' (tab click on the active tab) falls through to no-op.
+      if (name === 'atlas' && location.hash.includes('?')) {
+        Atlas.destroy();
+        routes.atlas($('#viewport'));
+      }
+      return;
+    }
     if (current === 'atlas') Atlas.destroy();
     current = name;
     document.querySelectorAll('.tab[data-route]').forEach(t =>
@@ -50,14 +74,19 @@
   document.querySelectorAll('.tab[data-route]').forEach(t =>
     t.onclick = () => location.hash = '#/' + t.dataset.route);
   $('#brand').onclick = () => location.hash = '#/atlas';
+  // 1/2/3 switch tabs everywhere (F1/F2 kept as a bonus; F3 left alone — it is find-next)
   window.addEventListener('keydown', e => {
-    const k = { F1: 'atlas', F2: 'brief', F3: 'data' }[e.key];
-    if (k && !e.metaKey && !e.ctrlKey) { e.preventDefault(); location.hash = '#/' + k; }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || '') || t.isContentEditable) return;
+    const k = { 1: 'atlas', 2: 'brief', 3: 'data', F1: 'atlas', F2: 'brief' }[e.key];
+    if (k) { e.preventDefault(); location.hash = '#/' + k; }
   });
 
   function renderAtlas(mount) { Atlas.render(mount); }
 
   // ── BRIEF
+  const A = (q, txt) => `<a href="#/atlas?${q}">${txt}</a>`;
   const DOCS = [
     { no: '01', t: 'THE PULL', meta: 'WHAT THE MACHINES TAKE',
       html: `<p>AI is the largest new electric load in a generation, and in the US the marginal
@@ -89,14 +118,19 @@
         valuable (<span class="num">≥ 4,000</span> heating degree days). Light and cold trade off along a
         clean diagonal — that is the frontier. The count: <span class="num">742 of 1,474</span> US data
         centers — <span class="num">50.3%</span> — sit inside it (floor-area weighted: 48.1%).</p>
-        <p>The industry's capital passes: Ashburn's cell — 285 facilities, the densest waste-heat cluster
-        on Earth — lands at DLI 12.8 against 4,813 HDD. The failures split into two clean wings:
-        the Pacific Northwest and Great Lakes are <span class="b2">cold but too dark</span>; the Sun Belt
-        is <span class="b3">bright with worthless heat</span>. The <span class="b1">deep frontier</span>
-        is the Mountain West — Denver, Salt Lake, Reno, Albuquerque, and Cheyenne at DLI 14.6 / 7,003 HDD.
-        Across the full threshold grid the share runs 26.8–62.2%, so the finding is not an artifact of
-        where the lines are drawn.</p>`,
-      src: 'IM3 Open Source Data Center Atlas (PNNL, Feb 2026, ODbL) × NASA POWER 2001–2020 climatology. DLI = 0.45 × 4.57 × MJ/m²/day; HDD from monthly normals (±5–10%).' },
+        <p>The industry's capital passes: ${A('c=-77.49,39.04&z=7', 'Ashburn’s cell')} — 285 facilities,
+        the densest waste-heat cluster on Earth — lands at DLI 12.8 against 4,813 HDD. The failures split
+        into two clean wings: the Pacific Northwest and Great Lakes are <span class="b2">cold but too
+        dark</span>; the Sun Belt is <span class="b3">bright with worthless heat</span>. The
+        <span class="b1">deep frontier</span> is the Mountain West — ${A('c=-104.9,39.7&z=6.3', 'Denver')},
+        ${A('c=-111.9,40.7&z=6.5', 'Salt Lake')}, ${A('c=-119.8,39.5&z=6.5', 'Reno')},
+        ${A('c=-106.6,35.1&z=6.5', 'Albuquerque')}, and ${A('c=-104.8,41.1&z=6.5', 'Cheyenne')} at
+        DLI 14.6 / 7,003 HDD.</p>
+        <p>Holding light at DLI 10, the share runs <span class="num">26.8–62.2%</span> across the HDD
+        range; the full published grid spans <span class="num">12.6–68%</span>, collapsing only at the
+        strictest corner (DLI ≥ 12 with HDD ≥ 5,000). The lines are a choice — the atlas has
+        <a href="#/atlas">threshold sliders</a>: drag them and watch the frontier redraw.</p>`,
+      src: 'IM3 Open Source Data Center Atlas (PNNL, Feb 2026, ODbL) × NASA POWER 2001–2020 climatology. DLI = 0.45 × 4.57 × MJ/m²/day; HDD from monthly normals (±5–10%). Full sensitivity grid on the DATA tab.' },
     { no: '05', t: 'THE COMPANY IT KEEPS', meta: 'THE OBJECTIVE RANKING',
       html: `<p>Score every large waste-heat source in the country with the same engine and the classic
         candidates collapse: refineries <span class="num">21.1%</span>, pulp &amp; paper
@@ -109,7 +143,7 @@
         point on data honesty: GHGRP's biogenic column reads ~0 for these plants because fermentation CO₂
         is exempt from reporting; the figure here is stoichiometric, 2.85 kg per gallon, from EIA
         capacity.) The fleets are mostly disjoint — median separation 238 km — which makes the overlap
-        precious: <span class="num">94</span> frontier data centers sit within 50 km of an ethanol plant,
+        precious: ${A('l=dc.eth.pairs&c=-93.5,41.5&z=5.2', '94 frontier data centers sit within 50 km of an ethanol plant')},
         <span class="num">274</span> within 100 km. Heat from the server hall, CO₂ from the fermenter,
         winter sun from the sky: those are complete greenhouse sites.</p>`,
       src: 'EPA GHGRP RY2023 direct emitters (6,461 facilities) · EIA Fuel Ethanol Plant Production Capacity, Jan 2025 (179/192 plants geolocated, 93% of capacity).' },
@@ -135,7 +169,7 @@
         grid can say yes. <b>UPDRAFT</b> closes the loop: every watt in leaves as heat — and mapped
         correctly, the AI buildout's exhaust is agricultural infrastructure.</p>
       <div class="brief-sibs">A data center is a machine that turns electricity into heat. These three
-        apps are that sentence, told in order.</div>
+      apps are that sentence, told in order.</div>
       ${DOCS.map(d => `<div class="doc"><h3><span class="no">${d.no}</span>${d.t}</h3>
         <div class="doc-meta">${d.meta}</div>${d.html}<div class="src">${d.src}</div></div>`).join('')}
     </div></div>`;
@@ -146,35 +180,55 @@
     mount.innerHTML = `<div class="scroll"><div class="data-wrap" id="datawrap">loading…</div></div>`;
     UD.load().then(d => {
       const s = d.summary, w = $('#datawrap');
+      if (!w) return; // navigated away before the data resolved
       const pill = b => `<span class="bpill b${{ frontier: 1, fail_light: 2, fail_heat: 3, fail_both: 4 }[b]}">${b.replace('_', '-').toUpperCase()}</span>`;
+      const safeURL = u => /^https?:\/\//.test(u) ? esc(u) : '#';
       w.innerHTML = `
         <h2>Provenance</h2>
         <div class="data-sub">Every number on this site is compiled offline from the sources below into
           static JSON (<a href="data/summary.json">inspect</a>) — the browser only renders. Method:
-          ${s.thresholds.method}. Compiled ${s.built}.</div>
+          ${esc(s.thresholds.method)}. Compiled ${esc(s.built)}.</div>
         <table class="tbl"><tr><th>SOURCE</th><th>ORG</th><th>ROLE</th><th>VINTAGE</th><th>RETRIEVED</th><th>LICENSE</th></tr>
-          ${s.provenance.map(p => `<tr><td><a href="${p.url}" target="_blank" rel="noopener">${p.name}</a></td>
-            <td>${p.org}</td><td>${p.role}</td><td>${p.vintage}</td><td>${p.retrieved}</td><td>${p.license}</td></tr>`).join('')}
+          ${s.provenance.map(p => `<tr><td><a href="${safeURL(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a></td>
+            <td>${esc(p.org)}</td><td>${esc(p.role)}</td><td>${esc(p.vintage)}</td><td>${esc(p.retrieved)}</td><td>${esc(p.license)}</td></tr>`).join('')}
+          <tr><td><a href="pipeline/verify.mjs">updraft pipeline — verify.mjs</a></td>
+            <td>this site</td><td>recomputes every headline number above from the shipped JSON; constants + math shared with the atlas via <a href="pipeline/shared.js">shared.js</a></td>
+            <td>2026-08-17</td><td>—</td><td>runs offline: <span class="mono-inline">node pipeline/verify.mjs</span></td></tr>
         </table>
+        <h2>Payoff assumptions</h2>
+        <div class="data-sub">Atlas popups show <b>planning estimates</b> computed in the browser from the
+          shipped data: IT load = floor area × 75 W/sqft (planning range 50–150); recoverable heat = 85%
+          of IT load; greenhouse area = 0.3 ha per MWth guaranteed at design day → 1.0 ha per MWth
+          energy-matched with seasonal storage (consistent with Falk et al. and QScale's ~130 ha on
+          96 MW); displaced boiler gas assumes the greenhouse absorbs 45% of annual heat through an 85%
+          boiler at $0.90/therm commercial gas. Screening numbers, not engineering — every constant is
+          declared once in <a href="pipeline/shared.js">pipeline/shared.js</a>, the same file the atlas
+          runs on; change one there and <span class="mono-inline">node pipeline/verify.mjs</span> re-checks the site.</div>
         <h2>Frontier share by waste-heat source</h2>
-        <div class="data-sub">Share of each fleet with December DLI ≥ ${s.thresholds.dli_dec} mol/m²/day AND annual HDD65 ≥ ${s.thresholds.hdd65.toLocaleString()}.</div>
+        <div class="data-sub">Share of each fleet with December DLI ≥ ${s.thresholds.dli_dec} mol/m²/day AND annual HDD65 ≥ ${fmt(s.thresholds.hdd65)}.</div>
         <table class="tbl"><tr><th>SOURCE FLEET</th><th class="r">FACILITIES</th><th class="r">FRONTIER %</th><th class="bar-td"></th></tr>
           ${s.sectors.map(x => `<tr class="${/Ethanol plants|Data centers/.test(x.sector) ? 'hl' : ''}">
-            <td>${x.sector}</td><td class="r">${x.n.toLocaleString()}</td><td class="r">${x.frontier_pct}</td>
+            <td>${esc(x.sector)}</td><td class="r">${fmt(x.n)}</td><td class="r">${x.frontier_pct}</td>
             <td class="bar-td"><i style="width:${x.frontier_pct}%"></i></td></tr>`).join('')}
         </table>
         <h2>Threshold sensitivity — % of data centers in frontier</h2>
-        <table class="tbl"><tr><th></th>${s.sensitivity.hdd.map(h => `<th class="r">HDD ≥ ${h.toLocaleString()}</th>`).join('')}</tr>
+        <div class="data-sub">The full grid runs 12.6–68%. Computed offline from unrounded climatology;
+          the atlas sliders recompute live from the shipped 1-decimal cell values, so the strictest
+          corners can differ by a point or two.</div>
+        <table class="tbl"><tr><th></th>${s.sensitivity.hdd.map(h => `<th class="r">HDD ≥ ${fmt(h)}</th>`).join('')}</tr>
           ${s.sensitivity.dli.map((dl, i) => `<tr ${dl === 10 ? 'class="hl"' : ''}><td>DLI ≥ ${dl}</td>
             ${s.sensitivity.hdd.map((h, j) => `<td class="r">${s.sensitivity.pct[i][j]}${dl === 10 && h === 4000 ? ' ◀' : ''}</td>`).join('')}</tr>`).join('')}
         </table>
         <h2>Hub verdicts</h2>
         <div class="data-sub">The nearest scored climate cell to each major data-center market.</div>
         <table class="tbl"><tr><th>HUB</th><th class="r">DEC DLI</th><th class="r">HDD65</th><th class="r">FACILITIES IN CELL</th><th>BAND</th></tr>
-          ${s.hubs.map(h => `<tr><td>${h.hub}</td><td class="r">${h.dli}</td><td class="r">${h.hdd.toLocaleString()}</td>
+          ${s.hubs.map(h => `<tr><td>${esc(h.hub)}</td><td class="r">${h.dli}</td><td class="r">${fmt(h.hdd)}</td>
             <td class="r">${h.n}</td><td>${pill(h.band)}</td></tr>`).join('')}
         </table>`;
-    }).catch(err => { $('#datawrap').textContent = 'failed to load data: ' + err.message; });
+    }).catch(err => {
+      const w = $('#datawrap');
+      if (w) w.textContent = 'failed to load data: ' + err.message;
+    });
   }
 
   boot();
