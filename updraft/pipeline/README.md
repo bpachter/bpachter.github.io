@@ -13,11 +13,25 @@ renders. This directory holds the public half of that contract:
 
 - **`verify.mjs`** — recomputes every headline number (frontier counts, weighted
   shares, fermentation-CO₂ stoichiometry, golden pairs by great-circle distance,
-  the threshold-sensitivity grid) from the shipped JSON and diffs it against
-  `data/summary.json`. Zero dependencies:
+  the threshold-sensitivity grid) from the shipped JSON, plus the analysis layers
+  (light-cost recompute, design-day formula, water anchors, CO₂-claim indices),
+  and diffs it all against `data/summary.json` / `data/layers.json`. Zero
+  dependencies:
 
   ```bash
   node pipeline/verify.mjs
+  ```
+
+- **`build_layers.mjs`** + **`raw/`** — assembles `data/layers.json` (the LIGHT
+  COST and WATER STRESS surfaces, CO₂ claims, and the design-day panel) from six
+  source pulls in `raw/`, each carrying its own `_provenance` (NASA POWER monthly
+  climatology 2001–2020; EIA-861 2024 state industrial prices; Census state
+  boundaries; WRI Aqueduct 4.0 provincial baseline water stress; CCS
+  contract/operating status per plant with per-plant sources; ASHRAE 2025
+  99% design temperatures). Rebuild any time:
+
+  ```bash
+  node pipeline/build_layers.mjs && node pipeline/verify.mjs
   ```
 
 What is *not* here: the upstream fetch/compile against IM3 (PNNL), NASA POWER,

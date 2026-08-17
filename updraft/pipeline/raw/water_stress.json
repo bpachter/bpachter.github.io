@@ -1,0 +1,216 @@
+{
+ "_provenance": {
+  "source": "WRI Aqueduct 4.0 provincial rankings (Aqueduct40_rankings_download_Y2023M07D05.xlsx, sheet province_baseline, indicator=bws, weight=Tot)",
+  "url": "https://files.wri.org/aqueduct/aqueduct-4-0-country-rankings.zip",
+  "vintage": "Aqueduct 4.0 (2023-07-05 release; baseline period 1979-2019)",
+  "retrieved": "2026-08-17",
+  "method": "downloaded official WRI zip, parsed xlsx with openpyxl",
+  "notes": "HI has no baseline water stress value in Aqueduct 4.0 provincial rankings (source value -9999/NoData); score set to null. Puerto Rico is not present in the Aqueduct 4.0 provincial or country rankings dataset."
+ },
+ "states": {
+  "AK": {
+   "score": 1.49,
+   "cat": "Low - Medium"
+  },
+  "AL": {
+   "score": 1.47,
+   "cat": "Low - Medium"
+  },
+  "AR": {
+   "score": 2.62,
+   "cat": "Medium - High"
+  },
+  "AZ": {
+   "score": 4.39,
+   "cat": "Extremely High"
+  },
+  "CA": {
+   "score": 4.03,
+   "cat": "Extremely High"
+  },
+  "CO": {
+   "score": 4.28,
+   "cat": "Extremely High"
+  },
+  "CT": {
+   "score": 0.91,
+   "cat": "Low"
+  },
+  "DC": {
+   "score": 0.7,
+   "cat": "Low"
+  },
+  "DE": {
+   "score": 3.35,
+   "cat": "High"
+  },
+  "FL": {
+   "score": 3.1,
+   "cat": "High"
+  },
+  "GA": {
+   "score": 2.22,
+   "cat": "Medium - High"
+  },
+  "HI": {
+   "score": null,
+   "cat": "NoData"
+  },
+  "IA": {
+   "score": 1.08,
+   "cat": "Low - Medium"
+  },
+  "ID": {
+   "score": 4.01,
+   "cat": "Extremely High"
+  },
+  "IL": {
+   "score": 2.4,
+   "cat": "Medium - High"
+  },
+  "IN": {
+   "score": 2.0,
+   "cat": "Medium - High"
+  },
+  "KS": {
+   "score": 3.63,
+   "cat": "High"
+  },
+  "KY": {
+   "score": 1.33,
+   "cat": "Low - Medium"
+  },
+  "LA": {
+   "score": 1.44,
+   "cat": "Low - Medium"
+  },
+  "MA": {
+   "score": 1.89,
+   "cat": "Low - Medium"
+  },
+  "MD": {
+   "score": 1.58,
+   "cat": "Low - Medium"
+  },
+  "ME": {
+   "score": 0.21,
+   "cat": "Low"
+  },
+  "MI": {
+   "score": 1.13,
+   "cat": "Low - Medium"
+  },
+  "MN": {
+   "score": 2.27,
+   "cat": "Medium - High"
+  },
+  "MO": {
+   "score": 1.43,
+   "cat": "Low - Medium"
+  },
+  "MS": {
+   "score": 1.12,
+   "cat": "Low - Medium"
+  },
+  "MT": {
+   "score": 2.7,
+   "cat": "Medium - High"
+  },
+  "NC": {
+   "score": 3.19,
+   "cat": "High"
+  },
+  "ND": {
+   "score": 1.27,
+   "cat": "Low - Medium"
+  },
+  "NE": {
+   "score": 4.16,
+   "cat": "Extremely High"
+  },
+  "NH": {
+   "score": 1.37,
+   "cat": "Low - Medium"
+  },
+  "NJ": {
+   "score": 2.48,
+   "cat": "Medium - High"
+  },
+  "NM": {
+   "score": 4.32,
+   "cat": "Extremely High"
+  },
+  "NV": {
+   "score": 3.57,
+   "cat": "High"
+  },
+  "NY": {
+   "score": 1.22,
+   "cat": "Low - Medium"
+  },
+  "OH": {
+   "score": 1.56,
+   "cat": "Low - Medium"
+  },
+  "OK": {
+   "score": 1.79,
+   "cat": "Low - Medium"
+  },
+  "OR": {
+   "score": 1.6,
+   "cat": "Low - Medium"
+  },
+  "PA": {
+   "score": 1.65,
+   "cat": "Low - Medium"
+  },
+  "RI": {
+   "score": 2.19,
+   "cat": "Medium - High"
+  },
+  "SC": {
+   "score": 2.71,
+   "cat": "Medium - High"
+  },
+  "SD": {
+   "score": 1.56,
+   "cat": "Low - Medium"
+  },
+  "TN": {
+   "score": 1.42,
+   "cat": "Low - Medium"
+  },
+  "TX": {
+   "score": 3.33,
+   "cat": "High"
+  },
+  "UT": {
+   "score": 3.17,
+   "cat": "High"
+  },
+  "VA": {
+   "score": 2.56,
+   "cat": "Medium - High"
+  },
+  "VT": {
+   "score": 0.46,
+   "cat": "Low"
+  },
+  "WA": {
+   "score": 1.2,
+   "cat": "Low - Medium"
+  },
+  "WI": {
+   "score": 2.69,
+   "cat": "Medium - High"
+  },
+  "WV": {
+   "score": 1.47,
+   "cat": "Low - Medium"
+  },
+  "WY": {
+   "score": 3.77,
+   "cat": "High"
+  }
+ }
+}

@@ -142,7 +142,9 @@
         as a lights-on candidate than a failure. And in the deep frontier the binding constraint is water:
         every named hub draws on a stressed or over-appropriated basin (Lake Powell touched 23% — a record
         low — in 2026, and Aurora, CO already bars new evaporative-cooled facilities), so the brightest
-        cells on this map are also some of the hardest new water permits in the country.</p>`,
+        cells on this map are also some of the hardest new water permits in the country. The atlas now
+        prices both: flip the cell surface to ${A('paint=light', 'LIGHT COST')} or
+        ${A('paint=water', 'WATER STRESS')} and the caveats become layers.</p>`,
       src: 'IM3 Open Source Data Center Atlas (PNNL, Feb 2026, ODbL) × NASA POWER 2001–2020 climatology. DLI = 0.45 × 4.57 × MJ/m²/day; HDD from monthly normals (±5–10%). Full sensitivity grid on the DATA tab. DLI floors: Faust/MSU 10–12 quality guideline; fruiting-crop targets 15–30 (MSU/GPN). Water: CNN 07/2026 (Powell 23%), Aurora Water tiered framework.' },
     { no: '05', t: 'THE COMPANY IT KEEPS', meta: 'THE OBJECTIVE RANKING',
       html: `<p>Score every large waste-heat source in the country with the same engine and the classic
@@ -269,6 +271,33 @@
         <table class="tbl"><tr><th>HUB</th><th class="r">DEC DLI</th><th class="r">HDD65</th><th class="r">FACILITIES IN CELL</th><th>BAND</th></tr>
           ${s.hubs.map(h => `<tr><td>${esc(h.hub)}</td><td class="r">${h.dli}</td><td class="r">${fmt(h.hdd)}</td>
             <td class="r">${h.n}</td><td>${pill(h.band)}</td></tr>`).join('')}
+        </table>
+        <h2>Design day — can 40 °C water carry the load?</h2>
+        <div class="data-sub">The first calculation a developer runs: peak heating load at each hub's ASHRAE
+          99% design temperature (2025 Handbook, station named per hub), against what a low-temperature
+          emitter package can deliver from ~40 °C supply. Peak = U<sub>eff</sub> 5.0 W/m²K ×
+          (18 °C − T<sub>99</sub>) × 1.3 envelope/floor; deliverable ≈150 W/m² at 40 °C supply.
+          BOOST = a small-lift heat pump (or storage + backup) covers the remainder — the honest
+          difference between Ashburn and Cheyenne.</div>
+        <table class="tbl"><tr><th>HUB</th><th>STATION</th><th class="r">99% DESIGN</th><th class="r">PEAK W/m²</th><th class="r">SERVABLE @40 °C</th><th>BOOST?</th></tr>
+          ${d.layers.hubs.map(h => `<tr class="${h.boost ? '' : 'hl'}"><td>${esc(h.hub)}</td><td>${esc(h.station)}</td>
+            <td class="r">${h.t99_c} °C</td><td class="r">${h.peak_wm2}</td><td class="r">${h.servable40_pct}%</td>
+            <td>${h.boost ? 'small-lift HP or storage' : '<span class="mono-inline">no</span>'}</td></tr>`).join('')}
+        </table>
+        <h2>Analysis-layer assumptions &amp; sources</h2>
+        <div class="data-sub">The LIGHT COST surface holds DLI 17 at canopy (tomato-grade; 65% glazing
+          transmission) with LEDs at 2.6 µmol/J, priced at each state's 2024 EIA industrial rate —
+          monthly light gaps from NASA POWER 2001–2020 climatology (December re-derived exactly matches
+          the compiled atlas). WATER STRESS is WRI Aqueduct 4.0 state baseline stress (1979–2019 baseline).
+          CO₂ CLAIMS marks ${d.layers.co2.matched.length} of 179 plants with operating CCS
+          (${d.layers.co2.counts.operating}) or Summit contracts (${d.layers.co2.counts.contracted};
+          current-27 vs pre-2026 book both marked). Constants in
+          <a href="pipeline/shared.js">pipeline/shared.js</a>; rebuild with
+          <span class="mono-inline">node pipeline/build_layers.mjs</span>, check with
+          <span class="mono-inline">node pipeline/verify.mjs</span>.</div>
+        <table class="tbl"><tr><th>LAYER SOURCE</th><th>VINTAGE</th><th>RETRIEVED</th><th>METHOD</th></tr>
+          ${d.layers._meta.sources.map(p => `<tr><td>${p.url ? `<a href="${/^https?:\/\//.test(p.url) ? esc(p.url) : '#'}" target="_blank" rel="noopener">${esc(p.source)}</a>` : esc(p.source)}</td>
+            <td>${esc(p.vintage || '—')}</td><td>${esc(p.retrieved || '—')}</td><td>${esc(p.method || '—')}</td></tr>`).join('')}
         </table>`;
     }).catch(err => {
       const w = $('#datawrap');

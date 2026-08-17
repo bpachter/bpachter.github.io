@@ -250,6 +250,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .pop .pfoot a{color:var(--ink-dim)}
 .dimtx{color:var(--ink-faint)}
 .mono-inline{font-family:var(--mono);font-size:.92em;color:var(--ink)}
+.warn{color:var(--red)}
+.claimtx{color:var(--acc)}
+.chip.pmode.on{background:var(--acc);border-color:var(--acc);color:var(--bg-deep)}
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width:860px){

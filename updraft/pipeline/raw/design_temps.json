@@ -1,0 +1,123 @@
+{
+  "_provenance": {
+    "source": "ASHRAE Handbook -- Fundamentals 2025, Chapter 14 Climatic Design Information (99% annual heating dry-bulb), as republished in the .ddy design-condition files of climate.onebuilding.org TMYx.2011-2025 station packages. Each DDY header states: Data Source=\"2025 ASHRAE Handbook -- Fundamentals - Chapter 14 Climatic Design Information\".",
+    "url": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/",
+    "vintage": "2025 ASHRAE Handbook -- Fundamentals (TMYx.2011-2025 release)",
+    "retrieved": "2026-08-17",
+    "method": "Downloaded each station's TMYx.2011-2025 zip from climate.onebuilding.org via Python urllib, extracted the .ddy file, parsed the 'Ann Htg 99% Condns DB' SizingPeriod:DesignDay Maximum Dry-Bulb Temperature {C} (cross-checked against the DDY header line 'Annual Heating 99%, MaxDB=')."
+  },
+  "hubs": [
+    {
+      "hub": "Ashburn VA",
+      "station": "Washington Dulles Intl AP",
+      "wmo": "724030",
+      "t99_c": -8.0,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/VA_Virginia/USA_VA_Dulles-Washington.Dulles.Intl.AP.724030_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Phoenix AZ",
+      "station": "Phoenix Sky Harbor Intl AP",
+      "wmo": "722780",
+      "t99_c": 5.7,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/AZ_Arizona/USA_AZ_Phoenix-Sky.Harbor.Intl.AP.722780_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Dallas TX",
+      "station": "Dallas-Fort Worth Intl AP",
+      "wmo": "722590",
+      "t99_c": -2.4,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/TX_Texas/USA_TX_Dallas-Fort.Worth.Intl.AP.722590_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Chicago IL",
+      "station": "Chicago O'Hare Intl AP",
+      "wmo": "725300",
+      "t99_c": -15.3,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/IL_Illinois/USA_IL_Chicago.OHare.Intl.AP.725300_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Quincy WA",
+      "station": "Moses Lake-Grant County Intl AP",
+      "wmo": "727827",
+      "t99_c": -10.8,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/WA_Washington/USA_WA_Moses.Lake-Grant.County.Intl.AP.727827_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Columbus OH",
+      "station": "John Glenn Columbus Intl AP",
+      "wmo": "724280",
+      "t99_c": -11.7,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/OH_Ohio/USA_OH_Columbus-Glenn.Columbus.Intl.AP.724280_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Denver CO",
+      "station": "Denver Intl AP",
+      "wmo": "725650",
+      "t99_c": -14.2,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/CO_Colorado/USA_CO_Denver.Intl.AP.725650_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Salt Lake City UT",
+      "station": "Salt Lake City Intl AP",
+      "wmo": "725720",
+      "t99_c": -8.9,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/UT_Utah/USA_UT_Salt.Lake.City.Intl.AP.725720_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Cheyenne WY",
+      "station": "Cheyenne Regional AP",
+      "wmo": "725640",
+      "t99_c": -15.8,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/WY_Wyoming/USA_WY_Cheyenne.Rgnl.AP.725640_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Reno NV",
+      "station": "Reno-Tahoe Intl AP",
+      "wmo": "724880",
+      "t99_c": -6.7,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/NV_Nevada/USA_NV_Reno-Tahoe.Intl.AP.724880_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Albuquerque NM",
+      "station": "Albuquerque Intl Sunport",
+      "wmo": "723650",
+      "t99_c": -5.3,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/NM_New_Mexico/USA_NM_Albuquerque.Intl.Sunport.723650_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Hillsboro OR",
+      "station": "Portland-Hillsboro AP",
+      "wmo": "726986",
+      "t99_c": -3.1,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/OR_Oregon/USA_OR_Portland-Hillsboro.AP.726986_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Council Bluffs IA",
+      "station": "Omaha Eppley Airfield Intl AP",
+      "wmo": "725500",
+      "t99_c": -16.5,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/NE_Nebraska/USA_NE_Omaha-Eppley.AF.Intl.AP.725500_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Atlanta GA",
+      "station": "Hartsfield-Jackson Atlanta Intl AP",
+      "wmo": "722190",
+      "t99_c": -2.7,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/GA_Georgia/USA_GA_Atlanta-Hartsfield-Jackson.Intl.AP.722190_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "N. New Jersey",
+      "station": "Newark Liberty Intl AP",
+      "wmo": "725020",
+      "t99_c": -8.4,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/NJ_New_Jersey/USA_NJ_Newark.Liberty.Intl.AP.725020_TMYx.2011-2025.zip"
+    },
+    {
+      "hub": "Silicon Valley CA",
+      "station": "San Jose Mineta Intl AP",
+      "wmo": "724945",
+      "t99_c": 3.5,
+      "source": "https://climate.onebuilding.org/WMO_Region_4_North_and_Central_America/USA_United_States_of_America/CA_California/USA_CA_San.Jose-Mineta.Intl.AP.724945_TMYx.2011-2025.zip"
+    }
+  ]
+}

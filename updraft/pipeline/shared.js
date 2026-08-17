@@ -17,6 +17,18 @@
     usdPerTherm: 0.90,  // commercial gas
     co2TPerHaYr: 175,   // enrichment demand, t CO2 per hectare-year
     kgCO2PerGal: 2.85,  // stoichiometric fermentation CO2 per gallon of ethanol
+
+    /* analysis layers (2026-08-17) — all planning heuristics, disclosed on DATA */
+    canopyTransmission: 0.65, // share of outdoor light reaching the canopy through glazing
+    ledMolPerKwh: 9.36,       // 2.6 umol/J horticultural LED = 9.36 mol per kWh
+    dliTargetLeafy: 12,       // mol/m2/day at canopy — leafy greens/herbs
+    dliTargetFruit: 17,       // mol/m2/day at canopy — tomato/cucumber/pepper
+    lightTierUSD: [10, 14],   // $/m2-yr breaks: cheap / mid / expensive supplemental light
+                              // (fail-light cells: median $10.95, p90 $16.29 — tiers straddle)
+    tInC: 18,                 // greenhouse setpoint for design-day load
+    designUWm2K: 5.0,         // effective U, double glazing + energy screen
+    coverFloorRatio: 1.3,     // envelope area per floor area
+    lowTempEmitterWm2: 150,   // deliverable at 40 C supply with a low-temp emitter package
   };
 
   // band verdict for one location against thresholds t = {dli, hdd}

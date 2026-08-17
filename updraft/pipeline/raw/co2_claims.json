@@ -1,0 +1,505 @@
+{
+ "_provenance": {
+  "source": "Summit Carbon Solutions newsroom (May 13 2026 update), Iowa Capital Dispatch, North Dakota Monitor, South Dakota Ag Connection, DTN/Progressive Farmer, Bleeding Heartland, CURE MN, PR Newswire, Agweek, Bismarck Tribune, Ethanol Producer Magazine, Taxpayers for Common Sense",
+  "url": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+  "vintage": "operating status and Summit contract book as of mid-2026; current config = 27-plant Iowa route announced 2026-05-13",
+  "retrieved": "2026-08-17",
+  "method": "web search + fetch of Summit/news/regulatory sources; matched to updraft/data/facilities.json ethanol rows by state + name similarity, ambiguous multi-plant owners (Valero, Glacial Lakes, ADM, Andersons) resolved by row lon/lat vs plant city coordinates"
+ },
+ "matched": [
+  {
+   "i": 178,
+   "label": "Red Trail Energy LLC",
+   "program": "Red Trail",
+   "status": "operating",
+   "source": "https://bismarcktribune.com/news/state-regional/harvestone-blue-flint-ethanol-underwood-carbon-capture/article_a846585a-7823-11ee-a027-936b605e9933.html",
+   "note": "Richardton ND; first ND ethanol CCS, Class VI injection since June 2022 (Broom Creek Fm)"
+  },
+  {
+   "i": 33,
+   "label": "ADM",
+   "program": "ADM",
+   "status": "operating",
+   "source": "https://www.taxpayer.net/energy-natural-resources/adm-carbon-storage-site-restarts-injection/",
+   "note": "ADM Decatur IL complex; on-site Class VI sequestration since 2017, paused Sep 2024 after leaks, injection resumed Aug 2025"
+  },
+  {
+   "i": 34,
+   "label": "ADM",
+   "program": "ADM",
+   "status": "operating",
+   "source": "https://www.taxpayer.net/energy-natural-resources/adm-carbon-storage-site-restarts-injection/",
+   "note": "Second ADM Decatur IL row (same complex/sequestration site)"
+  },
+  {
+   "i": 110,
+   "label": "Plymouth Energy LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 127,
+   "label": "Siouxland Energy Cooperative",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 141,
+   "label": "Poet Biorefinning-Ashton LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 125,
+   "label": "Little Sioux Corn Processors LLLP",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 109,
+   "label": "Quad County Corn Processors Coop",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 108,
+   "label": "Poet Biorefining-Arthur LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 93,
+   "label": "The Andersons Marathon Holdings LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Andersons Denison IA"
+  },
+  {
+   "i": 140,
+   "label": "Green Plains Superior",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 126,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Valero Hartley IA"
+  },
+  {
+   "i": 124,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Valero Albert City IA"
+  },
+  {
+   "i": 123,
+   "label": "Poet Biorefining-Emmetsburg LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 138,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Valero Lakota IA"
+  },
+  {
+   "i": 104,
+   "label": "Corn LP",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 106,
+   "label": "Valero Fort Dodge Plant",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Valero Fort Dodge IA"
+  },
+  {
+   "i": 105,
+   "label": "Poet Biorefining-Gowrie LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 91,
+   "label": "Louis Dreyfus Co.",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Louis Dreyfus Grand Junction IA"
+  },
+  {
+   "i": 92,
+   "label": "Poet Biorefining-Coon Rapids",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 78,
+   "label": "Poet Biorefining-Menlo",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 90,
+   "label": "Lincolnway Energy LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 103,
+   "label": "Poet Biorefining-Jewell LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 101,
+   "label": "Poet Biorefining-Iowa Falls LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 102,
+   "label": "PINE LAKE CORN PROCESSORS",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 122,
+   "label": "Golden Grain Energy LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 121,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update",
+   "note": "Valero Charles City IA"
+  },
+  {
+   "i": 100,
+   "label": "Poet Biorefining-Shell Rock LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 120,
+   "label": "Homeland Energy Solutions LLC",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 99,
+   "label": "Poet Biorefining-Fairbank",
+   "program": "Summit",
+   "status": "contracted-current",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update"
+  },
+  {
+   "i": 136,
+   "label": "ABSOLUTE ENERGY LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update ; https://iowacapitaldispatch.com/2026/05/13/proposed-new-route-for-summit-pipeline-would-impact-12-iowa-counties/",
+   "note": "Absolute Energy, St. Ansgar IA - dropped from route May 2026"
+  },
+  {
+   "i": 66,
+   "label": "Poet Biorefining-Corning LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update ; https://iowacapitaldispatch.com/2026/05/13/proposed-new-route-for-summit-pipeline-would-impact-12-iowa-counties/",
+   "note": "POET Corning IA - dropped May 2026"
+  },
+  {
+   "i": 135,
+   "label": "Poet Biorefining-Hanlontown LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update ; https://iowacapitaldispatch.com/2026/05/13/proposed-new-route-for-summit-pipeline-would-impact-12-iowa-counties/",
+   "note": "POET Hanlontown IA - dropped May 2026"
+  },
+  {
+   "i": 67,
+   "label": "Green Plains Shenandoah LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.summitcarbonsolutions.com/newsroom/may-13-update ; https://iowacapitaldispatch.com/2026/05/13/proposed-new-route-for-summit-pipeline-would-impact-12-iowa-counties/",
+   "note": "Green Plains Shenandoah IA - dropped May 2026"
+  },
+  {
+   "i": 142,
+   "label": "Poet Biorefining- Chancellor LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://northdakotamonitor.com/2024/01/29/poets-ethanol-plants-shift-to-remaining-carbon-dioxide-pipeline-proposal/",
+   "note": "POET Chancellor SD (1 of 17 POET plants added Jan 2024)"
+  },
+  {
+   "i": 128,
+   "label": "Poet Biorefining- Hudson",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://northdakotamonitor.com/2024/01/29/poets-ethanol-plants-shift-to-remaining-carbon-dioxide-pipeline-proposal/",
+   "note": "POET Hudson SD"
+  },
+  {
+   "i": 155,
+   "label": "Poet Biorefining- Mitchell LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://northdakotamonitor.com/2024/01/29/poets-ethanol-plants-shift-to-remaining-carbon-dioxide-pipeline-proposal/",
+   "note": "POET Mitchell SD"
+  },
+  {
+   "i": 169,
+   "label": "Poet Biorefining-Big Stone",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://northdakotamonitor.com/2024/01/29/poets-ethanol-plants-shift-to-remaining-carbon-dioxide-pipeline-proposal/",
+   "note": "POET Big Stone SD"
+  },
+  {
+   "i": 170,
+   "label": "Poet Biorefining- Groton LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://northdakotamonitor.com/2024/01/29/poets-ethanol-plants-shift-to-remaining-carbon-dioxide-pipeline-proposal/",
+   "note": "POET Groton SD"
+  },
+  {
+   "i": 165,
+   "label": "Glacial Lakes Energy",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Glacial Lakes Energy Watertown SD"
+  },
+  {
+   "i": 171,
+   "label": "Glacial Lakes Energy",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Glacial Lakes Energy Mina SD"
+  },
+  {
+   "i": 172,
+   "label": "Glacial Lakes Energy",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Glacial Lakes Energy Aberdeen SD"
+  },
+  {
+   "i": 159,
+   "label": "Huron Energy LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Glacial Lakes Energy Huron SD (row labeled Huron Energy LLC; GLE-operated Huron plant)"
+  },
+  {
+   "i": 154,
+   "label": "Dakota Ethanol LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Dakota Ethanol, Wentworth SD"
+  },
+  {
+   "i": 166,
+   "label": "Redfield Energy LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://southdakotaagconnection.com/news/south-dakota-ethanol-plants-join-summit-carbon-solutions-benefiting-agriculture-sector",
+   "note": "Redfield Energy, Redfield SD"
+  },
+  {
+   "i": 160,
+   "label": "Ringneck Energy & Feed LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://summitcarbonsolutions.com/ethanol-partner-ringneck-energy/",
+   "note": "Ringneck Energy, Onida SD"
+  },
+  {
+   "i": 143,
+   "label": "Nugen Energy LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.prnewswire.com/news-releases/summit-carbon-solutions-announces-nugen-as-partner-ethanol-plant-in-south-dakota-301834144.html",
+   "note": "NuGen Energy, Marion SD (added May 2023)"
+  },
+  {
+   "i": 158,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.dtnpf.com/agriculture/web/ag/news/business-inputs/article/2024/03/04/valero-connect-eight-ethanol-plants",
+   "note": "Valero Aurora SD (1 of 8 Valero plants added Mar 2024)"
+  },
+  {
+   "i": 112,
+   "label": "Husker Ag LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Husker Ag, Plainview NE"
+  },
+  {
+   "i": 94,
+   "label": "CIE Norfolk GNS LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Norfolk NE plant (Summit partner announced as Louis Dreyfus Norfolk; facility row now labeled CIE Norfolk GNS LLC - same Norfolk NE plant)"
+  },
+  {
+   "i": 51,
+   "label": "Green Plains York LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Green Plains York NE"
+  },
+  {
+   "i": 69,
+   "label": "Green Plains Central City LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Green Plains Central City NE"
+  },
+  {
+   "i": 71,
+   "label": "Green Plains Wood River LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Green Plains Wood River NE"
+  },
+  {
+   "i": 82,
+   "label": "Valero Renewable Fuels",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://beatricedailysun.com/news/state-regional/business/albion-ethanol-plant-joins-summit-co2-pipeline-after-navigator-abandoned-plans/article_cabbdd16-919c-5834-a74d-848f6287da00.html",
+   "note": "Valero Albion NE (joined after Navigator project cancelled)"
+  },
+  {
+   "i": 163,
+   "label": "Bushmills Ethanol Inc.",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.prnewswire.com/news-releases/summit-carbon-solutions-partners-with-bushmills-ethanol-301526389.html",
+   "note": "Bushmills Ethanol, Atwater MN"
+  },
+  {
+   "i": 137,
+   "label": "Valero Renewable Fuels LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.dtnpf.com/agriculture/web/ag/news/business-inputs/article/2024/03/04/valero-connect-eight-ethanol-plants ; https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Valero Welcome MN"
+  },
+  {
+   "i": 139,
+   "label": "Green Plains Fairmont LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Green Plains Fairmont MN"
+  },
+  {
+   "i": 176,
+   "label": "Green Plains Otter Tail LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Green Plains Otter Tail, Fergus Falls MN"
+  },
+  {
+   "i": 164,
+   "label": "Granite Falls Energy LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Granite Falls Energy MN"
+  },
+  {
+   "i": 153,
+   "label": "Heron Lake Bioenergy LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Heron Lake BioEnergy MN"
+  },
+  {
+   "i": 152,
+   "label": "Highwater Ethanol LLC",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://curemn.org/what-we-do/energy-and-innovation/no-false-solutions/carbon-pipelines-mn/",
+   "note": "Highwater Ethanol, Lamberton MN"
+  },
+  {
+   "i": 177,
+   "label": "Tharaldson Ethanol",
+   "program": "Summit",
+   "status": "contracted-prior",
+   "source": "https://www.agweek.com/news/continental-resources-investing-in-5-state-carbon-capture-project",
+   "note": "Tharaldson Ethanol, Casselton ND"
+  }
+ ],
+ "unmatched": [
+  {
+   "name": "Blue Flint Ethanol (Harvestone Low Carbon Partners)",
+   "city": "Underwood",
+   "state": "ND",
+   "status": "operating",
+   "source": "https://ethanolproducer.com/articles/harvestone-co2-injection-commences-at-blue-flint-ethanol-ccs-project",
+   "note": "Class VI injection since Nov 2023, ~600 t/day into Broom Creek Fm; plant not present in facilities.json ethanol rows"
+  },
+  {
+   "name": "Green Plains Atkinson",
+   "city": "Atkinson",
+   "state": "NE",
+   "status": "contracted-prior",
+   "source": "https://www.bleedingheartland.com/2024/07/09/summit-carbon-what-we-dont-know-can-hurt-us/",
+   "note": "Named Summit partner; no Atkinson NE row exists in facilities.json"
+  }
+ ]
+}

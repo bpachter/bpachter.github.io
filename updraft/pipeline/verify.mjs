@@ -110,5 +110,59 @@ const flat = S.pct.flat();
 console.log(`  note  full grid spans ${Math.min(...flat)}–${Math.max(...flat)}% ` +
   '(the brief quotes both this and the default-DLI row)');
 
+/* ── 5 · analysis layers (data/layers.json vs raw pulls + shared constants) ── */
+console.log('\n— analysis layers');
+try {
+  const layers = load('layers');
+  const rawDir = join(dirname(fileURLToPath(import.meta.url)), 'raw');
+  const rawL = n => JSON.parse(readFileSync(join(rawDir, n + '.json'), 'utf8'));
+  const dliM = rawL('dli_monthly'), eia = rawL('eia_industrial_price'),
+        cellSt = rawL('cell_states'), dtemps = rawL('design_temps');
+  check('layers cells aligned with cells.json', cells.rows.length,
+    layers.cells.length, layers.cells.length === cells.rows.length &&
+    layers.cells.every((r, i) => r[0] === cells.rows[i][0] && r[1] === cells.rows[i][1]));
+
+  // recompute light cost for a deterministic sample of 25 cells
+  const DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const mIx = new Map(dliM.cells.map(r => [r[0].toFixed(2) + '|' + r[1].toFixed(3), r[2]]));
+  let lightBad = 0;
+  for (let i = 0; i < cells.rows.length; i += 64) {
+    const L = layers.cells[i], monthly = mIx.get(L[0].toFixed(2) + '|' + L[1].toFixed(3));
+    const price = L[2] ? eia.cents_per_kwh[L[2]] : null;
+    if (!monthly || price == null) { if (L[5] !== null) lightBad++; continue; }
+    let kwh = 0;
+    for (let m = 0; m < 12; m++)
+      kwh += Math.max(0, EST.dliTargetFruit - monthly[m] * EST.canopyTransmission) * DAYS[m] / EST.ledMolPerKwh;
+    if (Math.abs(Math.round(kwh * price) / 100 - L[5]) > 0.02) lightBad++;
+  }
+  check('light-cost recompute (25-cell sample, fruiting target)', 0, lightBad);
+
+  // hubs: design-day panel reproduces the disclosed formula
+  let hubBad = 0;
+  for (const h of layers.hubs) {
+    const d = dtemps.hubs.find(x => x.hub === h.hub);
+    const peak = Math.round(EST.designUWm2K * (EST.tInC - d.t99_c) * EST.coverFloorRatio);
+    if (peak !== h.peak_wm2 ||
+        h.servable40_pct !== Math.round(Math.min(1, EST.lowTempEmitterWm2 / peak) * 100) ||
+        h.boost !== (EST.lowTempEmitterWm2 / peak < 1)) hubBad++;
+  }
+  check('design-day panel reproduces formula for all 16 hubs', 0, hubBad);
+
+  // water categories spot-anchors + no-data must stay -1
+  const st = layers.states;
+  check('water stress anchors (NM=4, WA=1, HI=-1)', 'NM4 WA1 HI-1',
+    `NM${st.NM.bws} WA${st.WA.bws} HI${st.HI.bws}`);
+
+  // co2 claims point at real ethanol rows
+  const badClaims = layers.co2.matched.filter(m =>
+    !facilities.ethanol[m.i] || facilities.ethanol[m.i][6] !== m.label).length;
+  check('CO2-claim indices label-match facilities.json', 0, badClaims);
+  check('CO2 status counts (operating + contracted = matched)', layers.co2.matched.length,
+    layers.co2.counts.operating + layers.co2.counts.contracted);
+} catch (e) {
+  failures++;
+  console.log('FAIL  analysis layers: ' + e.message);
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nall checks pass');
 process.exit(failures ? 1 : 0);

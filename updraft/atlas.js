@@ -17,10 +17,10 @@ const UD = (() => {
   function load() {
     if (dataPromise) return dataPromise;
     dataPromise = Promise.all(
-      ['facilities', 'cells', 'summary'].map(n =>
+      ['facilities', 'cells', 'summary', 'layers'].map(n =>
         fetch('data/' + n + '.json').then(r => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); })
       )
-    ).then(([facilities, cells, summary]) => ({ facilities, cells, summary }));
+    ).then(([facilities, cells, summary, layers]) => ({ facilities, cells, summary, layers }));
     dataPromise.catch(() => { dataPromise = null; }); // transient failure: next call retries
     return dataPromise;
   }
@@ -43,6 +43,7 @@ const Atlas = (() => {
     layers: { dc: true, eth: true, pairs: true, cells: true },
     bands: [1, 2, 3, 4],
     t: { ...DEFAULTS },
+    paint: 'bands', // cell surface mode: bands | light | water
     view: null, // {center:[lon,lat], zoom} from URL or captured on destroy
   };
 
@@ -80,16 +81,25 @@ const Atlas = (() => {
   function buildModel(d) {
     const grid = { dlat: d.cells.dlat, dlon: d.cells.dlon };
     const cellIx = new Map();
-    const cells = d.cells.rows.map(r => {
-      const c = { lat: r[0], lon: r[1], dli: r[2], hdd: r[3], band: r[4] };
+    const cells = d.cells.rows.map((r, i) => {
+      // layers.json rows are built in cells.json order (verify.mjs checks alignment
+      // offline) — but a mixed-vintage cache pair must degrade to "no data",
+      // not throw or silently mispaint, so the coords are re-checked here
+      const L = d.layers.cells[i];
+      const ok = L && L[0] === r[0] && L[1] === r[1];
+      const c = { lat: r[0], lon: r[1], dli: r[2], hdd: r[3], band: r[4],
+        st: ok ? L[2] : null, bws: ok ? L[3] : -1,
+        usdL: ok ? L[4] : null, usdF: ok ? L[5] : null };
       cellIx.set(cellKey(c.lat, c.lon, grid.dlat, grid.dlon), c);
       return c;
     });
     const cellAt = (lat, lon) => cellIx.get(cellKey(lat, lon, grid.dlat, grid.dlon)) || null;
 
+    const claimIx = new Map(d.layers.co2.matched.map(m => [m.i, m]));
     const eths = d.facilities.ethanol.map((r, i) => ({
       i, lon: r[0], lat: r[1], band: r[2], mmgal: r[3], co2kt: r[4], state: r[5], label: r[6],
       cell: cellAt(r[1], r[0]),
+      claim: claimIx.get(i) || null,
       haEnrich: r[4] ? r[4] * 1000 / EST.co2TPerHaYr : null,
     }));
     const dcs = d.facilities.dc.map((r, i) => {
@@ -108,7 +118,7 @@ const Atlas = (() => {
       f.near = { e: best, km: bkm };
       return f;
     });
-    return { grid, cells, cellIx, dcs, eths, summary: d.summary, kpi: {}, pairs: [] };
+    return { grid, cells, cellIx, dcs, eths, summary: d.summary, layers: d.layers, kpi: {}, pairs: [] };
   }
 
   function rebandModel() {
@@ -148,11 +158,13 @@ const Atlas = (() => {
   const dcGeo = () => ({ type: 'FeatureCollection', features: model.dcs.map(f => ({
     type: 'Feature', geometry: { type: 'Point', coordinates: [f.lon, f.lat] }, properties: ptProps(f) })) });
   const ethGeo = () => ({ type: 'FeatureCollection', features: model.eths.map(f => ({
-    type: 'Feature', geometry: { type: 'Point', coordinates: [f.lon, f.lat] }, properties: ptProps(f) })) });
+    type: 'Feature', geometry: { type: 'Point', coordinates: [f.lon, f.lat] },
+    properties: { ...ptProps(f), claimed: !!f.claim } })) });
   const cellGeo = () => ({ type: 'FeatureCollection', features: model.cells.map(c => cellPoly(c)) });
   function cellPoly(c) {
     const dy = model.grid.dlat / 2, dx = model.grid.dlon / 2;
-    return { type: 'Feature', properties: { dli: c.dli, hdd: c.hdd },
+    return { type: 'Feature',
+      properties: { dli: c.dli, hdd: c.hdd, usdF: c.usdF == null ? -1 : c.usdF, bws: c.bws },
       geometry: { type: 'Polygon', coordinates: [[
         [c.lon - dx, c.lat - dy], [c.lon + dx, c.lat - dy], [c.lon + dx, c.lat + dy],
         [c.lon - dx, c.lat + dy], [c.lon - dx, c.lat - dy]]] } };
@@ -169,17 +181,31 @@ const Atlas = (() => {
     ['>=', ['get', 'dli'], t.dli], 3,
     4];
   const colorExpr = t => ['match', bandExpr(t), 1, BC[1], 2, BC[2], 3, BC[3], BC[4]];
-  const iconExpr = t => ['concat', 'tri', ['to-string', bandExpr(t)]];
+  // claimed ethanol plants carry an amber ring instead of white
+  const iconExpr = t => ['concat', 'tri', ['to-string', bandExpr(t)], ['case', ['get', 'claimed'], 'c', '']];
   const bandFilter = t => ['in', bandExpr(t), ['literal', state.bands]];
 
-  // triangle icons per band (canvas → addImage)
-  function triImage(color) {
+  // analysis paint modes — the cell surface can show the light bill or the water permit
+  const TIER = EST.lightTierUSD, LIGHT_C = ['#2ec4a0', '#ffb454', '#e0642f'];
+  const WATER_C = ['#2ec4a0', '#9bb14e', '#ffb454', '#e0642f', '#ff5c5c'];
+  const lightExpr = () => ['case',
+    ['<', ['get', 'usdF'], 0], BC[4],
+    ['<', ['get', 'usdF'], TIER[0]], LIGHT_C[0],
+    ['<', ['get', 'usdF'], TIER[1]], LIGHT_C[1],
+    LIGHT_C[2]];
+  const waterExpr = () => ['case', ['<', ['get', 'bws'], 0], BC[4],
+    ['match', ['get', 'bws'], 0, WATER_C[0], 1, WATER_C[1], 2, WATER_C[2], 3, WATER_C[3], WATER_C[4]]];
+  const cellPaint = () =>
+    state.paint === 'light' ? lightExpr() : state.paint === 'water' ? waterExpr() : colorExpr(state.t);
+
+  // triangle icons per band (canvas → addImage); ring = white, or amber for CCS-claimed
+  function triImage(color, ring) {
     const w = 30, h = 28, c = document.createElement('canvas');
     c.width = w; c.height = h;
     const x = c.getContext('2d');
     x.beginPath(); x.moveTo(w / 2, 3); x.lineTo(w - 3, h - 4); x.lineTo(3, h - 4); x.closePath();
     x.fillStyle = color; x.fill();
-    x.lineWidth = 3; x.strokeStyle = 'rgba(255,255,255,.92)'; x.stroke();
+    x.lineWidth = 3; x.strokeStyle = ring || 'rgba(255,255,255,.92)'; x.stroke();
     return c.getContext('2d').getImageData(0, 0, w, h);
   }
 
@@ -187,6 +213,11 @@ const Atlas = (() => {
   function readURL() {
     const q = location.hash.split('?')[1];
     if (!q) return;
+    // syncURL omits dli/hdd/paint exactly when they are default, so a URL that
+    // carries a query but lacks them MEANS defaults — reset before overriding,
+    // or a pasted link reproduces the paster's view mixed with our leftovers
+    state.t = { ...DEFAULTS };
+    state.paint = 'bands';
     const p = new URLSearchParams(q);
     if (p.get('c')) {
       let [lon, lat] = p.get('c').split(',').map(Number);
@@ -203,6 +234,7 @@ const Atlas = (() => {
     }
     if (p.get('b') != null)
       state.bands = p.get('b').split('.').map(Number).filter(n => n >= 1 && n <= 4);
+    if (['bands', 'light', 'water'].includes(p.get('paint'))) state.paint = p.get('paint');
     const dli = parseFloat(p.get('dli') ?? ''), hdd = parseInt(p.get('hdd') ?? '', 10);
     if (isFinite(dli)) state.t.dli = Math.min(16, Math.max(6, dli));
     if (isFinite(hdd)) state.t.hdd = Math.min(7000, Math.max(2000, hdd));
@@ -216,6 +248,7 @@ const Atlas = (() => {
     p.set('b', state.bands.join('.'));
     if (state.t.dli !== DEFAULTS.dli) p.set('dli', state.t.dli);
     if (state.t.hdd !== DEFAULTS.hdd) p.set('hdd', state.t.hdd);
+    if (state.paint !== 'bands') p.set('paint', state.paint);
     history.replaceState(null, '', location.pathname + '#/atlas?' + p.toString());
   }
 
@@ -225,7 +258,7 @@ const Atlas = (() => {
     map.addSource('cells', { type: 'geojson', data: cellGeo() });
     map.addLayer({ id: 'cells', type: 'fill', source: 'cells',
       layout: { visibility: state.layers.cells ? 'visible' : 'none' },
-      paint: { 'fill-color': colorExpr(t), 'fill-opacity': 0.22 } });
+      paint: { 'fill-color': cellPaint(), 'fill-opacity': state.paint === 'bands' ? 0.22 : 0.38 } });
 
     map.addSource('hovercell', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({ id: 'hovercell', type: 'line', source: 'hovercell',
@@ -247,7 +280,10 @@ const Atlas = (() => {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 2.1, 6, 4.2, 9, 7],
         'circle-opacity': 0.8 } });
 
-    [1, 2, 3, 4].forEach(b => map.addImage('tri' + b, triImage(BC[b])));
+    [1, 2, 3, 4].forEach(b => {
+      map.addImage('tri' + b, triImage(BC[b]));
+      map.addImage('tri' + b + 'c', triImage(BC[b], '#ffb454'));
+    });
     map.addSource('eth', { type: 'geojson', data: ethGeo() });
     map.addLayer({ id: 'eth', type: 'symbol', source: 'eth',
       layout: {
@@ -289,7 +325,7 @@ const Atlas = (() => {
   function applyThresholds() {
     if (!map || !map.getLayer('cells')) return;
     const t = state.t;
-    map.setPaintProperty('cells', 'fill-color', colorExpr(t));
+    map.setPaintProperty('cells', 'fill-color', cellPaint());
     map.setPaintProperty('dc', 'circle-color', colorExpr(t));
     map.setLayoutProperty('eth', 'icon-image', iconExpr(t));
     applyBandFilter(); // the filter embeds the thresholds too
@@ -297,10 +333,26 @@ const Atlas = (() => {
     if (s) s.setData(pairGeo());
   }
 
+  function applyPaint() {
+    if (map && map.getLayer('cells')) {
+      map.setPaintProperty('cells', 'fill-color', cellPaint());
+      map.setPaintProperty('cells', 'fill-opacity', state.paint === 'bands' ? 0.22 : 0.38);
+    }
+    applyBandFilter();
+    syncRailDeps(); // the empty-bands hint depends on the paint mode too
+    const leg = document.getElementById('leg');
+    if (leg) leg.innerHTML = legendHTML();
+    const cap = document.getElementById('paint-cap');
+    if (cap) cap.innerHTML = PAINT_CAP[state.paint];
+  }
+
   function applyBandFilter() {
     if (!map) return;
+    // in analysis paint modes the whole surface is the story — band chips
+    // keep filtering the facility marks, but not the cells
     const f = bandFilter(state.t);
-    ['dc', 'eth', 'cells'].forEach(id => map.getLayer(id) && map.setFilter(id, f));
+    ['dc', 'eth'].forEach(id => map.getLayer(id) && map.setFilter(id, f));
+    if (map.getLayer('cells')) map.setFilter('cells', state.paint === 'bands' ? f : null);
     // pairs are frontier-only by construction; they need band 1 visible
     const pairsOn = state.layers.pairs && state.bands.includes(1);
     ['pairs', 'pairs-hit'].forEach(id => map.getLayer(id) &&
@@ -315,7 +367,9 @@ const Atlas = (() => {
       tog.title = state.bands.includes(1) ? '' : 'golden pairs are frontier-only — re-enable the FRONTIER band to show them';
     }
     const hint = document.getElementById('map-hint');
-    if (hint) hint.hidden = state.bands.length !== 0;
+    // in light/water modes the painted surface stays on screen regardless of
+    // band chips, so "no bands selected" would contradict a full-color map
+    if (hint) hint.hidden = state.bands.length !== 0 || state.paint !== 'bands';
   }
 
   // ── popups
@@ -329,8 +383,14 @@ const Atlas = (() => {
   const cellRow = c => c
     ? `<span class="pk">CELL</span> DLI ${fmt(c.dli, 1)} · ${fmt(c.hdd)} HDD` : '';
 
+  const CATS = () => model.layers.bws_cats;
+  const waterLine = c => c && c.bws >= 0
+    ? `<span class="pk">WATER</span> ${esc(CATS()[c.bws])}${c.bws >= 3 ? ' <span class="warn">⚠</span>' : ''} · ${esc(c.st)} (Aqueduct 4.0)<br>` : '';
+
   function popDC(f) {
     const near = model.eths[f.near.e];
+    const lightsOn = f.band === 2 && f.cell && f.cell.usdF != null
+      ? `<span class="pk">LIGHTS-ON</span> ≈$${f.cell.usdF}/m²·yr closes the gap to DLI 17 at ${esc(f.cell.st)} industrial power<br>` : '';
     const pay = f.pay ? `
       <div class="pay">
         <div>≈ <b>${fmtMW(f.pay.it)} MW</b> IT → <b>${fmtMW(f.pay.heat)} MWth</b> recoverable</div>
@@ -343,16 +403,22 @@ const Atlas = (() => {
       ${bandRow(f.band)}<br>${cellRow(f.cell)}<br>
       <span class="pk">FLOOR</span> ${f.sqft ? fmt(f.sqft) + ' sqft' : '—'} · <span class="pk">STATE</span> ${esc(f.state)}
       ${pay}
+      ${lightsOn}${waterLine(f.cell)}
       <span class="pk">CO₂</span> ${esc(near.label)} · ${fmt(f.near.km)} km${f.near.km > 100 ? ' <span class="dimtx">(beyond pair range)</span>' : ''}
       <div class="pfoot">planning estimates — assumptions in <a href="#/data">DATA</a></div>`);
   }
   function popEth(f) {
     const nd = nearestFrontierDC(f);
+    const claim = f.claim
+      ? `${esc(f.claim.program)} — ${esc(f.claim.status === 'operating' ? 'operating CCS' : f.claim.status.replace('contracted-', 'contracted ('))}${f.claim.status.startsWith('contracted') ? ')' : ''}`
+      : 'none public';
     openPop([f.lon, f.lat], `
       <div class="pn">${esc(f.label)}</div>
       ${bandRow(f.band)}<br>${cellRow(f.cell)}<br>
       <span class="pk">CAPACITY</span> ${f.mmgal ? fmt(f.mmgal) + ' MMgal/yr' : '—'}<br>
       <span class="pk">FERM CO₂</span> ${f.co2kt ? fmt(f.co2kt) + ' kt/yr → enriches ≈ ' + fmt(f.haEnrich) + ' ha' : '—'}<br>
+      <span class="pk">CO₂ CLAIMS</span> ${f.claim ? '<span class="claimtx">' + claim + '</span>' : claim}<br>
+      ${waterLine(f.cell)}
       <span class="pk">STATE</span> ${esc(f.state)}<br>
       <span class="pk">NEAREST FRONTIER DC</span> ${nd ? esc(nd.f.label) + ' · ' + fmt(nd.km) + ' km' : '—'}
       <div class="pfoot">planning estimates — assumptions in <a href="#/data">DATA</a></div>`);
@@ -381,7 +447,41 @@ const Atlas = (() => {
     if (c.band === 2) need = ` · +${(t.dli - c.dli).toFixed(1)} DLI to frontier`;
     else if (c.band === 3) need = ` · +${fmt(t.hdd - c.hdd)} HDD to frontier`;
     else if (c.band === 4) need = ` · +${(t.dli - c.dli).toFixed(1)} DLI, +${fmt(t.hdd - c.hdd)} HDD`;
-    el.innerHTML = `<b style="color:${BC[c.band]}">${BAND_LABEL[c.band]}</b> · DLI ${fmt(c.dli, 1)} · ${fmt(c.hdd)} HDD${esc(need)}`;
+    let extra = '';
+    if (state.paint === 'light')
+      extra = c.usdF != null ? ` · lights-to-17 ≈$${c.usdF}/m²·yr (${c.st})` : ' · light cost: no state price';
+    else if (state.paint === 'water')
+      extra = c.bws >= 0 ? ` · water ${CATS()[c.bws]} (${c.st})` : ' · water: no data';
+    el.innerHTML = `<b style="color:${BC[c.band]}">${BAND_LABEL[c.band]}</b> · DLI ${fmt(c.dli, 1)} · ${fmt(c.hdd)} HDD${esc(need)}${esc(extra)}`;
+  }
+
+  // ── legend + paint captions
+  const PAINT_CAP = {
+    bands: 'Blue = the frontier: December sun does most of the work AND winter is cold enough that free heat pays.',
+    light: `Cost to hold DLI ${EST.dliTargetFruit} at canopy (tomato-grade) with LEDs at each state's 2024 industrial power price. Dark is a bill, not a verdict — teal is under $${TIER[0]}/m²·yr.`,
+    water: 'WRI Aqueduct 4.0 state baseline water stress — the deep frontier’s permit problem. Red basins are where new consumptive rights are hardest.',
+  };
+  function legendHTML() {
+    const shape = `
+      <div class="leg-h">SHAPE</div>
+      <div><i class="dot"></i>DATA CENTER &nbsp;·&nbsp; <i class="tri"></i>ETHANOL PLANT <span class="dimtx">(amber ring = CCS-claimed)</span></div>`;
+    const pair = `<div><i class="ln"></i>FRONTIER DC → NEAREST ETHANOL ≤100 KM</div>`;
+    if (state.paint === 'light') return `${shape}
+      <div class="leg-h">COLOR — SUPPLEMENTAL LIGHT, $/M²·YR TO DLI ${EST.dliTargetFruit}</div>
+      <div><i style="background:${LIGHT_C[0]}"></i>UNDER $${TIER[0]} — CHEAP PHOTONS</div>
+      <div><i style="background:${LIGHT_C[1]}"></i>$${TIER[0]}–${TIER[1]}</div>
+      <div><i style="background:${LIGHT_C[2]}"></i>OVER $${TIER[1]}</div>
+      <div><i style="background:${BC[4]}"></i>NO STATE PRICE</div>${pair}`;
+    if (state.paint === 'water') return `${shape}
+      <div class="leg-h">COLOR — BASELINE WATER STRESS (AQUEDUCT 4.0, STATE)</div>
+      ${CATS().map((c, i) => `<div><i style="background:${WATER_C[i]}"></i>${esc(c.toUpperCase())}</div>`).join('')}
+      <div><i style="background:${BC[4]}"></i>NO DATA</div>${pair}`;
+    return `${shape}
+      <div class="leg-h">COLOR — CLIMATE BAND</div>
+      <div><i style="background:${BC[1]}"></i>FRONTIER · LIGHT + HEAT DEMAND</div>
+      <div><i style="background:${BC[2]}"></i>COLD BUT TOO DARK</div>
+      <div><i style="background:${BC[3]}"></i>BRIGHT, LOW HEAT DEMAND</div>
+      <div><i style="background:${BC[4]}"></i>NEITHER</div>${pair}`;
   }
 
   // ── rail
@@ -422,9 +522,17 @@ const Atlas = (() => {
         <div class="sld-note">The lines are a choice — drag them and watch the count. <button id="t-reset" class="lnkbtn" ${state.t.dli === DEFAULTS.dli && state.t.hdd === DEFAULTS.hdd ? 'hidden' : ''}>reset to 10 / 4,000</button></div>
       </div>
       <div class="rail-sec"><h4>LAYERS</h4>
-        ${[['dc', 'Data centers', fmt(model.dcs.length)], ['eth', 'Ethanol plants', model.eths.length],
+        ${[['dc', 'Data centers', fmt(model.dcs.length)],
+           ['eth', 'Ethanol plants', model.eths.length + ' · ' + model.layers.co2.matched.length + ' CCS-claimed'],
            ['pairs', 'Golden pairs ≤100 km', ''], ['cells', 'Climate surface', '1,592 cells']]
           .map(([k, t, c]) => `<button class="tog ${state.layers[k] ? 'on' : ''}" data-layer="${k}" role="switch" aria-checked="${state.layers[k]}"><span class="sw"></span>${t}<span class="cnt" ${k === 'pairs' ? 'id="k-p100"' : ''}>${c}</span></button>`).join('')}
+      </div>
+      <div class="rail-sec"><h4>CELL SURFACE</h4>
+        <div class="chips">
+          ${[['bands', 'CLIMATE BANDS'], ['light', 'LIGHT COST'], ['water', 'WATER STRESS']]
+            .map(([k, t]) => `<button class="chip pmode ${state.paint === k ? 'on' : ''}" data-paint="${k}" aria-pressed="${state.paint === k}">${t}</button>`).join('')}
+        </div>
+        <div class="mini-cap" id="paint-cap">${PAINT_CAP[state.paint]}</div>
       </div>
       <div class="rail-sec"><h4>BANDS</h4>
         <div class="chips">
@@ -502,13 +610,28 @@ const Atlas = (() => {
       if (k === 'pairs') applyBandFilter();
       syncURL();
     });
-    mount.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    mount.querySelectorAll('.chip[data-band]').forEach(b => b.onclick = () => {
       const n = +b.dataset.band;
       state.bands = state.bands.includes(n) ? state.bands.filter(x => x !== n) : [...state.bands, n];
       b.classList.toggle('on', state.bands.includes(n));
       b.setAttribute('aria-pressed', state.bands.includes(n));
       applyBandFilter();
       syncRailDeps();
+      syncURL();
+    });
+    mount.querySelectorAll('.chip.pmode').forEach(b => b.onclick = () => {
+      state.paint = b.dataset.paint;
+      mount.querySelectorAll('.chip.pmode').forEach(x => {
+        x.classList.toggle('on', x.dataset.paint === state.paint);
+        x.setAttribute('aria-pressed', x.dataset.paint === state.paint);
+      });
+      if (!state.layers.cells && state.paint !== 'bands') { // the surface IS the mode — show it
+        state.layers.cells = true;
+        const tog = mount.querySelector('.tog[data-layer="cells"]');
+        if (tog) { tog.classList.add('on'); tog.setAttribute('aria-checked', 'true'); }
+        if (map && map.getLayer('cells')) map.setLayoutProperty('cells', 'visibility', 'visible');
+      }
+      applyPaint();
       syncURL();
     });
 
@@ -580,16 +703,7 @@ const Atlas = (() => {
           <div id="map"></div>
           <div id="cellread" class="cellread" hidden></div>
           <div id="map-hint" class="map-hint" hidden>no bands selected — pick a band chip on the left</div>
-          <div class="leg" role="img" aria-label="Map legend">
-            <div class="leg-h">SHAPE</div>
-            <div><i class="dot"></i>DATA CENTER &nbsp;·&nbsp; <i class="tri"></i>ETHANOL PLANT</div>
-            <div class="leg-h">COLOR — CLIMATE BAND</div>
-            <div><i style="background:${BC[1]}"></i>FRONTIER · LIGHT + HEAT DEMAND</div>
-            <div><i style="background:${BC[2]}"></i>COLD BUT TOO DARK</div>
-            <div><i style="background:${BC[3]}"></i>BRIGHT, LOW HEAT DEMAND</div>
-            <div><i style="background:${BC[4]}"></i>NEITHER</div>
-            <div><i class="ln"></i>FRONTIER DC → NEAREST ETHANOL ≤100 KM</div>
-          </div>
+          <div class="leg" id="leg" role="img" aria-label="Map legend"></div>
           <div class="attrib" id="attrib">© <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> © OpenStreetMap · data compiled 2026-08-09</div>
         </div>
       </div>`;
@@ -605,6 +719,8 @@ const Atlas = (() => {
       wireRail(railEl);
       updateKPIs();
       syncRailDeps();
+      const leg = mount.querySelector('#leg');
+      if (leg) leg.innerHTML = legendHTML();
       map = new maplibregl.Map({
         container: 'map', style,
         center: state.view ? state.view.center : [-95.5, 38.3],
