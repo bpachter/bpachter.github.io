@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Benjamin Pachter — Forward Deployed Engineer · AI &amp; Data Platforms</title>
-<meta name="description" content="Forward Deployed Engineer building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
+<title>Benjamin Pachter — Enterprise Business Architect · AI &amp; Data Platforms</title>
+<meta name="description" content="Enterprise Business Architect building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
     <link rel="canonical" href="https://bpachter.github.io/">
     <!-- Paired, so the browser chrome matches the theme the page will actually
          paint for a first-time visitor instead of always claiming dark. The
@@ -19,16 +19,16 @@
          every crawler. -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Benjamin Pachter">
-    <meta property="og:title" content="Benjamin Pachter — Forward Deployed Engineer · AI &amp; Data Platforms">
-    <meta property="og:description" content="Forward Deployed Engineer building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
+    <meta property="og:title" content="Benjamin Pachter — Enterprise Business Architect · AI &amp; Data Platforms">
+    <meta property="og:description" content="Enterprise Business Architect building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
     <meta property="og:url" content="https://bpachter.github.io/">
     <meta property="og:image" content="https://bpachter.github.io/media/og-card.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Benjamin Pachter — Forward Deployed Engineer · AI &amp; Data Platforms">
+    <meta property="og:image:alt" content="Benjamin Pachter — Enterprise Business Architect · AI &amp; Data Platforms">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Benjamin Pachter — Forward Deployed Engineer · AI &amp; Data Platforms">
-    <meta name="twitter:description" content="Forward Deployed Engineer building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
+    <meta name="twitter:title" content="Benjamin Pachter — Enterprise Business Architect · AI &amp; Data Platforms">
+    <meta name="twitter:description" content="Enterprise Business Architect building production AI and data platforms end to end — governed knowledge graphs, agentic pipelines, and the geospatial platforms that decide where the grid can say yes. Live on AWS.">
     <meta name="twitter:image" content="https://bpachter.github.io/media/og-card.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%232dd4bf' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
@@ -205,7 +205,6 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .r-role{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     letter-spacing:.14em;font-size:12.5px;color:var(--color-accent-700);margin-top:14px}
   .r-role span{display:block;margin-top:4px;letter-spacing:.11em;color:var(--color-mute-2)}
-  .r-bio{font-size:14px;line-height:1.62;color:color-mix(in srgb,var(--color-text) 80%,transparent);margin:0}
   .r-nav{display:flex;flex-direction:column;gap:0;margin-top:2px}
   .r-nav a{display:flex;align-items:baseline;gap:12px;padding:11px 0;
     font-family:var(--font-heading);font-weight:600;text-transform:uppercase;letter-spacing:.05em;
@@ -267,7 +266,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .intro > *:not(.hero-sim){position:relative;z-index:1}
   @media (max-width:760px){.hero-sim{opacity:.3}}
   .intro h1{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
-    font-size:clamp(34px,4.6vw,58px);line-height:1.02;letter-spacing:.005em;margin:0;max-width:16ch}
+    font-size:clamp(32px,4.1vw,52px);line-height:1.02;letter-spacing:.005em;margin:0;max-width:19ch}
   .intro .line{display:block}
   /* The second line carries the accent, so the title reads as role then
      domain rather than one undifferentiated slab. accent-700 rather than the
@@ -275,8 +274,23 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
      manages only 3.71:1, and it targets the span directly so the dark-theme
      heading rule (which paints .intro h1 near-white) does not inherit over it. */
   .intro h1 .accent{color:var(--color-accent-700)}
-  .intro p{font-size:clamp(15px,1.5vw,18px);line-height:1.55;max-width:56ch;margin:22px 0 0;
+  /* The intro carries the whole introduction now that the rail no longer
+     does. Three paragraphs at the old 18px lead size pushed the stat row
+     off the first screen, so the type steps down a little and the measure
+     stays near 62ch — long enough to avoid a ragged column, short enough
+     to stay readable. */
+  .intro p{font-size:clamp(14.5px,1.28vw,16.5px);line-height:1.62;max-width:62ch;margin:18px 0 0;
     color:color-mix(in srgb,var(--color-text) 82%,transparent)}
+  /* max-width:none, or it inherits the 62ch measure from .intro p — which at
+     this smaller size is a much narrower column, wrapping the line and
+     stranding the arrow beside it. */
+  .intro p.intro-cue{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
+    letter-spacing:.09em;font-size:12.5px;color:var(--color-accent-700);max-width:none;
+    display:inline-flex;align-items:center;gap:9px;margin-top:26px}
+  .intro p.intro-cue::after{content:"↓";font-size:14px;line-height:1;
+    animation:cueDrop 2.4s var(--ease-out) infinite}
+  @keyframes cueDrop{0%,72%,100%{transform:translateY(0);opacity:.75}84%{transform:translateY(4px);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.intro p.intro-cue::after{animation:none}}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);
     border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);margin-top:36px}
   .stat{padding:20px 22px 18px;border-left:1px solid var(--color-divider)}
@@ -546,9 +560,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
       </button>
       <div>
         <h1 class="r-name fx-tr"><span class="line" style="--i:1">Benjamin</span><span class="line" style="--i:2">Pachter<span class="sl">.</span></span></h1>
-        <div class="r-role fade" style="--i:4">Forward Deployed Engineer<span>AI &amp; Data Platforms</span></div>
+        <div class="r-role fade" style="--i:4">Enterprise Business Architect<span>AI &amp; Data Platforms</span></div>
       </div>
-      <p class="r-bio fade" style="--i:5">I build and operate production AI and data platforms at Duke Energy, and set the technical standards that work follows across five organizations. The projects below apply the same engineering in public — knowledge graphs, verification gates, and grid-scale simulation.</p>
       <nav class="r-nav fade" style="--i:6">
         <a href="#work" data-spy="work"><span class="n">01</span> Work <span class="bar"></span></a>
         <a href="#experience" data-spy="experience"><span class="n">02</span> Experience <span class="bar"></span></a>
@@ -574,8 +587,10 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
 
         <section class="intro">
           <canvas class="hero-sim" id="heroSim" aria-hidden="true"></canvas>
-          <h1 class="fx-tr"><span class="line" style="--i:1">Forward deployed engineer.</span><span class="line accent" style="--i:2">AI and data platforms.</span></h1>
-          <p class="fade" style="--i:4">Knowledge graphs in production, and the governance that keeps them honest: a verification gate that <b>refuses to publish a number it can't prove</b>, an approval path automation cannot bypass, and a viewer that shows the evidence behind every claim — alongside the geospatial platforms that decide where the grid can say yes.</p>
+          <h1 class="fx-tr"><span class="line" style="--i:1">Enterprise business architect.</span><span class="line accent" style="--i:2">AI and data platforms.</span></h1>
+          <p class="fade" style="--i:4">Welcome to my portfolio. I am a digital architect who simply seeks to help as many folks as possible through advanced and efficient process improvement. I have re-designed businesses from small to large to allow them to operate effectively in the rapidly evolving world of artificial intelligence. Augmenting full-stack capabilities with AI allows for me to truly operate at the very tip of the technology spear. I love cats, cars, and computers.</p>
+          <p class="fade" style="--i:5">My mission in all domains is simple: clearly define signal and noise through a redefined <b>business graph ontology</b> — the most practical and powerful data augmentation setup for businesses with AI going into 2027 — so that multiple siloed systems can be streamlined into a single architecture.</p>
+          <p class="intro-cue fade" style="--i:6">Scroll down to view some of my ongoing personal projects.</p>
           <div class="stats reveal">
             <div class="stat"><div class="v">250+ GW</div><div class="k">Data-center &amp; large-load interconnection screened</div></div>
             <div class="stat"><div class="v">2–4 wks → day</div><div class="k">Interconnection study turnaround</div></div>
