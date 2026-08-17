@@ -199,8 +199,12 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
     font-size:38px;line-height:.96;letter-spacing:.01em;margin:0 0 0 -.02em}
   .r-name .line{display:block}
   .r-name .sl{color:var(--color-accent)}
+  /* Two deliberate lines. As one string this ran to 44 characters at .14em
+     tracking and wrapped mid-phrase ("... AI &" / "DATA PLATFORMS"), which
+     read as a layout bug rather than a subtitle. */
   .r-role{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     letter-spacing:.14em;font-size:12.5px;color:var(--color-accent-700);margin-top:14px}
+  .r-role span{display:block;margin-top:4px;letter-spacing:.11em;color:var(--color-mute-2)}
   .r-bio{font-size:14px;line-height:1.62;color:color-mix(in srgb,var(--color-text) 80%,transparent);margin:0}
   .r-nav{display:flex;flex-direction:column;gap:0;margin-top:2px}
   .r-nav a{display:flex;align-items:baseline;gap:12px;padding:11px 0;
@@ -208,6 +212,16 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
     font-size:15px;color:color-mix(in srgb,var(--color-text) 76%,transparent);
     border-top:1px solid var(--color-divider);transition:color .18s}
   .r-nav a:last-child{border-bottom:1px solid var(--color-divider)}
+  /* The last three links leave the page. Styled identically to the section
+     nav they read as three more sections of it, which made an eight-item
+     list out of a five-item one. A label breaks the run; the arrow glyph
+     carries the accent so the difference is legible at a glance. */
+  .r-navsep{display:block;margin-top:24px;padding:0 0 8px;
+    font-family:var(--font-heading);font-weight:600;font-size:10px;letter-spacing:.15em;
+    text-transform:uppercase;color:var(--color-mute-3)}
+  .r-nav a.r-cross{color:var(--color-mute)}
+  .r-nav a.r-cross .n{color:var(--color-accent-700);font-size:12px}
+  .r-nav a.r-cross:hover{color:var(--color-accent)}
   .r-nav a .n{font-size:11px;color:var(--color-mute-3);
     font-feature-settings:"tnum" 1;transition:color .18s}
   .r-nav a:hover{color:var(--color-accent)}
@@ -255,6 +269,12 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .intro h1{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     font-size:clamp(34px,4.6vw,58px);line-height:1.02;letter-spacing:.005em;margin:0;max-width:16ch}
   .intro .line{display:block}
+  /* The second line carries the accent, so the title reads as role then
+     domain rather than one undifferentiated slab. accent-700 rather than the
+     raw accent: #416180 clears 5.78:1 on the light background where #5980a6
+     manages only 3.71:1, and it targets the span directly so the dark-theme
+     heading rule (which paints .intro h1 near-white) does not inherit over it. */
+  .intro h1 .accent{color:var(--color-accent-700)}
   .intro p{font-size:clamp(15px,1.5vw,18px);line-height:1.55;max-width:56ch;margin:22px 0 0;
     color:color-mix(in srgb,var(--color-text) 82%,transparent)}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);
@@ -526,7 +546,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
       </button>
       <div>
         <h1 class="r-name fx-tr"><span class="line" style="--i:1">Benjamin</span><span class="line" style="--i:2">Pachter<span class="sl">.</span></span></h1>
-        <div class="r-role fade" style="--i:4">Forward Deployed Engineer · AI &amp; Data Platforms</div>
+        <div class="r-role fade" style="--i:4">Forward Deployed Engineer<span>AI &amp; Data Platforms</span></div>
       </div>
       <p class="r-bio fade" style="--i:5">I build and operate production AI and data platforms at Duke Energy, and set the technical standards that work follows across five organizations. The projects below apply the same engineering in public — knowledge graphs, verification gates, and grid-scale simulation.</p>
       <nav class="r-nav fade" style="--i:6">
@@ -535,6 +555,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <a href="#capabilities" data-spy="capabilities"><span class="n">03</span> Capabilities <span class="bar"></span></a>
         <a href="#education" data-spy="education"><span class="n">04</span> Education <span class="bar"></span></a>
         <a href="#contact" data-spy="contact"><span class="n">05</span> Contact <span class="bar"></span></a>
+        <span class="r-navsep">Deep dives</span>
         <a href="case-studies.html" class="r-cross"><span class="n">↗</span> Case studies <span class="bar"></span></a>
         <a href="graph-ontology/" class="r-cross"><span class="n">↗</span> Graph ontology guide <span class="bar"></span></a>
         <a href="atlas/" class="r-cross"><span class="n">↗</span> Recon viewer &amp; 3D atlas <span class="bar"></span></a>
@@ -553,7 +574,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
 
         <section class="intro">
           <canvas class="hero-sim" id="heroSim" aria-hidden="true"></canvas>
-          <h1 class="fx-tr"><span class="line" style="--i:1">Forward deployed engineer.</span><span class="line" style="--i:2">AI and data platforms for the power grid.</span></h1>
+          <h1 class="fx-tr"><span class="line" style="--i:1">Forward deployed engineer.</span><span class="line accent" style="--i:2">AI and data platforms.</span></h1>
           <p class="fade" style="--i:4">Knowledge graphs in production and the governance that keeps them honest — a <b>.NET</b> reconciliation gate that refuses to publish a number it can't prove, a <b>Django</b> approval path and a <b>React</b> viewer, live on <b>AWS</b> — alongside the geospatial platforms that decide where the grid can say yes.</p>
           <div class="stats reveal">
             <div class="stat"><div class="v">250+ GW</div><div class="k">Data-center &amp; large-load interconnection screened</div></div>

@@ -141,7 +141,27 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .cs-aurora .b3{width:360px;height:320px;left:42%;top:-26%;background:radial-gradient(circle,#38bdf8,transparent 70%);opacity:.3}
 
   /* case study — BMW reorder consolidation */
-  .bmw{position:relative;margin:30px 0 6px;padding:clamp(20px,2.8vw,34px);scroll-margin-top:88px}
+  /* The figures carry this page, so they get their own presence rather than
+     sitting in a bare bordered box: a faint accent wash off two corners, and
+     a border that warms on hover. Colour only — nothing here moves the text
+     or changes a contrast ratio. */
+  .bmw{position:relative;margin:38px 0 6px;padding:clamp(20px,2.8vw,34px);scroll-margin-top:88px;
+    background:
+      radial-gradient(115% 85% at 100% 0%,color-mix(in srgb,var(--color-accent) 7%,transparent),transparent 60%),
+      radial-gradient(90% 70% at 0% 100%,color-mix(in srgb,var(--color-accent) 4%,transparent),transparent 55%);
+    transition:border-color .28s var(--ease-out),box-shadow .28s var(--ease-out)}
+  .bmw:hover{border-color:color-mix(in srgb,var(--color-accent) 42%,var(--color-divider))}
+  [data-theme="dark"] .bmw{box-shadow:0 20px 54px -34px rgba(0,0,0,.92)}
+  [data-theme="dark"] .bmw:hover{box-shadow:0 20px 54px -30px rgba(0,0,0,.95),
+    0 0 0 1px color-mix(in srgb,var(--color-accent) 16%,transparent)}
+  @media (prefers-reduced-motion:reduce){.bmw{transition:none}}
+  /* the number lives large in the corner — it turns six figures into a
+     numbered sequence you can navigate by eye */
+  .bmw::after{content:attr(data-seq);position:absolute;top:clamp(14px,2vw,22px);right:clamp(16px,2.4vw,28px);
+    font-family:var(--font-heading);font-weight:600;font-size:clamp(38px,5vw,64px);line-height:1;
+    color:color-mix(in srgb,var(--color-accent) 13%,transparent);pointer-events:none;
+    font-feature-settings:"tnum" 1;z-index:0}
+  .bmw > *{position:relative;z-index:1}
   .bmw-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 26px}
   .bmw-title{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;font-size:24px;letter-spacing:.01em;margin:5px 0 0;color:var(--color-text)}
   .bmw-seg{display:inline-flex;border:1px solid var(--color-divider)}
@@ -174,7 +194,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .bmw[data-mode="optimized"] .alt-svg .t-legacy{display:none}
   .bmw[data-mode="optimized"] .alt-svg .t-opt{display:inline}
   /* 03 — regime MC lab */
-  .mc-canvas{display:block;width:100%;height:430px;border:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-text) 2.5%,transparent)}
+  .mc-canvas{display:block;width:100%;height:468px;border:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-text) 2.5%,transparent)}
   .mc-ctrl{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px}
   .mc-ctrl .fx-presets{flex:none;max-width:100%}
   .mc-lab{display:flex;align-items:center;gap:9px;font-family:var(--font-heading);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-mute-2)}
@@ -185,7 +205,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .mc-k{display:block;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-family:var(--font-heading);font-weight:600;color:var(--color-mute-3);margin-bottom:2px}
   .mc-v{font-family:var(--font-heading);font-weight:600;font-size:19px;letter-spacing:.01em;font-feature-settings:"tnum" 1;color:var(--color-text);white-space:nowrap}
   .fx-preset[aria-pressed="true"]{background:var(--color-accent);color:var(--color-bg)}
-  @media (max-width:760px){.mc-canvas{height:340px}.mc-stats{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:760px){.mc-canvas{height:360px}.mc-stats{grid-template-columns:repeat(2,1fr)}}
   .line-cars{animation:lineMove 7s linear infinite}
   @keyframes lineMove{from{transform:translateX(0)}to{transform:translateX(130px)}}
   @media (prefers-reduced-motion:reduce){.line-cars{animation:none}}
@@ -331,137 +351,102 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <p class="cs-lead fade" style="--i:2">A few problems worth walking through — the constraint, the redesign, and what it saved. Everything here runs live: toggle it, drag it, break it.</p>
       </section>
 
-      <figure class="bmw blueprint reveal" data-mode="naive" id="cs-thessa">
+      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-deloitte" data-seq="01">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">01 · Thessa · thessa.space</span>
-            <h2 class="bmw-title">The wrong number that looks right</h2>
-          </div>
-          <div class="bmw-seg" role="group" aria-label="Publish mode">
-            <button type="button" class="bmw-mode" data-mode="naive" aria-pressed="true">Sum the tags</button>
-            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Reconcile, then publish</button>
+            <span class="kick">01 · Deloitte · fixed income</span>
+            <h2 class="bmw-title">Volatility regimes</h2>
           </div>
         </figcaption>
-        <p class="ro-note"><a href="https://thessa.space" target="_blank" rel="noopener">Thessa</a> maps who depends on whom across space, defense, AI infrastructure and critical minerals — a knowledge graph built from primary public records, free and open source. The hard part is not the graph, it is deciding what deserves to be in it: a filing-derived edge carries an audited dollar figure, a press release carries an assertion, and they sit on different trust rungs. The gate below is the reason the dollars can be trusted. These are <b>real numbers from Intel's FY2025 filing</b>, exactly as tagged in XBRL. Sum what the filing tags and you publish +126% — a figure that looks perfectly reasonable. Toggle the mode.</p>
-        <div class="lg-rows" role="table" aria-label="Intel FY2025 segment revenue members as tagged, USD millions">
-          <div class="lg-row lg-drop">
-            <span class="lg-name"><b>A rollup member, tagged alongside its own children</b><span class="lg-sub">equals Client Computing + Data Center &amp; AI, to the dollar</span></span>
-            <span class="lg-num">49,147</span>
-            <span class="lg-tag m-naive">counted</span>
-            <span class="lg-tag lg-tag--no m-gate">undetected_rollup · dropped</span>
+        <div class="mc">
+          <canvas class="mc-canvas" id="mcCanvas" role="img" aria-label="Regime-switching Monte Carlo simulation with hidden Markov filter"></canvas>
+          <div class="mc-ctrl">
+            <div class="fx-presets">
+              <button type="button" class="fx-preset" id="mcPlay" aria-pressed="false">Play world</button>
+              <button type="button" class="fx-preset" id="mcResim">Resimulate</button>
+              <button type="button" class="fx-preset" id="mcShock">Inject vol shock</button>
+              <button type="button" class="fx-preset" id="mcReveal" aria-pressed="false">Reveal true regimes</button>
+            </div>
+            <div class="fx-presets" role="group" aria-label="MC engine">
+              <button type="button" class="fx-preset fx-eng" data-e="regime" aria-pressed="true">Regime MC</button>
+              <button type="button" class="fx-preset fx-eng" data-e="gbm" aria-pressed="false">Pure GBM</button>
+            </div>
+            <label class="mc-lab">Paths <input class="fx-val" id="mcN" type="range" min="100" max="1000" step="50" value="400"> <b id="mcNv">400</b></label>
+            <label class="mc-lab">Horizon <input class="fx-val" id="mcH" type="range" min="20" max="120" step="5" value="60"> <b id="mcHv">60d</b></label>
           </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Client Computing Group</b></span>
-            <span class="lg-num">32,228</span>
-            <span class="lg-tag m-naive">counted</span>
-            <span class="lg-tag m-gate">kept</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Data Center &amp; AI</b></span>
-            <span class="lg-num">16,919</span>
-            <span class="lg-tag m-naive">counted</span>
-            <span class="lg-tag m-gate">kept</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Every other segment member</b><span class="lg-sub">reported gross of intersegment sales</span></span>
-            <span class="lg-num">21,389</span>
-            <span class="lg-tag m-naive">counted</span>
-            <span class="lg-tag m-gate">kept</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Intersegment elimination</b><span class="lg-sub">the filing's own reconciling row</span></span>
-            <span class="lg-num">−17,683</span>
-            <span class="lg-tag m-naive">ignored</span>
-            <span class="lg-tag lg-tag--ok m-gate">applied</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Consolidated revenue, same filing</b><span class="lg-sub">the number the sum must tie to</span></span>
-            <span class="lg-num">52,853</span>
-            <span class="lg-tag m-naive">not checked</span>
-            <span class="lg-tag lg-tag--ok m-gate">the anchor</span>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-k">P(stressed) · filtered</span><span class="mc-v" id="mcPs">—</span></div>
+            <div class="mc-stat"><span class="mc-k">Realized σ · 20d ann.</span><span class="mc-v" id="mcSig">—</span></div>
+            <div class="mc-stat"><span class="mc-k">Median · horizon</span><span class="mc-v" id="mcMed">—</span></div>
+            <div class="mc-stat"><span class="mc-k">90% band · horizon</span><span class="mc-v" id="mcBand">—</span></div>
+            <div class="mc-stat"><span class="mc-k">CVaR 5% · horizon</span><span class="mc-v" id="mcCvar">—</span></div>
+            <div class="mc-stat"><span class="mc-k">Filter hit-rate · window</span><span class="mc-v" id="mcAcc">—</span></div>
           </div>
         </div>
-        <div class="lg-total">
-          <span class="m-naive"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$119,683M</span>&ensp;<span class="lg-total-s">+126% against reality — and nothing downstream can tell</span></span>
-          <span class="m-gate"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$52,853M</span>&ensp;<span class="lg-total-s">ties to consolidated · verdict: <b>pass</b></span></span>
-        </div>
-        <p class="ro-note">The rollup is caught <b>arithmetically</b> — a genuine rollup ties to its children to the dollar, so no vocabulary list is needed — and both readings of the members (gross of intersegment sales vs net) are tested against the filing's own consolidated figure. Every failure gets a named class: <b>undetected_rollup</b>, <b>duplicate_facts</b>, <b>no_consolidated</b>, <b>unreconciled</b> — never "failed". Apple's product bucket is tagged above iPhone, Mac and iPad the same way; summing it publishes 2×. The rule that fell out of shipping those wrong numbers: <b>nothing publishes unless it reconciles</b>. The cost is coverage — 33% of the cohort published correctly instead of 100% plausibly — and that trade is the product.</p>
-        <div class="mc-stats lg-stats">
-          <div class="mc-stat"><span class="mc-k">Federal awards mapped</span><span class="mc-v">$1.98T</span></div>
-          <div class="mc-stat"><span class="mc-k">Resolve to a graph recipient</span><span class="mc-v">97.5%</span></div>
-          <div class="mc-stat"><span class="mc-k">Filing-derived edges · top trust rung</span><span class="mc-v">1,504</span></div>
-          <div class="mc-stat"><span class="mc-k">Verified share, after one audit write-back</span><span class="mc-v">62.8 → 71.5%</span></div>
-        </div>
-        <p class="ro-note">The same honesty applies to the graph's own opinion of itself: an audit found the stored confidence number <b>inverted</b> — the 0.95+ band was less accurate than the band below it — so confidence was replaced with trust tiers derived from how each edge was made, and 671 audit verdicts were written back with refuted claims kept in the ledger rather than deleted. <a href="https://thessa.space" target="_blank" rel="noopener">Live</a> · <a href="https://github.com/bpachter/thessa" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/bpachter/thessa/blob/main/CLAUDE.md" target="_blank" rel="noopener">The working rules</a> · <a href="graph-ontology/">How the graph is designed</a></p>
+        <p class="ro-note">Under the hood: a <b>two-state hidden Markov model</b> (calm / stressed) drives returns; a forward filter infers P(stressed) from returns alone — the solid ribbon — while the dashed line is the <b>forward–backward smoother</b>, hindsight's answer. A <b>regime-switching Monte Carlo</b> fans futures out of today's filtered belief rather than a single σ, with the terminal distribution stacked at the cone's edge. Each regime is <b>geometric Brownian motion</b> — dS/S = μ dt + σ dW — the hidden chain just decides which (μ, σ) drives the diffusion; flip to <b>Pure GBM</b> to watch a single Brownian world thin out the left tail the regimes create. <b>Play world</b> lets the days tick in live; <b>Inject vol shock</b> drops a crisis mid-stream and lets you watch the filter catch it; <b>Reveal true regimes</b> grades the filter against a world it never saw — the hit-rate cell keeps score. Descendant of the GARCH regime lens from my Deloitte fixed-income work — schematic parameters, real math.</p>
       </figure>
-
-      <figure class="bmw blueprint reveal" data-mode="heuristic" id="cs-astraea">
+      <figure class="bmw blueprint reveal fx" id="cs-nymt" data-seq="02">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">02 · Astraea · live on AWS</span>
-            <h2 class="bmw-title">The gate that said no</h2>
-          </div>
-          <div class="bmw-seg" role="group" aria-label="Adjudication mode">
-            <button type="button" class="bmw-mode" data-mode="heuristic" aria-pressed="true">Name-shape heuristic</button>
-            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Substance gate</button>
+            <span class="kick">02 · New York Mortgage Trust · 2022–24</span>
+            <h2 class="bmw-title">The 10-factor lens</h2>
           </div>
         </figcaption>
-        <p class="ro-note"><a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Astraea</a> is the governance layer extracted from Thessa: AI agents propose facts, a typed <b>C#/.NET reconciliation gate</b> verifies them with named failure modes, and a <b>Django</b> portal makes approval structurally impossible without a passing verdict — HTTP 409, in code, not in a review comment. What follows is its <b>first live run</b> against the production graph: a heuristic had flagged twenty nodes as "article/quantifier-led phrases, not discrete entities" and proposed demoting them to generic. Toggle what each adjudicator does.</p>
-        <div class="lg-rows" role="table" aria-label="Twenty proposed node demotions and their fate under each adjudicator">
-          <div class="lg-row lg-keep">
-            <span class="lg-name"><b>The Aerospace Corporation</b><span class="lg-sub">"The"-led phrase, said the heuristic · 213 federal contracts</span></span>
-            <span class="lg-num">$9.1B</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--no m-gate">refused · substance_demotion</span>
-          </div>
-          <div class="lg-row lg-keep">
-            <span class="lg-name"><b>Two Six Labs</b><span class="lg-sub">"Two" read as a quantifier</span></span>
-            <span class="lg-num">$438M</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--no m-gate">refused</span>
-          </div>
-          <div class="lg-row lg-keep">
-            <span class="lg-name"><b>Five Stones Research</b><span class="lg-sub">"Five" read as a quantifier</span></span>
-            <span class="lg-num">$154M</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--no m-gate">refused</span>
-          </div>
-          <div class="lg-row lg-keep">
-            <span class="lg-name"><b>Eleven more contract-holding nodes</b><span class="lg-sub">632 federal contracts across all fourteen refusals</span></span>
-            <span class="lg-num">$1.2B</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--no m-gate">refused</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>Five name-only stubs</b><span class="lg-sub">no contracts, almost no edges</span></span>
-            <span class="lg-num">—</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--ok m-gate">allowed</span>
-          </div>
-          <div class="lg-row">
-            <span class="lg-name"><b>The MathWorks</b><span class="lg-sub">three edges, no contracts — provable neither way</span></span>
-            <span class="lg-num">—</span>
-            <span class="lg-tag m-heuristic">demote</span>
-            <span class="lg-tag lg-tag--ok m-gate">routed to a human</span>
+        <div class="fx-map" id="fxMap" aria-label="Subject property and comparable properties map">
+          <span class="fx-map-tag">Charlotte, NC · illustrative comp set</span>
+          <div class="fx-card">
+            <span class="fx-card-img" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg></span>
+            <div class="fx-card-txt">
+              <span class="fx-card-t">Subject property</span>
+              <span class="fx-card-m">284 units · $187 / sq ft</span>
+              <span class="fx-card-m">95% occupancy</span>
+            </div>
           </div>
         </div>
-        <div class="lg-total">
-          <span class="m-heuristic"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">20 demotions apply</span>&ensp;<span class="lg-total-s">$10.9B in federal contracts reclassified as "generic" — silently</span></span>
-          <span class="m-gate"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">14 refused, by name</span>&ensp;<span class="lg-total-s">provenance beats name shape · a gate is a floor, not a verdict</span></span>
+        <div class="fx-stage">
+          <div>
+            <div class="fx-cols"><span>Factor</span><span>Value</span><span>0–10</span><span>Weight</span><span>%</span></div>
+            <div class="fx-row"><span class="fx-label">School scores</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8.5" aria-label="School scores value"><span class="fx-vnum">8.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="School scores weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Crime (safety)</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Crime safety value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Crime safety weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Comp prices</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="Comp prices value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Comp prices weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Rent growth YoY</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Rent growth value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3.5" aria-label="Rent growth weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">SFH prices YoY</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="SFH prices value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2.5" aria-label="SFH prices weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Census growth</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8.5" aria-label="Census growth value"><span class="fx-vnum">8.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Census growth weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Wealth demographics</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="Wealth demographics value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Wealth demographics weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Worker proximity</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Worker proximity value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Worker proximity weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">Occupancy</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="9" aria-label="Occupancy value"><span class="fx-vnum">9.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Occupancy weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+            <div class="fx-row"><span class="fx-label">$ / sq ft · units</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7" aria-label="Price per square foot value"><span class="fx-vnum">7.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2.5" aria-label="Price per square foot weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
+          </div>
+          <div class="fx-board">
+            <div class="fx-score-row"><span class="fx-score">0.0</span><span class="fx-of">/ 10</span><span class="fx-verdict" data-v="">—</span></div>
+            <div>
+              <div class="fx-gauge"><i></i><span class="fx-tick" style="left:45%"></span><span class="fx-tick" style="left:70%"></span></div>
+              <div class="fx-scale"><span>0</span><span>Pass · Watch · Pursue</span><span>10</span></div>
+            </div>
+            <div>
+              <span class="fx-cap">Example deals</span>
+              <div class="fx-presets">
+                <button type="button" class="fx-preset" data-p="strong">Strong deal</button>
+                <button type="button" class="fx-preset" data-p="marginal">Marginal</button>
+                <button type="button" class="fx-preset" data-p="weak">Weak</button>
+              </div>
+            </div>
+            <div>
+              <span class="fx-cap">Weights</span>
+              <div class="fx-presets" role="group" aria-label="Weights mode">
+                <button type="button" class="fx-preset fx-wmode" data-w="model" aria-pressed="true">Model</button>
+                <button type="button" class="fx-preset fx-wmode" data-w="equal" aria-pressed="false">Equal</button>
+                <button type="button" class="fx-preset fx-wmode" data-w="custom" aria-pressed="false">Custom</button>
+              </div>
+            </div>
+            <p class="fx-hint">Drag — or just click along — a factor track to score a deal. Weights ship locked to the model's calibration — flip to <em>Custom</em> to tune them yourself (they self-normalize to 100%). Every input is oriented so higher = better; the accent bar under each row is that factor's contribution.</p>
+          </div>
         </div>
-        <p class="ro-note">The gate judges a node by what it <b>holds</b> — live edges, federal contracts, ticker and identity bridges — never by how its name reads. Its honest boundary is on display too: the six nodes it let through hold nothing worth protecting, and the one judgment call goes to the human reviewer it feeds. The same invariance shows up when the proposer changes: two different frontier models ran the same four filings and disagreed almost perfectly on which reconciled — swapping the proposer is one environment variable, and the verdict logic never moves. The AI is load-bearing for throughput, never for truth.</p>
-        <div class="mc-stats lg-stats">
-          <div class="mc-stat"><span class="mc-k">Protected on the first live run</span><span class="mc-v">$10.9B</span></div>
-          <div class="mc-stat"><span class="mc-k">Approval without a verdict</span><span class="mc-v">HTTP 409</span></div>
-          <div class="mc-stat"><span class="mc-k">Human outcomes calibrating AI confidence</span><span class="mc-v">1,691</span></div>
-          <div class="mc-stat"><span class="mc-k">The whole AWS footprint, per month</span><span class="mc-v">~$6–9</span></div>
-        </div>
-        <p class="ro-note">Confidence itself is treated as a claim to verify: a split-conformal table fitted on 1,691 human-adjudicated outcomes turns the AI's self-report into a measured probability — the finding so far is that the extractor is <b>under</b>confident. The same algorithm is implemented independently in C# and Python with one shared fixture pinned in both test suites, so the implementations cannot drift. <a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Source</a> · <a href="atlas/">Recon viewer &amp; 3D atlas</a> · <a href="https://gate.thessa.space/lookup" target="_blank" rel="noopener">Lookup API</a> · <a href="https://portal.thessa.space/admin/" target="_blank" rel="noopener">Portal</a> (<code>demo / astraea-demo</code>)</p>
+        <p class="ro-note">A public rebuild of the multi-factor acquisition screen I built at NYMT — a Fama-French-style composite over school &amp; crime scores, comps, rent and single-family momentum, census growth, wealth demographics, worker proximity, and multifamily fundamentals. Illustrative calibration, not the desk's; the original supported underwriting across a <b>$7B+</b> residential portfolio.</p>
       </figure>
-
-      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-bmw">
+      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-bmw" data-seq="03">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
@@ -539,105 +524,135 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </svg>
         <p class="ro-note">The pull-off flow is identical in both modes — what changes is where the replacement part rides. <b>~$13M saved</b> across the G05–G09 programs (X5 · X6 · X7 · XM).</p>
       </figure>
-
-      <figure class="bmw blueprint reveal fx" id="cs-nymt">
+      <figure class="bmw blueprint reveal" data-mode="naive" id="cs-thessa" data-seq="04">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">04 · New York Mortgage Trust · 2022–24</span>
-            <h2 class="bmw-title">The 10-factor lens</h2>
+            <span class="kick">04 · Thessa · thessa.space</span>
+            <h2 class="bmw-title">The wrong number that looks right</h2>
+          </div>
+          <div class="bmw-seg" role="group" aria-label="Publish mode">
+            <button type="button" class="bmw-mode" data-mode="naive" aria-pressed="true">Sum the tags</button>
+            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Reconcile, then publish</button>
           </div>
         </figcaption>
-        <div class="fx-map" id="fxMap" aria-label="Subject property and comparable properties map">
-          <span class="fx-map-tag">Charlotte, NC · illustrative comp set</span>
-          <div class="fx-card">
-            <span class="fx-card-img" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg></span>
-            <div class="fx-card-txt">
-              <span class="fx-card-t">Subject property</span>
-              <span class="fx-card-m">284 units · $187 / sq ft</span>
-              <span class="fx-card-m">95% occupancy</span>
-            </div>
+        <p class="ro-note"><a href="https://thessa.space" target="_blank" rel="noopener">Thessa</a> maps who depends on whom across space, defense, AI infrastructure and critical minerals — a knowledge graph built from primary public records, free and open source. The hard part is not the graph, it is deciding what deserves to be in it: a filing-derived edge carries an audited dollar figure, a press release carries an assertion, and they sit on different trust rungs. The gate below is the reason the dollars can be trusted. These are <b>real numbers from Intel's FY2025 filing</b>, exactly as tagged in XBRL. Sum what the filing tags and you publish +126% — a figure that looks perfectly reasonable. Toggle the mode.</p>
+        <div class="lg-rows" role="table" aria-label="Intel FY2025 segment revenue members as tagged, USD millions">
+          <div class="lg-row lg-drop">
+            <span class="lg-name"><b>A rollup member, tagged alongside its own children</b><span class="lg-sub">equals Client Computing + Data Center &amp; AI, to the dollar</span></span>
+            <span class="lg-num">49,147</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag lg-tag--no m-gate">undetected_rollup · dropped</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Client Computing Group</b></span>
+            <span class="lg-num">32,228</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Data Center &amp; AI</b></span>
+            <span class="lg-num">16,919</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Every other segment member</b><span class="lg-sub">reported gross of intersegment sales</span></span>
+            <span class="lg-num">21,389</span>
+            <span class="lg-tag m-naive">counted</span>
+            <span class="lg-tag m-gate">kept</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Intersegment elimination</b><span class="lg-sub">the filing's own reconciling row</span></span>
+            <span class="lg-num">−17,683</span>
+            <span class="lg-tag m-naive">ignored</span>
+            <span class="lg-tag lg-tag--ok m-gate">applied</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Consolidated revenue, same filing</b><span class="lg-sub">the number the sum must tie to</span></span>
+            <span class="lg-num">52,853</span>
+            <span class="lg-tag m-naive">not checked</span>
+            <span class="lg-tag lg-tag--ok m-gate">the anchor</span>
           </div>
         </div>
-        <div class="fx-stage">
-          <div>
-            <div class="fx-cols"><span>Factor</span><span>Value</span><span>0–10</span><span>Weight</span><span>%</span></div>
-            <div class="fx-row"><span class="fx-label">School scores</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8.5" aria-label="School scores value"><span class="fx-vnum">8.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="School scores weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Crime (safety)</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Crime safety value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Crime safety weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Comp prices</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="Comp prices value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Comp prices weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Rent growth YoY</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Rent growth value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3.5" aria-label="Rent growth weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">SFH prices YoY</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="SFH prices value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2.5" aria-label="SFH prices weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Census growth</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8.5" aria-label="Census growth value"><span class="fx-vnum">8.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Census growth weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Wealth demographics</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7.5" aria-label="Wealth demographics value"><span class="fx-vnum">7.5</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Wealth demographics weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Worker proximity</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="8" aria-label="Worker proximity value"><span class="fx-vnum">8.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2" aria-label="Worker proximity weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">Occupancy</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="9" aria-label="Occupancy value"><span class="fx-vnum">9.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="3" aria-label="Occupancy weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-            <div class="fx-row"><span class="fx-label">$ / sq ft · units</span><input class="fx-val" type="range" min="0" max="10" step="0.1" value="7" aria-label="Price per square foot value"><span class="fx-vnum">7.0</span><input class="fx-wt" type="range" min="0" max="5" step="0.1" value="2.5" aria-label="Price per square foot weight"><span class="fx-wnum">10%</span><span class="fx-bar"><i></i></span></div>
-          </div>
-          <div class="fx-board">
-            <div class="fx-score-row"><span class="fx-score">0.0</span><span class="fx-of">/ 10</span><span class="fx-verdict" data-v="">—</span></div>
-            <div>
-              <div class="fx-gauge"><i></i><span class="fx-tick" style="left:45%"></span><span class="fx-tick" style="left:70%"></span></div>
-              <div class="fx-scale"><span>0</span><span>Pass · Watch · Pursue</span><span>10</span></div>
-            </div>
-            <div>
-              <span class="fx-cap">Example deals</span>
-              <div class="fx-presets">
-                <button type="button" class="fx-preset" data-p="strong">Strong deal</button>
-                <button type="button" class="fx-preset" data-p="marginal">Marginal</button>
-                <button type="button" class="fx-preset" data-p="weak">Weak</button>
-              </div>
-            </div>
-            <div>
-              <span class="fx-cap">Weights</span>
-              <div class="fx-presets" role="group" aria-label="Weights mode">
-                <button type="button" class="fx-preset fx-wmode" data-w="model" aria-pressed="true">Model</button>
-                <button type="button" class="fx-preset fx-wmode" data-w="equal" aria-pressed="false">Equal</button>
-                <button type="button" class="fx-preset fx-wmode" data-w="custom" aria-pressed="false">Custom</button>
-              </div>
-            </div>
-            <p class="fx-hint">Drag — or just click along — a factor track to score a deal. Weights ship locked to the model's calibration — flip to <em>Custom</em> to tune them yourself (they self-normalize to 100%). Every input is oriented so higher = better; the accent bar under each row is that factor's contribution.</p>
-          </div>
+        <div class="lg-total">
+          <span class="m-naive"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$119,683M</span>&ensp;<span class="lg-total-s">+126% against reality — and nothing downstream can tell</span></span>
+          <span class="m-gate"><span class="lg-total-k">Published</span>&ensp;<span class="lg-total-v">$52,853M</span>&ensp;<span class="lg-total-s">ties to consolidated · verdict: <b>pass</b></span></span>
         </div>
-        <p class="ro-note">A public rebuild of the multi-factor acquisition screen I built at NYMT — a Fama-French-style composite over school &amp; crime scores, comps, rent and single-family momentum, census growth, wealth demographics, worker proximity, and multifamily fundamentals. Illustrative calibration, not the desk's; the original supported underwriting across a <b>$7B+</b> residential portfolio.</p>
+        <p class="ro-note">The rollup is caught <b>arithmetically</b> — a genuine rollup ties to its children to the dollar, so no vocabulary list is needed — and both readings of the members (gross of intersegment sales vs net) are tested against the filing's own consolidated figure. Every failure gets a named class: <b>undetected_rollup</b>, <b>duplicate_facts</b>, <b>no_consolidated</b>, <b>unreconciled</b> — never "failed". Apple's product bucket is tagged above iPhone, Mac and iPad the same way; summing it publishes 2×. The rule that fell out of shipping those wrong numbers: <b>nothing publishes unless it reconciles</b>. The cost is coverage — 33% of the cohort published correctly instead of 100% plausibly — and that trade is the product.</p>
+        <div class="mc-stats lg-stats">
+          <div class="mc-stat"><span class="mc-k">Federal awards mapped</span><span class="mc-v">$1.98T</span></div>
+          <div class="mc-stat"><span class="mc-k">Resolve to a graph recipient</span><span class="mc-v">97.5%</span></div>
+          <div class="mc-stat"><span class="mc-k">Filing-derived edges · top trust rung</span><span class="mc-v">1,504</span></div>
+          <div class="mc-stat"><span class="mc-k">Verified share, after one audit write-back</span><span class="mc-v">62.8 → 71.5%</span></div>
+        </div>
+        <p class="ro-note">The same honesty applies to the graph's own opinion of itself: an audit found the stored confidence number <b>inverted</b> — the 0.95+ band was less accurate than the band below it — so confidence was replaced with trust tiers derived from how each edge was made, and 671 audit verdicts were written back with refuted claims kept in the ledger rather than deleted. <a href="https://thessa.space" target="_blank" rel="noopener">Live</a> · <a href="https://github.com/bpachter/thessa" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/bpachter/thessa/blob/main/CLAUDE.md" target="_blank" rel="noopener">The working rules</a> · <a href="graph-ontology/">How the graph is designed</a></p>
       </figure>
-
-      <figure class="bmw blueprint reveal" data-mode="legacy" id="cs-deloitte">
+      <figure class="bmw blueprint reveal" data-mode="heuristic" id="cs-astraea" data-seq="05">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
-            <span class="kick">05 · Deloitte · fixed income</span>
-            <h2 class="bmw-title">Volatility regimes, live</h2>
+            <span class="kick">05 · Astraea · live on AWS</span>
+            <h2 class="bmw-title">The gate that said no</h2>
+          </div>
+          <div class="bmw-seg" role="group" aria-label="Adjudication mode">
+            <button type="button" class="bmw-mode" data-mode="heuristic" aria-pressed="true">Name-shape heuristic</button>
+            <button type="button" class="bmw-mode" data-mode="gate" aria-pressed="false">Substance gate</button>
           </div>
         </figcaption>
-        <div class="mc">
-          <canvas class="mc-canvas" id="mcCanvas" role="img" aria-label="Regime-switching Monte Carlo simulation with hidden Markov filter"></canvas>
-          <div class="mc-ctrl">
-            <div class="fx-presets">
-              <button type="button" class="fx-preset" id="mcPlay" aria-pressed="false">Play world</button>
-              <button type="button" class="fx-preset" id="mcResim">Resimulate</button>
-              <button type="button" class="fx-preset" id="mcShock">Inject vol shock</button>
-              <button type="button" class="fx-preset" id="mcReveal" aria-pressed="false">Reveal true regimes</button>
-            </div>
-            <div class="fx-presets" role="group" aria-label="MC engine">
-              <button type="button" class="fx-preset fx-eng" data-e="regime" aria-pressed="true">Regime MC</button>
-              <button type="button" class="fx-preset fx-eng" data-e="gbm" aria-pressed="false">Pure GBM</button>
-            </div>
-            <label class="mc-lab">Paths <input class="fx-val" id="mcN" type="range" min="100" max="1000" step="50" value="400"> <b id="mcNv">400</b></label>
-            <label class="mc-lab">Horizon <input class="fx-val" id="mcH" type="range" min="20" max="120" step="5" value="60"> <b id="mcHv">60d</b></label>
+        <p class="ro-note"><a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Astraea</a> is the governance layer extracted from Thessa: AI agents propose facts, a typed <b>C#/.NET reconciliation gate</b> verifies them with named failure modes, and a <b>Django</b> portal makes approval structurally impossible without a passing verdict — HTTP 409, in code, not in a review comment. What follows is its <b>first live run</b> against the production graph: a heuristic had flagged twenty nodes as "article/quantifier-led phrases, not discrete entities" and proposed demoting them to generic. Toggle what each adjudicator does.</p>
+        <div class="lg-rows" role="table" aria-label="Twenty proposed node demotions and their fate under each adjudicator">
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>The Aerospace Corporation</b><span class="lg-sub">"The"-led phrase, said the heuristic · 213 federal contracts</span></span>
+            <span class="lg-num">$9.1B</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused · substance_demotion</span>
           </div>
-          <div class="mc-stats">
-            <div class="mc-stat"><span class="mc-k">P(stressed) · filtered</span><span class="mc-v" id="mcPs">—</span></div>
-            <div class="mc-stat"><span class="mc-k">Realized σ · 20d ann.</span><span class="mc-v" id="mcSig">—</span></div>
-            <div class="mc-stat"><span class="mc-k">Median · horizon</span><span class="mc-v" id="mcMed">—</span></div>
-            <div class="mc-stat"><span class="mc-k">90% band · horizon</span><span class="mc-v" id="mcBand">—</span></div>
-            <div class="mc-stat"><span class="mc-k">CVaR 5% · horizon</span><span class="mc-v" id="mcCvar">—</span></div>
-            <div class="mc-stat"><span class="mc-k">Filter hit-rate · window</span><span class="mc-v" id="mcAcc">—</span></div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Two Six Labs</b><span class="lg-sub">"Two" read as a quantifier</span></span>
+            <span class="lg-num">$438M</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Five Stones Research</b><span class="lg-sub">"Five" read as a quantifier</span></span>
+            <span class="lg-num">$154M</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row lg-keep">
+            <span class="lg-name"><b>Eleven more contract-holding nodes</b><span class="lg-sub">632 federal contracts across all fourteen refusals</span></span>
+            <span class="lg-num">$1.2B</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--no m-gate">refused</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>Five name-only stubs</b><span class="lg-sub">no contracts, almost no edges</span></span>
+            <span class="lg-num">—</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--ok m-gate">allowed</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-name"><b>The MathWorks</b><span class="lg-sub">three edges, no contracts — provable neither way</span></span>
+            <span class="lg-num">—</span>
+            <span class="lg-tag m-heuristic">demote</span>
+            <span class="lg-tag lg-tag--ok m-gate">routed to a human</span>
           </div>
         </div>
-        <p class="ro-note">Under the hood: a <b>two-state hidden Markov model</b> (calm / stressed) drives returns; a forward filter infers P(stressed) from returns alone — the solid ribbon — while the dashed line is the <b>forward–backward smoother</b>, hindsight's answer. A <b>regime-switching Monte Carlo</b> fans futures out of today's filtered belief rather than a single σ, with the terminal distribution stacked at the cone's edge. Each regime is <b>geometric Brownian motion</b> — dS/S = μ dt + σ dW — the hidden chain just decides which (μ, σ) drives the diffusion; flip to <b>Pure GBM</b> to watch a single Brownian world thin out the left tail the regimes create. <b>Play world</b> lets the days tick in live; <b>Inject vol shock</b> drops a crisis mid-stream and lets you watch the filter catch it; <b>Reveal true regimes</b> grades the filter against a world it never saw — the hit-rate cell keeps score. Descendant of the GARCH regime lens from my Deloitte fixed-income work — schematic parameters, real math.</p>
+        <div class="lg-total">
+          <span class="m-heuristic"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">20 demotions apply</span>&ensp;<span class="lg-total-s">$10.9B in federal contracts reclassified as "generic" — silently</span></span>
+          <span class="m-gate"><span class="lg-total-k">Outcome</span>&ensp;<span class="lg-total-v">14 refused, by name</span>&ensp;<span class="lg-total-s">provenance beats name shape · a gate is a floor, not a verdict</span></span>
+        </div>
+        <p class="ro-note">The gate judges a node by what it <b>holds</b> — live edges, federal contracts, ticker and identity bridges — never by how its name reads. Its honest boundary is on display too: the six nodes it let through hold nothing worth protecting, and the one judgment call goes to the human reviewer it feeds. The same invariance shows up when the proposer changes: two different frontier models ran the same four filings and disagreed almost perfectly on which reconciled — swapping the proposer is one environment variable, and the verdict logic never moves. The AI is load-bearing for throughput, never for truth.</p>
+        <div class="mc-stats lg-stats">
+          <div class="mc-stat"><span class="mc-k">Protected on the first live run</span><span class="mc-v">$10.9B</span></div>
+          <div class="mc-stat"><span class="mc-k">Approval without a verdict</span><span class="mc-v">HTTP 409</span></div>
+          <div class="mc-stat"><span class="mc-k">Human outcomes calibrating AI confidence</span><span class="mc-v">1,691</span></div>
+          <div class="mc-stat"><span class="mc-k">The whole AWS footprint, per month</span><span class="mc-v">~$6–9</span></div>
+        </div>
+        <p class="ro-note">Confidence itself is treated as a claim to verify: a split-conformal table fitted on 1,691 human-adjudicated outcomes turns the AI's self-report into a measured probability — the finding so far is that the extractor is <b>under</b>confident. The same algorithm is implemented independently in C# and Python with one shared fixture pinned in both test suites, so the implementations cannot drift. <a href="https://github.com/bpachter/astraea" target="_blank" rel="noopener">Source</a> · <a href="atlas/">Recon viewer &amp; 3D atlas</a> · <a href="https://gate.thessa.space/lookup" target="_blank" rel="noopener">Lookup API</a> · <a href="https://portal.thessa.space/admin/" target="_blank" rel="noopener">Portal</a> (<code>demo / astraea-demo</code>)</p>
       </figure>
-
-      <figure class="bmw blueprint reveal" id="cs-duke">
+      <figure class="bmw blueprint reveal" id="cs-duke" data-seq="06">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <figcaption class="bmw-head">
           <div>
@@ -691,6 +706,11 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </svg>
         <p class="ro-note">The constraint: every serious request used to earn a 2–4 week PSS/E study, and the requests never stopped coming. The call was <b>fidelity versus throughput</b> — study everything at full accuracy, or screen first with a fast linearized headroom surface and accept that a screen is slightly wrong about flows so it can be completely right about which sites are hopeless. Screening is calibrated conservative: a false positive costs one deep study; a false negative kills a viable site, so the surface errs toward sending borderline sites through. What it bought: <b>250+ GW screened, 150+ site analyses, same-day answers, ~200 engineering hours a month</b> returned to actual engineering. The production platform is proprietary — the <a href="https://bpachter.github.io/headroom/">Headroom sandbox</a> is its public, synthetic cousin: same screening math (DC power flow, PTDF, N-1), invented network, every number checkable by hand in the <a href="https://github.com/bpachter/headroom" target="_blank" rel="noopener">open test suite</a>.</p>
       </figure>
+
+
+
+
+
 
       <p class="cs-more">More: <a href="graph-ontology/">a practical guide to knowledge-graph architecture</a> · <a href="atlas/">the recon viewer &amp; 3D atlas</a></p>
     </div>
