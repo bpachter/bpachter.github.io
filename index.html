@@ -126,11 +126,38 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   /* People save portfolios as PDFs. Drop the chrome, keep the substance, and
      print link targets so the URLs survive the page. */
   @media print{
-    .rail,.skip,.theme-toggle,.pf-fab,.pf-panel{display:none!important}
+    /* Repaint by moving the tokens, not by restating body{color:#000}. This
+       block sits ABOVE the main sheet, so a print rule on body loses to the
+       identical-specificity body rule further down and never applied at all —
+       which meant a reader whose OS is in dark mode printed near-white text
+       onto white paper. The later rule reads these tokens, so overriding them
+       wins on source order instead of fighting it, and it repaints every
+       themed element rather than just <body>. */
+    :root,:root[data-theme="dark"],:root[data-theme="light"]{
+      --color-bg:#fff;--color-surface:#fff;--color-text:#000;
+      --color-mute:#333;--color-mute-2:#3a3a3a;--color-mute-3:#444;
+      --color-accent:#000;--color-accent-700:#222;--color-divider:#b4b4b4}
+    .rail,.skip,.theme-toggle,.pf-fab,.pf-panel,.hero-sim{display:none!important}
     .layout{display:block}
     .main{margin:0}
-    body{background:#fff;color:#000}
     a{color:#000;text-decoration:underline}
+    /* The entrance animation holds content at opacity 0 until it scrolls into
+       view, and printing is not scrolling. The 1500ms safety net does not help
+       here: it is gated on a flag the first observer callback already set. */
+    body.motion .reveal{opacity:1!important;transform:none!important}
+    .fade{animation:none}
+    /* Logo marks are inverted to white for the dark theme. On paper that is
+       white on white. */
+    [data-theme="dark"] .mg img{filter:none!important}
+    /* Same problem, different mechanism: this heading set hard-codes #eef4fb
+       rather than reading a token, so moving the tokens above cannot reach it
+       and every section heading printed white on white. */
+    [data-theme="dark"] :is(.r-name,.intro h1,.contact-plate h3,.ir-name h3,.ir-name h3 a,.xp-role,.stat .v,.cert h3){color:#000!important}
+    /* .rail is hidden above, and it held the only printable copy of the email,
+       GitHub and LinkedIn addresses — so the contact block has to carry them.
+       Four buttons reading "Email me" and "LinkedIn ↗" tell a sheet of paper
+       nothing at all. */
+    .cta a::after{content:" (" attr(href) ")";font-size:10px;word-break:break-all}
     .idx-row a[href^="http"]::after{content:" (" attr(href) ")";font-size:10px;word-break:break-all}
     .sec,.idx-row,.xp,.cert{break-inside:avoid;page-break-inside:avoid}
     .chips,.stats{break-inside:avoid}
@@ -159,6 +186,13 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
      light mode, under the 4.5:1 AA floor. accent-700 lifts it to 5.78:1 and
      also improves dark mode (10.39 -> 11.64), so no per-theme override. */
   .btn-primary{background:var(--color-accent-700);border-color:var(--color-accent-700);color:var(--color-bg)}
+  /* The colour above never applied. The page wrapper carries
+     `.pf a{color:inherit}` at (0,1,1) in the NEXT <style> block, which beats a
+     bare class at (0,1,0), so the button inherited body text: 2.56:1 in light
+     and 1.15:1 in dark, against the 5.78 and 11.64 the comment above claims.
+     Tying the specificity is not enough either — a later sheet wins the tie —
+     so this has to outrank it at (0,2,1). */
+  .pf a.btn-primary{color:var(--color-bg)}
   .btn-primary:hover{background:var(--color-accent-600)}
   .btn-primary:active{background:var(--color-accent-700)}
   .btn-secondary{border-color:var(--color-divider)}
