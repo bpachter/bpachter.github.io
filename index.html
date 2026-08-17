@@ -547,8 +547,9 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .pf-typing i{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--color-text) 45%,transparent);animation:pf-blink 1s infinite}
   .pf-typing i:nth-child(2){animation-delay:.2s}.pf-typing i:nth-child(3){animation-delay:.4s}
   @keyframes pf-blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
-  .pf-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--color-divider)}
+  .pf-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--color-divider);align-items:flex-end}
   .pf-in{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--color-divider);border-radius:0;
+    resize:none;overflow-y:auto;max-height:116px;line-height:1.45;font-family:var(--font-body);
     font:inherit;font-family:var(--font-body);font-size:13.5px;background:var(--color-bg);color:var(--color-text)}
   .pf-in:focus{outline:none;border-color:var(--color-accent)}
   .pf-send{flex:0 0 auto;width:42px;border:1px solid var(--color-accent);border-radius:0;
@@ -1402,8 +1403,12 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="pf-head"><span class="pf-title">Ask AI</span>' +
       '<button class="pf-x" type="button" aria-label="Close chat">×</button></div>' +
       '<div class="pf-log" aria-live="polite"></div>' +
-      '<form class="pf-form"><input class="pf-in" type="text" autocomplete="off" ' +
-      'placeholder="his work? his stack? just ask…" aria-label="Your question" maxlength="1500" />' +
+      // A textarea, not a text input. The most useful thing anyone does here
+      // is paste a job description and ask how Ben measures up — an input
+      // hard-truncated that at 1500 characters, silently, and showed one line
+      // of it. This grows to five rows and matches the worker's cap.
+      '<form class="pf-form"><textarea class="pf-in" rows="1" autocomplete="off" ' +
+      'placeholder="his work? his stack? paste a job description…" aria-label="Your question" maxlength="6000"></textarea>' +
       '<button class="pf-send" type="submit" aria-label="Send">→</button></form>' +
       '<div class="pf-foot">an AI guide · Claude Haiku · answers can be imperfect</div>';
 
@@ -1496,6 +1501,17 @@ document.addEventListener('DOMContentLoaded', function () {
     panel.querySelector('.pf-x').addEventListener('click', closePanel);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) closePanel(); });
     form.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
+    // grow with the text, up to five rows, then scroll
+    function autosize() {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 116) + 'px';
+    }
+    input.addEventListener('input', autosize);
+    // Enter sends, Shift+Enter makes a newline — the convention every chat
+    // box uses, and necessary now that this holds more than one line
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input.value); }
+    });
   })();
 </script>
 </body>
