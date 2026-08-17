@@ -385,6 +385,26 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .r-foot a::after{content:"";position:absolute;left:0;right:0;
     top:50%;height:24px;transform:translateY(-50%)}
 
+  /* standards — the artifacts behind the claim */
+  .std-lead{font-size:14.5px;line-height:1.62;max-width:72ch;margin:0 0 8px;
+    color:color-mix(in srgb,var(--color-text) 82%,transparent)}
+  .stds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+    background:var(--color-divider);border:1px solid var(--color-divider);margin-top:22px}
+  .std{display:grid;grid-template-columns:38px 1fr;gap:14px;background:var(--color-bg);
+    padding:18px 20px 16px;transition:background .2s}
+  .std:hover{background:color-mix(in srgb,var(--color-text) 3.5%,transparent)}
+  .std-n{font-family:var(--font-heading);font-weight:600;font-size:13px;color:var(--color-accent-700);
+    font-feature-settings:"tnum" 1;padding-top:2px}
+  .std h3{font-family:var(--font-heading);font-weight:600;font-size:17px;letter-spacing:.005em;
+    margin:0 0 7px;color:var(--color-text)}
+  .std p{font-size:13.5px;line-height:1.6;margin:0 0 12px;
+    color:color-mix(in srgb,var(--color-text) 80%,transparent)}
+  .std p code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;
+    background:color-mix(in srgb,var(--color-text) 7%,transparent);padding:1px 5px}
+  .std .go{font-size:11px;padding:7px 11px;min-height:32px}
+  @media (max-width:900px){.stds{grid-template-columns:1fr}}
+  [data-theme="dark"] .std h3{color:#eef4fb}
+
   /* experience */
   .xp{display:grid;grid-template-columns:158px 1fr;gap:26px;padding:22px 0;
     border-bottom:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)}
@@ -468,6 +488,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .contact-plate>.corner.bl{bottom:-8px;left:-8px}.contact-plate>.corner.br{bottom:-8px;right:-8px}
   .contact-plate h3{font-family:var(--font-heading);font-weight:600;text-transform:uppercase;
     font-size:clamp(28px,3.2vw,40px);line-height:1.02;margin:0;max-width:16ch}
+  .contact-detail{font-size:13.5px !important;line-height:1.62 !important;
+    color:var(--color-mute) !important;max-width:62ch !important}
   .contact-plate p{font-size:15.5px;line-height:1.55;max-width:52ch;margin:16px 0 0;
     color:color-mix(in srgb,var(--color-text) 82%,transparent)}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
@@ -494,8 +516,17 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   @media (max-width:960px){
     .layout{grid-template-columns:1fr}
     .rail{position:static;min-height:auto;border-right:0;border-bottom:1px solid var(--color-divider);
-      gap:22px;padding:38px clamp(28px,5vw,48px) 30px}
+      gap:18px;padding:32px clamp(28px,5vw,48px) 24px}
     .r-foot{margin-top:8px}
+    /* On a phone the rail is a preamble, not a sidebar: the section nav
+       duplicates headings the reader is about to scroll through anyway, and it
+       pushed the first project 2.4 screens down. Contact and the deep-dive
+       links stay — those go somewhere the page does not. */
+    .r-nav a[data-spy]{display:none}
+    .r-navsep{margin-top:4px}
+    .intro{padding:34px 0 22px}
+    .intro p{font-size:15px}
+    .r-foot a,.r-avail{font-size:12.5px}
   }
   @media (max-width:760px){
     .idx-hrow{display:none}
@@ -609,15 +640,16 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
       <div>
-        <h1 class="r-name fx-tr"><span class="line" style="--i:1">Benjamin</span><span class="line" style="--i:2">Pachter<span class="sl">.</span></span></h1>
+        <div class="r-name fx-tr"><span class="line" style="--i:1">Benjamin</span><span class="line" style="--i:2">Pachter<span class="sl">.</span></span></div>
         <div class="r-role fade" style="--i:4">Enterprise Business Architect<span>AI &amp; Data Platforms</span></div>
       </div>
       <nav class="r-nav fade" style="--i:6">
         <a href="#work" data-spy="work"><span class="n">01</span> Work <span class="bar"></span></a>
         <a href="#experience" data-spy="experience"><span class="n">02</span> Experience <span class="bar"></span></a>
-        <a href="#capabilities" data-spy="capabilities"><span class="n">03</span> Capabilities <span class="bar"></span></a>
-        <a href="#education" data-spy="education"><span class="n">04</span> Education <span class="bar"></span></a>
-        <a href="#contact" data-spy="contact"><span class="n">05</span> Contact <span class="bar"></span></a>
+        <a href="#standards" data-spy="standards"><span class="n">03</span> Standards <span class="bar"></span></a>
+        <a href="#capabilities" data-spy="capabilities"><span class="n">04</span> Capabilities <span class="bar"></span></a>
+        <a href="#education" data-spy="education"><span class="n">05</span> Education <span class="bar"></span></a>
+        <a href="#contact" data-spy="contact"><span class="n">06</span> Contact <span class="bar"></span></a>
         <span class="r-navsep">Deep dives</span>
         <a href="case-studies.html" class="r-cross"><span class="n">↗</span> Case studies <span class="bar"></span></a>
         <a href="graph-ontology/" class="r-cross"><span class="n">↗</span> Graph ontology guide <span class="bar"></span></a>
@@ -869,7 +901,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div>
               <div class="xp-role">Senior Business Analyst · <span class="xp-org">Duke Energy</span></div>
               <p class="xp-det"><b>Analyst is the org-chart title; the scope is platform ownership</b> — I designed the system, and I set the standards five organizations build against.</p>
-              <p class="xp-det">Architected and delivered a spatial transmission-capacity platform (ArcGIS Pro + Python toolbox) that generates a continuous MW-headroom raster (IDW on tower-level TrLim), screens <b>250+ GW</b> of large-load requests and has supported <b>150+ hyperscaler site analyses</b> across a six-state territory — cutting PSS/E load-study turnaround from 2–4 weeks to same-day (~200 engineering hours/month). Built prompt-driven, agentic LangChain workflows for screening and feasibility narratives; own the platform roadmap and technical standards across five internal organizations.</p>
+              <p class="xp-det">The constraint: every serious request earned a 2–4 week PSS/E study, and the requests never stopped coming. The call was <b>fidelity versus throughput</b> — screen first on a continuous MW-headroom raster (ArcGIS Pro + Python toolbox, IDW on tower-level line limits) that pre-answers every substation in milliseconds, and accept that a linearized screen is slightly wrong about flows so it can be completely right about which sites are hopeless.</p>
+              <p class="xp-det">It errs on purpose: a false positive costs one deep study, a false negative kills a viable site, so borderline sites go through. Engineers see only survivors — the roughly 90% that are infeasible never reach one. <b>250+ GW</b> of large-load requests screened, <b>150+ hyperscaler site analyses</b> across a six-state territory, PSS/E turnaround from <b>2–4 weeks to same-day</b>, and <b>~200 engineering hours</b> a month returned to actual engineering. Agentic LangChain workflows draft the screening and feasibility narratives; I own the platform roadmap and the technical standards five internal organizations build against, and the CIM-aligned data architecture that makes grid and asset data interoperable across them.</p>
               <figure class="xp-fig" data-fig="headroom" role="img" aria-label="MW-headroom raster across the territory, with substations screened left to right"></figure>
               <div class="chips xp-tags"><span class="chip">ArcGIS Pro</span><span class="chip">Python toolbox</span><span class="chip">IDW rasters</span><span class="chip">LangChain</span><span class="chip">PSS/E</span><span class="chip">AWS</span><span class="chip">SAP S/4HANA</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-duke">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
@@ -882,7 +915,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             </div>
             <div>
               <div class="xp-role">Acquisitions Analyst · <span class="xp-org">New York Mortgage Trust</span></div>
-              <p class="xp-det">Built multi-source ingestion pipelines (Python, SQL) over Yardi and public-data APIs (FRED, FDIC, BLS, Census) and forecasting models (TensorFlow, XGBoost) for rent, occupancy and cap-rate prediction; deployed CNN document parsing and BERT NLP; delivered ML risk scoring across a <b>$7B+</b> residential mortgage portfolio.</p>
+              <p class="xp-det">A property's merit was spread across sources that disagreed — Yardi on the asset itself, FRED, FDIC, BLS and Census on everything around it. The ingestion (Python, SQL) fed one weighted lens: a composite over <b>ten factors</b> — school and crime scores, comp prices, rent and single-family momentum, census growth, wealth demographics, worker proximity, occupancy, dollars per square foot — every input oriented so higher is better, each contributing a visible share of a single 0–10 score that lands a deal in pass, watch or pursue.</p>
+              <p class="xp-det">Around it, forecasting models (TensorFlow, XGBoost) for rent, occupancy and cap-rate prediction, and CNN document parsing with BERT NLP for what only the documents held. The screen supported underwriting across a <b>$7B+</b> residential mortgage portfolio.</p>
               <figure class="xp-fig" data-fig="factors" role="img" aria-label="Ten weighted factors scoring a property, the way the acquisitions model ranked them"></figure>
               <div class="chips xp-tags"><span class="chip">Python · SQL</span><span class="chip">TensorFlow · XGBoost</span><span class="chip">BERT NLP</span><span class="chip">AWS / Azure</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-nymt">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
@@ -895,7 +929,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             </div>
             <div>
               <div class="xp-role">Risk &amp; Financial Advisory Analyst · <span class="xp-org">Deloitte</span></div>
-              <p class="xp-det">Designed automated ETL pipelines (Python, AWS) and ML models (Random Forest, GBM, ARIMA, GARCH, LSTM) for portfolio-risk and bond-volatility forecasting across finance, energy and defense clients; built financial-sentiment NLP and audit-automation frameworks for Fortune 500 clients.</p>
+              <p class="xp-det">Two years on fixed income, building the plumbing and the models that sat on it: automated ETL pipelines (Python, AWS) feeding portfolio-risk and bond-volatility forecasting for finance, energy and defense clients, with Random Forest, GBM, ARIMA, GARCH and LSTM in the mix depending on what the series actually was.</p>
+              <p class="xp-det">The lens that stuck was the regime one — volatility is not one number, it is calm stretches and stressed stretches that a single fitted σ averages into something true of neither. The <a href="case-studies.html#cs-deloitte">regime-switching Monte Carlo lab</a> in my case studies is the direct descendant of that GARCH work: schematic parameters, real math. Alongside it, financial-sentiment NLP and audit-automation frameworks for Fortune 500 clients.</p>
               <figure class="xp-fig" data-fig="regimes" role="img" aria-label="A volatility regime series: calm stretches in the baseline, stressed stretches shaded"></figure>
               <div class="chips xp-tags"><span class="chip">Python · AWS</span><span class="chip">ARIMA · GARCH · LSTM</span><span class="chip">NLP</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-deloitte">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
@@ -908,7 +943,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             </div>
             <div>
               <div class="xp-role">Supply Chain Planning Co-op · <span class="xp-org">BMW Manufacturing</span></div>
-              <p class="xp-det">Redesigned Spartanburg's JIT/JIS part-reorder flow: rather than every supplier truck holding back rack slots for replacement parts (so trucks often shipped a rack or two short), I introduced a dedicated low-volume reorder truck that milk-runs shared suppliers — freeing every production truck to fill all 20 racks. <b>~$13M</b> in transportation savings across the G05–G09 programs (X5 · X6 · X7 · XM). Also built time-series forecasting dashboards (Python, Power BI) for supply-chain disruption risk.</p>
+              <p class="xp-det">The line never stops: when a part fails, the car pulls off, waits for its replacement and rejoins. Spartanburg paid for that by holding back rack slots on every supplier truck for reorders — so production trucks routinely shipped a rack or two short, and the reserved slots often rode empty.</p>
+              <p class="xp-det">I took the reserve off the trucks and gave it its own route: a dedicated low-volume reorder truck that milk-runs shared suppliers, freeing every production truck to fill all <b>20</b> racks. The pull-off flow is identical either way — what changes is where the replacement part rides. <b>~$13M</b> in transportation savings across the <b>G05–G09</b> programs (X5 · X6 · X7 · XM). Also built time-series forecasting dashboards (Python, Power BI) for supply-chain disruption risk.</p>
               <figure class="xp-fig" data-fig="jit" role="img" aria-label="Supplier trucks filling all twenty rack slots once reorders ride a dedicated milk-run"></figure>
               <div class="chips xp-tags"><span class="chip">SAP</span><span class="chip">JIT / JIS</span><span class="chip">Python · Power BI</span><span class="chip">Forecasting</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-bmw">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
@@ -916,8 +952,71 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           </div>
         </section>
 
+        <section class="sec" id="standards">
+          <div class="sec-head"><h2 class="kick">03 · Standards I wrote</h2></div>
+          <hr class="rule">
+          <p class="std-lead reveal">Owning standards is easy to claim and hard to show, so here are the artifacts rather than the adjective. Each is a rule I wrote, enforced in code, on a public repository you can open — the private version of this work is the part I cannot show you.</p>
+          <div class="stds reveal">
+
+            <div class="std">
+              <div class="std-n">01</div>
+              <div>
+                <h3>A written vocabulary of refusal</h3>
+                <p>A verification service returns <b>twelve named failure modes</b> — <code>undetected_rollup</code>, <code>duplicate_facts</code>, <code>bare_name_merge</code>, <code>substance_demotion</code> and the rest — never a bare "failed". Each name carries its own definition, and the whole vocabulary is served as data from <code>GET /failure-modes</code>, so the same names become the review-queue filters and the metric dimensions. One vocabulary, four runtimes, no shared library.</p>
+                <a class="go" href="https://github.com/bpachter/astraea/blob/main/gate/Astraea.Gate/OntologyLaw.cs" target="_blank" rel="noopener">OntologyLaw.cs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="std">
+              <div class="std-n">02</div>
+              <div>
+                <h3>Publication is structurally impossible without a verdict</h3>
+                <p>Not policy — three mechanisms at once. The API is read-only, so no update endpoint exists that could quietly move a proposal to approved. The approve action returns <b>HTTP 409</b> unless the verdict passes. Every gate field is read-only in the review UI, so a curator cannot type a verdict into a form. Rejection, meanwhile, is a free bulk action: refusing never needs a verdict. The asymmetry is the rule.</p>
+                <a class="go" href="https://github.com/bpachter/astraea/blob/main/portal/adjudication/views.py" target="_blank" rel="noopener">views.py <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="std">
+              <div class="std-n">03</div>
+              <div>
+                <h3>Trust is derived, never stored</h3>
+                <p>A stored confidence score drifted so far from measured accuracy that the high-confidence band audited <i>worse</i> than the band beneath it. I replaced it with a five-tier taxonomy computed at read time from the evidence itself — best source class, inference method, latest audit verdict. Attach one better record and the claim is promoted on its next read: no rewrite sweep, no stale labels, and one function every consumer asks.</p>
+                <a class="go" href="https://github.com/bpachter/thessa/blob/main/server/src/intel/spaceintel/kgTrust.ts" target="_blank" rel="noopener">kgTrust.ts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="std">
+              <div class="std-n">04</div>
+              <div>
+                <h3>One canonical list, and a repair that refuses to guess</h3>
+                <p>Merging two nodes moves every reference off the loser. If the list of referencing tables misses one, nothing errors — rows just stay attached to a node the graph now treats as noise. Two tables were missing, and the cost was specific: the <code>produces</code> edge from Cameco, the largest publicly traded uranium producer on earth, did not follow its merge, so the critical-minerals layer quietly lost its uranium miner. The list is now a single shared constant with a regression test, and the repair reads the merge logs rather than inferring a target by name — a stranded row whose merge is in no log is <b>reported, never rehomed on a guess</b>.</p>
+                <a class="go" href="https://github.com/bpachter/thessa/blob/main/server/scripts/repairStrandedNodeRefs.ts" target="_blank" rel="noopener">repairStrandedNodeRefs.ts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="std">
+              <div class="std-n">05</div>
+              <div>
+                <h3>Every bulk change is a dry run until you say otherwise</h3>
+                <p>Migrations, merges, retypes and retirements all default to dry-run, with the read-only database flag wired to the same switch so a rehearsal physically cannot write. Each is reversible and leaves a JSON log beside the database. The discipline pays for itself in refusals: adversarial review under it killed <b>5 of 32</b> proposed demotions and <b>4 of 13</b> proposed merges, each of which pointed the wrong way.</p>
+                <a class="go" href="https://github.com/bpachter/thessa/blob/main/CLAUDE.md" target="_blank" rel="noopener">Engineering rules <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="std">
+              <div class="std-n">06</div>
+              <div>
+                <h3>The reference architecture, written down</h3>
+                <p>The seven-chapter guide on this site is the standard itself: named design rules, a build order, a trust taxonomy, and the argument grounded in <b>IEC CIM</b> (61970 / 61968 / 62325) — the model electric utilities have run in production for two decades. It ships with a working reconciliation gate embedded in the page, so the document that specifies the rule also demonstrates it.</p>
+                <a class="go" href="graph-ontology/">Read the guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
         <section class="sec" id="capabilities">
-          <div class="sec-head"><h2 class="kick">03 · Capabilities</h2></div>
+          <div class="sec-head"><h2 class="kick">04 · Capabilities</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
@@ -930,7 +1029,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="education">
-          <div class="sec-head"><h2 class="kick">04 · Education &amp; certifications</h2></div>
+          <div class="sec-head"><h2 class="kick">05 · Education &amp; certifications</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k">Education</div><div class="cap-v">
             <div class="edu-row">
@@ -963,12 +1062,13 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="contact" style="padding-bottom:24px">
-          <div class="sec-head"><h2 class="kick">05 · Contact</h2></div>
+          <div class="sec-head"><h2 class="kick">06 · Contact</h2></div>
           <hr class="rule">
           <div class="contact-plate reveal">
             <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             <h3>Get in touch</h3>
             <p>Happy to talk about applied AI, knowledge graphs, or grid-scale data platforms — or about anything here you'd want to pull apart.</p>
+            <p class="contact-detail">Based in <b>Research Triangle Park, NC</b>, working remotely across a six-state territory today and open to remote or hybrid roles. The fastest way to get a real answer is to send the problem rather than the job description — if you have a system that has to be right rather than merely fast, that is the conversation I want. Everything on this page is open source; if something here is wrong, I would genuinely like to know.</p>
             <div class="cta">
               <a class="btn btn-primary blueprint" href="mailto:ben.pachter@bellsouth.net"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>Email me</a>
               <a class="btn btn-secondary" href="https://www.linkedin.com/in/benjamin-pachter-9582bb12b/" target="_blank" rel="noopener">LinkedIn ↗</a>
@@ -1099,8 +1199,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Ten weighted factors, the acquisitions lens.
       factors(svg, W, H) {
+        // these ten must match the case-study lens exactly — the figure there
+        // has prose backing each factor, and two lists claiming to be the same
+        // ten is the one error this site cannot make
         const names = ['School scores', 'Crime', 'Comp prices', 'Rent growth', 'SFH prices',
-                       'Census growth', 'Wealth', 'Vacancy', 'Cap rate', 'Supply'];
+                       'Census growth', 'Wealth', 'Worker proximity', 'Occupancy', '$ / sq ft'];
         const vals = [8.5, 8.0, 7.5, 8.0, 7.5, 8.5, 7.5, 6.5, 7.0, 6.0];
         const L = 92, T = 18, w = W - L - 34, rowH = (H - T - 8) / names.length;
         names.forEach((n, i) => {
