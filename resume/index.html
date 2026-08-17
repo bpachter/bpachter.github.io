@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benjamin Pachter — Résumé</title>
+<meta name="description" content="Benjamin Pachter — Principal AI &amp; Data Architect · Full-Stack LLM Engineer. Résumé.">
+<meta name="robots" content="noindex">
+<!-- The source of truth for BPachterResume.pdf. The published PDF used to be a
+     rasterised print — three pages of images with no text layer at all, which
+     meant an applicant tracking system parsed exactly nothing out of it: no
+     name, no skills, no keywords. Printing this page to PDF produces the same
+     design with real, selectable, machine-readable text, and makes every future
+     edit a one-line change here rather than a redesign. -->
+<style>
+  @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:block;
+    src:url(../drawdown/fonts/inter-latin-400.woff2) format('woff2')}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:block;
+    src:url(../drawdown/fonts/inter-latin-500.woff2) format('woff2')}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:block;
+    src:url(../drawdown/fonts/inter-latin-600.woff2) format('woff2')}
+  @font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:block;
+    src:url(../drawdown/fonts/inter-latin-700.woff2) format('woff2')}
+  @font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:block;
+    src:url(../drawdown/fonts/jetbrains-mono-latin-400.woff2) format('woff2')}
+  @font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:block;
+    src:url(../drawdown/fonts/jetbrains-mono-latin-500.woff2) format('woff2')}
+
+  :root{
+    --ink:#161f1d;          /* headings */
+    --body:#2b3431;         /* body copy */
+    --accent:#0f6b62;       /* section numbers, role lines */
+    --accent-deep:#075049;  /* the subtitle under the name */
+    --muted:#8b9997;        /* dates, locations */
+    --rule:#d5dcda;
+    --chip-bg:#eef4f3;
+    --chip-br:#cfe0dd;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--body);
+    font-size:9.6pt;line-height:1.42;orphans:2;widows:2;background:#fff;
+    -webkit-font-smoothing:antialiased}
+
+  @page{size:Letter;margin:0.5in 0.72in}
+  .sheet{max-width:7.06in;margin:0 auto;padding:0.5in 0}
+  @media print{.sheet{max-width:none;margin:0;padding:0}}
+
+  /* ---------- header ---------- */
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+  .name{font-size:25.5pt;font-weight:700;letter-spacing:-.018em;color:var(--ink);line-height:1;margin:0}
+  /* nowrap on purpose: this line is the positioning statement and reads wrong
+     broken across two lines. If it ever overflows, shrink it — don't let it wrap. */
+  .subtitle{font-family:var(--mono);font-size:9.2pt;font-weight:500;color:var(--accent-deep);
+    letter-spacing:0;margin:5px 0 0;white-space:nowrap}
+  .contact{font-family:var(--mono);font-size:8.2pt;text-align:right;line-height:1.6;white-space:nowrap}
+  .contact a{color:var(--accent);text-decoration:none}
+  .contact .where{color:var(--muted)}
+  .brule{height:2.2px;background:var(--ink);margin:9px 0 0}
+
+  /* ---------- sections ---------- */
+  .sec{margin-top:10px;break-inside:auto}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .sec-no{font-family:var(--mono);font-size:8.8pt;font-weight:500;color:var(--accent)}
+  /* Tracking here is deliberately restrained. Wide letter-spacing makes a PDF
+     text extractor emit "E X P E R I E N C E" — one glyph per token — and an
+     applicant tracking system uses exactly these headings to split the document
+     into sections. Anything past ~.09em starts fragmenting. */
+  .sec-t{font-size:9.8pt;font-weight:700;letter-spacing:.085em;color:var(--ink);text-transform:uppercase}
+  .sec-line{flex:1;height:1px;background:var(--rule)}
+
+  p{margin:0}
+  .summary{margin-bottom:7px}
+  b,strong{font-weight:600;color:var(--ink)}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:5px}
+  .chip{font-family:var(--mono);font-size:8pt;color:var(--accent);
+    background:var(--chip-bg);border:1px solid var(--chip-br);border-radius:2px;padding:2.5px 7px;white-space:nowrap}
+
+  /* ---------- two-column label rows (skills) ---------- */
+  .rows{display:grid;grid-template-columns:1.34in 1fr;gap:3px 14px}
+  .rk{font-family:var(--mono);font-size:8.1pt;color:var(--accent);line-height:1.42;padding-top:.5px}
+  .rv{font-size:9.2pt;line-height:1.4}
+
+  /* ---------- experience ---------- */
+  /* A whole job/project block is 2-3in tall. Refusing to break one wastes up to
+     2in at the foot of a page, which is what pushed this to four pages. So they
+     may split — but a heading is never left stranded at the bottom of a page
+     without at least two lines of its own content following it. */
+  .job{margin-top:8px}
+  .job:first-of-type{margin-top:2px}
+  .job-top,.job-sub,.role,.proj-top,.prole,.sec-head{break-after:avoid}
+  .job-top,.job-sub,.proj-top{break-inside:avoid}
+  .job-top,.job-sub{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .org{font-size:11.2pt;font-weight:700;color:var(--ink);letter-spacing:-.005em}
+  .when,.where{font-family:var(--mono);font-size:8.4pt;color:var(--muted);white-space:nowrap}
+  .role{font-size:9.7pt;font-weight:600;color:var(--accent);margin-top:1px}
+  ul{list-style:none;margin:5px 0 0;padding:0}
+  li{position:relative;padding-left:13px;margin-top:3.5px;break-inside:avoid}
+  li::before{content:"";position:absolute;left:0;top:.45em;width:4.5px;height:4.5px;background:var(--accent)}
+  .lead{font-family:var(--mono);font-size:8.8pt;color:var(--accent);font-weight:500}
+
+  /* ---------- projects ---------- */
+  .proj{margin-top:6px}
+  .proj:first-of-type{margin-top:2px}
+  .proj-top{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .pname{font-size:10.7pt;font-weight:700;color:var(--ink)}
+  .plink{font-family:var(--mono);font-size:8.4pt;color:var(--accent);white-space:nowrap;text-decoration:none}
+  .prole{font-size:9.6pt;font-weight:600;color:var(--accent);margin-top:1px}
+  .pdesc{margin-top:1px}
+  .stack{font-family:var(--mono);font-size:8.1pt;color:var(--accent);margin-top:3px;line-height:1.45}
+
+  /* ---------- education / certifications ---------- */
+  .edu{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .edu-school{font-size:10.7pt;font-weight:700;color:var(--ink)}
+  .certs{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin-top:2px}
+  .cert-t{font-size:9.4pt;font-weight:700;color:var(--ink);line-height:1.3}
+  .cert-d{font-size:8.5pt;color:var(--muted);line-height:1.34}
+
+  /* keep each section together where it reasonably can be */
+  .keep{break-inside:avoid}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="head">
+    <div>
+      <h1 class="name">Benjamin Pachter</h1>
+      <p class="subtitle">Principal AI &amp; Data Architect &nbsp;·&nbsp; Full-Stack LLM Engineer</p>
+    </div>
+    <div class="contact">
+      980-297-8331<br>
+      <a href="mailto:ben.pachter@bellsouth.net">ben.pachter@bellsouth.net</a><br>
+      <a href="https://www.linkedin.com/in/benjamin-pachter">linkedin.com/in/benjamin-pachter</a><br>
+      <span class="where">Research Triangle Park, NC</span>
+    </div>
+  </header>
+  <div class="brule"></div>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-no">01</span><span class="sec-t">Summary</span><span class="sec-line"></span></div>
+    <p class="summary">Principal-level AI &amp; data architect who ships production ML/LLM platforms end to end — data architecture and pipelines, model evaluation, and scalable serving (RAG / vector search, multi-model routing, GPU inference). At Duke Energy, architected a geospatial capacity-modeling platform screening <b>250+ GW</b> of transmission load, supported <b>150+ hyperscaler data-center site analyses</b>, and cut load-study turnaround from 2–4 weeks to same-day (~200 engineering hours saved / month). Owns platform roadmap and technical standards across five internal organizations, translating ambiguous business needs into production-grade data / AI systems. Full-stack application developer by hobby.</p>
+    <div class="chips">
+      <span class="chip">AI / ML Architecture</span><span class="chip">LLMOps / MLOps</span><span class="chip">Data Architecture</span><span class="chip">ETL / ELT</span><span class="chip">APIs &amp; Microservices</span><span class="chip">AWS</span><span class="chip">Docker / Kubernetes</span><span class="chip">CI / CD</span><span class="chip">Agentic AI &amp; RAG</span><span class="chip">Evals &amp; Observability</span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-no">02</span><span class="sec-t">Technical Skills</span><span class="sec-line"></span></div>
+    <div class="rows">
+      <div class="rk">Agents &amp; LLMOps</div><div class="rv">LangGraph, LangChain, CrewAI, MCP (Model Context Protocol), multi-agent orchestration, tool-calling loops, structured outputs, context engineering, DSPy</div>
+      <div class="rk">RAG &amp; Knowledge Graphs</div><div class="rv">Grounded RAG with citations, agentic RAG, hybrid search, reranking, GraphRAG; knowledge-graph construction, ontology design (IEC CIM 61970 / 61968), LLM entity / relationship extraction; embeddings, ChromaDB, pgvector, Qdrant</div>
+      <div class="rk">Evals &amp; Observability</div><div class="rv">Evals &amp; LLM-as-judge (local + cloud), RAGAS, LangSmith, tracing (Langfuse, Phoenix, OpenTelemetry / X-Ray), Sentry, guardrails, prompt-injection defense (OWASP LLM Top 10)</div>
+      <div class="rk">Serving &amp; Tuning</div><div class="rv">vLLM, SGLang, Ollama (local RTX 4090), quantization (GGUF / AWQ), prompt caching, multi-model routing &amp; fallback; fine-tuning — LoRA / QLoRA, DPO, SFT, RLHF, Hugging Face</div>
+      <div class="rk">Foundation Models</div><div class="rv">Claude (Anthropic SDK), GPT-5.x, Gemini, Gemma, Llama, Qwen, DeepSeek, Mistral</div>
+      <div class="rk">ML / Deep Learning</div><div class="rv">PyTorch, TensorFlow, Transformers, XGBoost / LightGBM, CNNs, time-series forecasting, feature engineering; experiment tracking (MLflow, W&amp;B)</div>
+      <div class="rk">Backend &amp; APIs</div><div class="rv">Python (FastAPI, Django), Node.js, Express, TypeScript, C# / .NET 8 (ASP.NET Core, xUnit), REST &amp; SSE streaming, WebSockets, microservices; JWT / RBAC auth, 2FA (TOTP), rate limiting, multi-tenant SaaS</div>
+      <div class="rk">Data Engineering</div><div class="rv">SQL, Pandas, NumPy, PySpark, Airflow, ETL / ELT, multi-source connector ingestion, scheduled pipelines (cron), canonical schema design; Java, C++, Scala, Bash</div>
+      <div class="rk">Cloud &amp; Infra</div><div class="rv">AWS (S3, Lambda, Glue, Athena, Redshift, SageMaker, Bedrock, App Runner, CloudFront, CDK, OIDC CI), Docker, Kubernetes, CI/CD, Railway, Cloudflare R2, PostgreSQL, SQLite, CUDA</div>
+      <div class="rk">Geospatial</div><div class="rv">ArcGIS Pro, Python toolboxes, spatial raster modeling, IDW interpolation, transmission capacity analysis, PSS/E integration, IEC CIM / CGMES</div>
+      <div class="rk">Frontend &amp; Dataviz</div><div class="rv">React, TypeScript, Vite, MUI, Emotion, TanStack Query; Three.js / react-three-fiber, D3 (force-directed graphs), Plotly, MapLibre GL, lightweight-charts, Recharts</div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-no">03</span><span class="sec-t">Experience</span><span class="sec-line"></span></div>
+
+    <div class="job">
+      <div class="job-top"><span class="org">Duke Energy</span><span class="when">Sep 2024 — Present</span></div>
+      <div class="job-sub"><span class="role">Senior Business Analyst</span><span class="where">Charlotte, NC · Remote</span></div>
+      <ul>
+        <li>Architected and delivered a spatial transmission-capacity modeling platform (ArcGIS Pro + Python toolbox) generating a continuous MW-headroom raster (IDW interpolation on tower-level TrLim); screens <b>250+ GW</b> of large-load requests and has supported <b>150+ hyperscaler</b> data-center site analyses across a 6-state territory.</li>
+        <li>Designed CIM-aligned, AI-ready data architecture making grid and asset data interoperable for enterprise-wide analytics, ML, and LLM applications.</li>
+        <li>Built prompt-driven and agentic workflows (LangChain) automating site screening, feasibility narratives, and decision support — pairing structured enterprise data with LLM reasoning to cut manual analysis loops.</li>
+        <li>Reduced PSS/E load-hosting study turnaround from <b>2–4 weeks to same-day</b> by pre-screening out infeasible sites before engineering analysis; saved <b>~200 engineering hours / month</b>.</li>
+        <li>Engineered production pipelines across AWS, SAP S/4HANA, Salesforce (Apex / Flows), and ArcGIS for 5 internal organizations; automated operational reporting and a major industrial customer's monthly billing.</li>
+        <li>Own platform roadmap, technical standards, and stakeholder alignment across transmission planning, economic development, and operations.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top"><span class="org">New York Mortgage Trust</span><span class="when">Jan 2022 — May 2024</span></div>
+      <div class="job-sub"><span class="role">Acquisitions Analyst</span><span class="where">Charlotte, NC</span></div>
+      <ul>
+        <li>Built multi-source ingestion pipelines (Python, SQL) integrating Yardi and public-data APIs (FRED, FDIC, BLS, Census); delivered TensorFlow / XGBoost forecasting models for rent, occupancy, and cap rate to support institutional underwriting.</li>
+        <li>Deployed CNN document parsing and BERT / Transformer NLP pipelines for document understanding and sentiment analysis; migrated legacy workflows to cloud-native AWS / Azure services.</li>
+        <li>Delivered ML-driven risk scoring and executive analytics across a <b>$7B+</b> residential mortgage portfolio; implemented Salesforce automations (Apex triggers, Flow) to streamline operations.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top"><span class="org">Deloitte</span><span class="when">Jan 2020 — Jan 2022</span></div>
+      <div class="job-sub"><span class="role">Risk &amp; Financial Advisory Analyst</span><span class="where">Seattle, WA</span></div>
+      <ul>
+        <li>Designed automated ETL pipelines (Python, AWS) and ML models (Random Forest, GBM, ARIMA, GARCH, LSTM) for portfolio risk and bond-volatility forecasting across finance, energy, and defense clients.</li>
+        <li>Built NLP pipelines for financial sentiment analysis across news and social media; supported SAP S/4HANA + Azure SQL migrations and delivered audit-automation frameworks for Fortune 500 clients.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top"><span class="org">BMW Manufacturing</span><span class="when">Jan 2018 — Dec 2018</span></div>
+      <div class="job-sub"><span class="role">Supply Chain Planning Co-op</span><span class="where">Greer, SC</span></div>
+      <ul>
+        <li>Drove <b>~$13M</b> annual transportation-cost reduction by moving the reorder reserve off every production truck onto a dedicated low-volume milk-run, freeing all 20 rack slots per truck; built time-series forecasting models and Power BI dashboards for supply-chain disruption risk across G05–G09 vehicle platforms.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-no">04</span><span class="sec-t">Selected Projects</span><span class="sec-line"></span></div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Thessa</span><a class="plink" href="https://thessa.space">thessa.space</a></div>
+      <div class="prole">Founder &amp; Lead Engineer</div>
+      <p class="pdesc">Open-source (MIT) intelligence terminal over a supply-chain knowledge graph — who depends on whom across space, defense, AI infrastructure, energy, and critical minerals — from primary public records only.</p>
+      <ul>
+        <li><span class="lead">Provenance-first graph</span> — <b>41,330</b> typed nodes across 10 types (15,184 organizations) and <b>52,011</b> typed edges across 20 relation kinds, plus <b>78,226</b> federal awards worth <b>$1.98T</b>, 97.5% of it resolving to a recipient already in the graph.</li>
+        <li><span class="lead">Trust tiers, not a confidence score</span> — a stored confidence number measured <i>inverting</i> against audited accuracy, so tiers are now derived at read time from source class and audit verdict; 74.9% of governed edges sit at verified-or-better, and refuted claims stay in an audit ledger rather than disappearing.</li>
+        <li><span class="lead">Hybrid model fleet</span> — role-specialized open-weight agents (Qwen, Gemma, Llama, nomic-embed, faster-Whisper) on a 24 GB RTX 4090 run research, extraction, embedding and first-pass adjudication at ~$0; cloud Claude drives the analyst UI and escalated verification. Local-first, cloud-as-fallback, budget-capped.</li>
+      </ul>
+      <div class="stack">Stack — React · TypeScript · Node / Express · SQLite · Anthropic SDK · Ollama · Docker · Railway · R2 · 15+ connectors</div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Astraea</span><a class="plink" href="https://github.com/bpachter/astraea">github.com/bpachter/astraea</a></div>
+      <div class="prole">Governance plane for AI-augmented curation</div>
+      <p class="pdesc">AI proposes facts, deterministic code verifies them, a human publishes. Extracted from Thessa; runs on AWS for ~$6–9 / month.</p>
+      <ul>
+        <li><span class="lead">Named refusal, never "failed"</span> — a typed C# / .NET 8 reconciliation gate returns <b>twelve named failure modes</b>, served as data from a versioned endpoint so one vocabulary drives review-queue filters and metric dimensions across four runtimes.</li>
+        <li><span class="lead">Structurally impossible to bypass</span> — the Django adjudication portal exposes no update endpoint, returns <b>HTTP 409</b> unless the verdict passes, and renders every gate field read-only; on its first run it refused type demotions on nodes holding <b>$10.9B</b> across 632 federal contracts that a name-shape heuristic had misread.</li>
+        <li><span class="lead">Calibrated, not asserted</span> — split-conformal calibration maps raw model confidence to measured precision over <b>1,691</b> human adjudications; with no fitted table the API returns 404, never a guess.</li>
+      </ul>
+      <div class="stack">Stack — C# / .NET 8 · ASP.NET Core · xUnit · Django 5 / DRF · React · three.js · AWS App Runner · CDK · OIDC-only CI · OpenTelemetry</div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Headroom</span><a class="plink" href="https://bpachter.github.io/headroom">bpachter.github.io/headroom</a></div>
+      <p class="pdesc">Playable transmission-interconnection screen — drop a data center on a 14-bus grid and watch the answer flip from energize to queued, with the binding constraint named. Real screening math: B-θ DC power flow, PTDF sensitivities, N-1 contingency sweep, islanding detection, validated against hand-solved cases in a zero-dependency test suite. The public, synthetic cousin of the production platform at Duke.</p>
+      <div class="stack">Stack — Vanilla JS · Canvas · zero dependencies · unit-tested engine</div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Open-Weight Agent Safety</span><a class="plink" href="https://github.com/bpachter/open-weight-agent-safety">github.com/bpachter/open-weight-agent-safety</a></div>
+      <p class="pdesc">Measurement research on indirect prompt injection against locally-hosted open-weight agents. Attack success decomposes into delivery × obedience × execution rather than one rate, exposing models that score "safe" on naive benchmarks only because they never called the carrier tool — one recorded 0 successes in 258 trials without ever being attacked. Three-armed controls separate effect from base rate, on one GPU.</p>
+      <div class="stack">Stack — Python · Ollama · quantized open weights · factorial design with replication</div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Nullius</span><a class="plink" href="https://bpachter.github.io/nullius/">bpachter.github.io/nullius</a></div>
+      <p class="pdesc">Structural-biology evidence viewer. Published protein structures render every atom as equally certain, but the experiment measures an electron-density cloud and a person decides where the atoms go. Shows atom by atom which parts of a molecule the measurement supports, worst-evidence-first, from a precomputed 1.9M-row index of the entire PDB — one request, ~50 ms, no backend.</p>
+      <div class="stack">Stack — TypeScript · BinaryCIF decoder · WebGL point clouds · RDKit WASM · AlphaFold</div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-top"><span class="pname">Interactive explainers &amp; models</span><a class="plink" href="https://bpachter.github.io">bpachter.github.io</a></div>
+      <p class="pdesc">Gradient (how machines learn, 1958 perceptron to modern inference), Entropy (thermodynamics on a hand-written hard-sphere gas engine), The Great Attractor (cosmology, 18 live figures), Kernel (CPython on WebAssembly in-browser), Drawdown (EIA-calibrated US gas balance), Updraft (waste-heat atlas), and a Graph Ontology guide grounded in IEC CIM. Every simulation hand-written; no charting libraries.</p>
+      <div class="stack">Stack — TypeScript · React · Canvas 2D · WebGL / three.js · Pyodide · MapLibre GL</div>
+    </div>
+  </section>
+
+  <section class="sec keep">
+    <div class="sec-head"><span class="sec-no">05</span><span class="sec-t">Education</span><span class="sec-line"></span></div>
+    <div class="edu"><span class="edu-school">University of North Carolina at Charlotte</span><span class="where">Charlotte, NC</span></div>
+    <p>BSBA — Operations &amp; Supply Chain Management and Management Information Systems</p>
+  </section>
+
+  <section class="sec keep">
+    <div class="sec-head"><span class="sec-no">06</span><span class="sec-t">Certifications</span><span class="sec-line"></span></div>
+    <div class="certs">
+      <div><div class="cert-t">IBM AI Engineering Professional Certificate</div><div class="cert-d">LLMs, Transformers, LoRA / QLoRA, RLHF, RAG · 13 courses</div></div>
+      <div><div class="cert-t">DeepLearning.AI / Stanford — ML Specialization</div><div class="cert-d">Supervised &amp; unsupervised learning, algorithms, RL</div></div>
+      <div><div class="cert-t">Power BI PL-300 Data Analyst Associate</div><div class="cert-d">ETL, DAX, data modeling, Microsoft Fabric</div></div>
+      <div><div class="cert-t">Architecting Solutions on AWS</div><div class="cert-d">Lambda, Glue, S3, Athena, Redshift, SageMaker</div></div>
+      <div><div class="cert-t">SAS Statistical Business Analyst</div><div class="cert-d">Regression modeling, hypothesis testing</div></div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

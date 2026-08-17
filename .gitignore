@@ -2,3 +2,21 @@
 # Private Mithrandir daemon sandbox - never commit to the public site
 sandbox-Mithrandir-active/
 Mithrandir/
+
+# Private application source that happens to live under this directory.
+# This repo is public and `git add -A` is the normal way to stage a site edit,
+# so anything here that is not meant to be published must be ignored, not merely
+# left untracked. apps/ alone is ~4,400 files including a committed virtualenv.
+apps/
+TILLY/
+design_handoff_portfolio/
+
+# Tooling and environments
+.venv/
+.claude/
+node_modules/
+__pycache__/
+*.pyc
+
+# Word/Office lock files left behind by COM automation
+~$*
