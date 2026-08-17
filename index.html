@@ -391,26 +391,6 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .r-foot a::after{content:"";position:absolute;left:0;right:0;
     top:50%;height:24px;transform:translateY(-50%)}
 
-  /* standards — the artifacts behind the claim */
-  .std-lead{font-size:14.5px;line-height:1.62;max-width:72ch;margin:0 0 8px;
-    color:color-mix(in srgb,var(--color-text) 82%,transparent)}
-  .stds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
-    background:var(--color-divider);border:1px solid var(--color-divider);margin-top:22px}
-  .std{display:grid;grid-template-columns:38px 1fr;gap:14px;background:var(--color-bg);
-    padding:18px 20px 16px;transition:background .2s}
-  .std:hover{background:color-mix(in srgb,var(--color-text) 3.5%,transparent)}
-  .std-n{font-family:var(--font-heading);font-weight:600;font-size:13px;color:var(--color-accent-700);
-    font-feature-settings:"tnum" 1;padding-top:2px}
-  .std h3{font-family:var(--font-heading);font-weight:600;font-size:17px;letter-spacing:.005em;
-    margin:0 0 7px;color:var(--color-text)}
-  .std p{font-size:13.5px;line-height:1.6;margin:0 0 12px;
-    color:color-mix(in srgb,var(--color-text) 80%,transparent)}
-  .std p code{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;
-    background:color-mix(in srgb,var(--color-text) 7%,transparent);padding:1px 5px}
-  .std .go{font-size:11px;padding:7px 11px;min-height:32px}
-  @media (max-width:900px){.stds{grid-template-columns:1fr}}
-  [data-theme="dark"] .std h3{color:#eef4fb}
-
   /* experience */
   .xp{display:grid;grid-template-columns:158px 1fr;gap:26px;padding:22px 0;
     border-bottom:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)}
@@ -652,10 +632,9 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
       <nav class="r-nav fade" style="--i:6">
         <a href="#work" data-spy="work"><span class="n">01</span> Work <span class="bar"></span></a>
         <a href="#experience" data-spy="experience"><span class="n">02</span> Experience <span class="bar"></span></a>
-        <a href="#standards" data-spy="standards"><span class="n">03</span> Standards <span class="bar"></span></a>
-        <a href="#capabilities" data-spy="capabilities"><span class="n">04</span> Capabilities <span class="bar"></span></a>
-        <a href="#education" data-spy="education"><span class="n">05</span> Education <span class="bar"></span></a>
-        <a href="#contact" data-spy="contact"><span class="n">06</span> Contact <span class="bar"></span></a>
+        <a href="#capabilities" data-spy="capabilities"><span class="n">03</span> Capabilities <span class="bar"></span></a>
+        <a href="#education" data-spy="education"><span class="n">04</span> Education <span class="bar"></span></a>
+        <a href="#contact" data-spy="contact"><span class="n">05</span> Contact <span class="bar"></span></a>
         <span class="r-navsep">Deep dives</span>
         <a href="case-studies.html" class="r-cross"><span class="n">↗</span> Case studies <span class="bar"></span></a>
         <a href="graph-ontology/" class="r-cross"><span class="n">↗</span> Graph ontology guide <span class="bar"></span></a>
@@ -971,71 +950,8 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
           </div>
         </section>
 
-        <section class="sec" id="standards">
-          <div class="sec-head"><h2 class="kick">03 · Standards I wrote</h2></div>
-          <hr class="rule">
-          <p class="std-lead reveal">Owning standards is easy to claim and hard to show, so here are the artifacts rather than the adjective. Each is a rule I wrote, enforced in code, on a public repository you can open — the private version of this work is the part I cannot show you.</p>
-          <div class="stds reveal">
-
-            <div class="std">
-              <div class="std-n">01</div>
-              <div>
-                <h3>A written vocabulary of refusal</h3>
-                <p>A verification service returns <b>twelve named failure modes</b> — <code>undetected_rollup</code>, <code>duplicate_facts</code>, <code>bare_name_merge</code>, <code>substance_demotion</code> and the rest — never a bare "failed". Each name carries its own definition, and the whole vocabulary is served as data from <code>GET /failure-modes</code>, so the same names become the review-queue filters and the metric dimensions. One vocabulary, four runtimes, no shared library.</p>
-                <a class="go" href="https://github.com/bpachter/astraea/blob/main/gate/Astraea.Gate/OntologyLaw.cs" target="_blank" rel="noopener">OntologyLaw.cs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-            <div class="std">
-              <div class="std-n">02</div>
-              <div>
-                <h3>Publication is structurally impossible without a verdict</h3>
-                <p>Not policy — three mechanisms at once. The API is read-only, so no update endpoint exists that could quietly move a proposal to approved. The approve action returns <b>HTTP 409</b> unless the verdict passes. Every gate field is read-only in the review UI, so a curator cannot type a verdict into a form. Rejection, meanwhile, is a free bulk action: refusing never needs a verdict. The asymmetry is the rule.</p>
-                <a class="go" href="https://github.com/bpachter/astraea/blob/main/portal/adjudication/views.py" target="_blank" rel="noopener">views.py <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-            <div class="std">
-              <div class="std-n">03</div>
-              <div>
-                <h3>Trust is derived, never stored</h3>
-                <p>A stored confidence score drifted so far from measured accuracy that the high-confidence band audited <i>worse</i> than the band beneath it. I replaced it with a five-tier taxonomy computed at read time from the evidence itself — best source class, inference method, latest audit verdict. Attach one better record and the claim is promoted on its next read: no rewrite sweep, no stale labels, and one function every consumer asks.</p>
-                <a class="go" href="https://github.com/bpachter/thessa/blob/main/server/src/intel/spaceintel/kgTrust.ts" target="_blank" rel="noopener">kgTrust.ts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-            <div class="std">
-              <div class="std-n">04</div>
-              <div>
-                <h3>One canonical list, and a repair that refuses to guess</h3>
-                <p>Merging two nodes moves every reference off the loser. If the list of referencing tables misses one, nothing errors — rows just stay attached to a node the graph now treats as noise. Two tables were missing, and the cost was specific: the <code>produces</code> edge from Cameco, the largest publicly traded uranium producer on earth, did not follow its merge, so the critical-minerals layer quietly lost its uranium miner. The list is now a single shared constant with a regression test, and the repair reads the merge logs rather than inferring a target by name — a stranded row whose merge is in no log is <b>reported, never rehomed on a guess</b>.</p>
-                <a class="go" href="https://github.com/bpachter/thessa/blob/main/server/scripts/repairStrandedNodeRefs.ts" target="_blank" rel="noopener">repairStrandedNodeRefs.ts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-            <div class="std">
-              <div class="std-n">05</div>
-              <div>
-                <h3>Every bulk change is a dry run until you say otherwise</h3>
-                <p>Migrations, merges, retypes and retirements all default to dry-run, with the read-only database flag wired to the same switch so a rehearsal physically cannot write. Each is reversible and leaves a JSON log beside the database. The discipline pays for itself in refusals: adversarial review under it killed <b>5 of 32</b> proposed demotions and <b>4 of 13</b> proposed merges, each of which pointed the wrong way.</p>
-                <a class="go" href="https://github.com/bpachter/thessa/blob/main/CLAUDE.md" target="_blank" rel="noopener">Engineering rules <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-            <div class="std">
-              <div class="std-n">06</div>
-              <div>
-                <h3>The reference architecture, written down</h3>
-                <p>The seven-chapter guide on this site is the standard itself: named design rules, a build order, a trust taxonomy, and the argument grounded in <b>IEC CIM</b> (61970 / 61968 / 62325) — the model electric utilities have run in production for two decades. It ships with a working reconciliation gate embedded in the page, so the document that specifies the rule also demonstrates it.</p>
-                <a class="go" href="graph-ontology/">Read the guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
         <section class="sec" id="capabilities">
-          <div class="sec-head"><h2 class="kick">04 · Capabilities</h2></div>
+          <div class="sec-head"><h2 class="kick">03 · Capabilities</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>AI / LLM systems</div><div class="cap-v">RAG &amp; agents (LangGraph, LangChain, CrewAI, MCP) · multi-agent orchestration · evals &amp; LLM-as-judge (RAGAS, LangSmith) · guardrails &amp; prompt-injection defense · fine-tuning (LoRA / QLoRA, DPO, SFT, RLHF)</div></div>
           <div class="cap reveal"><div class="cap-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Serving &amp; models</div><div class="cap-v">vLLM · SGLang · Ollama (local RTX 4090) · quantization (GGUF / AWQ) · multi-model routing &amp; fallback · Claude, GPT-5.x, Gemini, Llama, Qwen, DeepSeek</div></div>
@@ -1048,7 +964,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="education">
-          <div class="sec-head"><h2 class="kick">05 · Education &amp; certifications</h2></div>
+          <div class="sec-head"><h2 class="kick">04 · Education &amp; certifications</h2></div>
           <hr class="rule">
           <div class="cap reveal"><div class="cap-k">Education</div><div class="cap-v">
             <div class="edu-row">
@@ -1081,7 +997,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
         </section>
 
         <section class="sec" id="contact" style="padding-bottom:24px">
-          <div class="sec-head"><h2 class="kick">06 · Contact</h2></div>
+          <div class="sec-head"><h2 class="kick">05 · Contact</h2></div>
           <hr class="rule">
           <div class="contact-plate reveal">
             <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
