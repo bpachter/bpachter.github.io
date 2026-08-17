@@ -405,7 +405,7 @@ const Atlas = (() => {
         <div class="kpi"><div class="v b1" id="k-dc">—</div><div class="k" id="k-dc-l">DATA CENTERS IN FRONTIER</div></div>
         <div class="kpi"><div class="v b1" id="k-eth">—</div><div class="k">ETHANOL PLANTS IN FRONTIER (n=${model.eths.length})</div></div>
         <div class="kpi"><div class="v" id="k-p50">—</div><div class="k">GOLDEN PAIRS — DC ≤50 KM FROM ETHANOL</div></div>
-        <div class="kpi"><div class="v">${d.summary.headline.ethanol.co2_ferm_mt} Mt</div><div class="k">FERMENTATION CO2 / YR AT NAMEPLATE</div></div>
+        <div class="kpi"><div class="v">${d.summary.headline.ethanol.co2_ferm_mt} Mt</div><div class="k">FERM CO2 / YR — 4–16× FULL-BUILDOUT DEMAND</div></div>
       </div>
       <div class="rail-sec"><h4 id="lbl-search">FIND A SITE</h4>
         <div class="searchbox">
