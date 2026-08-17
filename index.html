@@ -397,6 +397,32 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
   .xp-det{font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 80%,transparent);
     max-width:64ch;margin:8px 0 0}
   .xp-tags{margin-top:12px}
+  /* One hand-drawn figure per role, illustrating the thing the paragraph
+     beside it describes. Drawn as SVG at runtime so the markup stays small
+     and every stroke inherits the theme tokens rather than a baked colour. */
+  .xp-fig{margin:16px 0 0;max-width:64ch;border:1px solid var(--color-divider);
+    background:color-mix(in srgb,var(--color-text) 2.5%,transparent);padding:12px 14px 10px}
+  .xp-fig svg{display:block;width:100%;height:auto}
+  .xp-fig .fg-cap{font-family:var(--font-heading);font-weight:600;font-size:9.5px;
+    letter-spacing:.1em;text-transform:uppercase;fill:var(--color-mute-3)}
+  .xp-fig .fg-key{font-family:var(--font-body);font-size:9px;fill:var(--color-mute-2)}
+  .xp-fig .fg-val{font-family:var(--font-heading);font-weight:600;font-size:11px;
+    fill:var(--color-text);font-feature-settings:"tnum" 1}
+  .xp-fig .fg-ink{stroke:color-mix(in srgb,var(--color-text) 55%,transparent);fill:none;stroke-width:1.2}
+  .xp-fig .fg-acc{fill:var(--color-accent)}
+  .xp-fig .fg-accs{stroke:var(--color-accent);fill:none;stroke-width:1.5}
+  .xp-fig .fg-dim{fill:color-mix(in srgb,var(--color-text) 22%,transparent)}
+  .xp-fig .fg-rule{stroke:var(--color-divider);stroke-width:1}
+  /* the sweep that reads as "screened left to right" */
+  .xp-fig .fg-sweep{animation:fgSweep 5.5s var(--ease-out) infinite}
+  @keyframes fgSweep{0%{transform:translateX(0);opacity:0}
+    8%{opacity:.9}80%{opacity:.9}100%{transform:translateX(var(--sweepX,320px));opacity:0}}
+  .xp-fig .fg-grow{transform-origin:left center;animation:fgGrow 1s var(--ease-out) both}
+  @keyframes fgGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){
+    .xp-fig .fg-sweep{animation:none;opacity:.55}
+    .xp-fig .fg-grow{animation:none}
+  }
 
   .xp-loc{display:block;margin-top:5px;font-family:var(--font-body);font-size:11.5px;letter-spacing:.02em;color:var(--color-mute-3)}
 
@@ -825,6 +851,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
               <div class="xp-role">Senior Business Analyst · <span class="xp-org">Duke Energy</span></div>
               <p class="xp-det"><b>Analyst is the org-chart title; the scope is platform ownership</b> — I designed the system, and I set the standards five organizations build against.</p>
               <p class="xp-det">Architected and delivered a spatial transmission-capacity platform (ArcGIS Pro + Python toolbox) that generates a continuous MW-headroom raster (IDW on tower-level TrLim), screens <b>250+ GW</b> of large-load requests and has supported <b>150+ hyperscaler site analyses</b> across a six-state territory — cutting PSS/E load-study turnaround from 2–4 weeks to same-day (~200 engineering hours/month). Built prompt-driven, agentic LangChain workflows for screening and feasibility narratives; own the platform roadmap and technical standards across five internal organizations.</p>
+              <figure class="xp-fig" data-fig="headroom" role="img" aria-label="MW-headroom raster across the territory, with substations screened left to right"></figure>
               <div class="chips xp-tags"><span class="chip">ArcGIS Pro</span><span class="chip">Python toolbox</span><span class="chip">IDW rasters</span><span class="chip">LangChain</span><span class="chip">PSS/E</span><span class="chip">AWS</span><span class="chip">SAP S/4HANA</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-duke">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </div>
@@ -837,6 +864,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div>
               <div class="xp-role">Acquisitions Analyst · <span class="xp-org">New York Mortgage Trust</span></div>
               <p class="xp-det">Built multi-source ingestion pipelines (Python, SQL) over Yardi and public-data APIs (FRED, FDIC, BLS, Census) and forecasting models (TensorFlow, XGBoost) for rent, occupancy and cap-rate prediction; deployed CNN document parsing and BERT NLP; delivered ML risk scoring across a <b>$7B+</b> residential mortgage portfolio.</p>
+              <figure class="xp-fig" data-fig="factors" role="img" aria-label="Ten weighted factors scoring a property, the way the acquisitions model ranked them"></figure>
               <div class="chips xp-tags"><span class="chip">Python · SQL</span><span class="chip">TensorFlow · XGBoost</span><span class="chip">BERT NLP</span><span class="chip">AWS / Azure</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-nymt">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </div>
@@ -849,6 +877,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div>
               <div class="xp-role">Risk &amp; Financial Advisory Analyst · <span class="xp-org">Deloitte</span></div>
               <p class="xp-det">Designed automated ETL pipelines (Python, AWS) and ML models (Random Forest, GBM, ARIMA, GARCH, LSTM) for portfolio-risk and bond-volatility forecasting across finance, energy and defense clients; built financial-sentiment NLP and audit-automation frameworks for Fortune 500 clients.</p>
+              <figure class="xp-fig" data-fig="regimes" role="img" aria-label="A volatility regime series: calm stretches in the baseline, stressed stretches shaded"></figure>
               <div class="chips xp-tags"><span class="chip">Python · AWS</span><span class="chip">ARIMA · GARCH · LSTM</span><span class="chip">NLP</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-deloitte">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </div>
@@ -861,6 +890,7 @@ try{if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme: dark)').matches))docu
             <div>
               <div class="xp-role">Supply Chain Planning Co-op · <span class="xp-org">BMW Manufacturing</span></div>
               <p class="xp-det">Redesigned Spartanburg's JIT/JIS part-reorder flow: rather than every supplier truck holding back rack slots for replacement parts (so trucks often shipped a rack or two short), I introduced a dedicated low-volume reorder truck that milk-runs shared suppliers — freeing every production truck to fill all 20 racks. <b>~$13M</b> in transportation savings across the G05–G09 programs (X5 · X6 · X7 · XM). Also built time-series forecasting dashboards (Python, Power BI) for supply-chain disruption risk.</p>
+              <figure class="xp-fig" data-fig="jit" role="img" aria-label="Supplier trucks filling all twenty rack slots once reorders ride a dedicated milk-run"></figure>
               <div class="chips xp-tags"><span class="chip">SAP</span><span class="chip">JIT / JIS</span><span class="chip">Python · Power BI</span><span class="chip">Forecasting</span></div>
               <div style="margin-top:14px"><a class="go" href="case-studies.html#cs-bmw">Interactive case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </div>
@@ -1008,6 +1038,136 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
     secs.forEach((s) => so.observe(s));
   }
+
+  // ---------- experience figures ----------
+  // One drawing per role, showing the thing its paragraph describes. Built
+  // as SVG here rather than written into the markup: four hand-authored
+  // diagrams would be a few hundred lines of HTML, and every colour would
+  // have to be restated for the dark theme instead of inheriting a token.
+  (function () {
+    const NS = 'http://www.w3.org/2000/svg';
+    const el = (n, a) => { const e = document.createElementNS(NS, n);
+      for (const k in a) e.setAttribute(k, a[k]); return e; };
+    // deterministic noise, so the figure is identical on every load
+    const rnd = (s) => { let x = Math.sin(s) * 43758.5453; return x - Math.floor(x); };
+
+    const FIGS = {
+      // A continuous MW-headroom surface, screened left to right.
+      headroom(svg, W, H) {
+        const L = 8, T = 20, w = W - 16, h = H - 40;
+        const cols = 46, rows = 6, cw = w / cols, ch = h / rows;
+        for (let c = 0; c < cols; c++) for (let r = 0; r < rows; r++) {
+          // two smooth fields multiplied — reads as interpolated, not random
+          const v = (Math.sin(c / 7 + r / 3) + 1) / 2 * 0.7 + rnd(c * 31 + r * 7) * 0.3;
+          svg.appendChild(el('rect', { x: L + c * cw, y: T + r * ch, width: cw + 0.6, height: ch + 0.6,
+            fill: 'var(--color-accent)', opacity: (0.06 + v * 0.5).toFixed(3) }));
+        }
+        // substations sitting on the surface
+        [[0.13, 0.3], [0.29, 0.66], [0.46, 0.22], [0.58, 0.55], [0.71, 0.38], [0.86, 0.72]]
+          .forEach(([fx, fy]) => {
+            svg.appendChild(el('rect', { x: L + fx * w - 3, y: T + fy * h - 3, width: 6, height: 6,
+              class: 'fg-ink' }));
+          });
+        const sweep = el('g', { class: 'fg-sweep' });
+        sweep.appendChild(el('rect', { x: L, y: T - 4, width: 2, height: h + 8, fill: 'var(--color-accent)' }));
+        svg.appendChild(sweep);
+        svg.style.setProperty('--sweepX', (w - 2) + 'px');
+        svg.appendChild(el('text', { x: L, y: 12, class: 'fg-cap' })).textContent =
+          'MW headroom · IDW on tower-level limits';
+        svg.appendChild(el('text', { x: W - 8, y: 12, class: 'fg-cap', 'text-anchor': 'end' })).textContent =
+          '250+ GW screened';
+      },
+
+      // Ten weighted factors, the acquisitions lens.
+      factors(svg, W, H) {
+        const names = ['School scores', 'Crime', 'Comp prices', 'Rent growth', 'SFH prices',
+                       'Census growth', 'Wealth', 'Vacancy', 'Cap rate', 'Supply'];
+        const vals = [8.5, 8.0, 7.5, 8.0, 7.5, 8.5, 7.5, 6.5, 7.0, 6.0];
+        const L = 92, T = 18, w = W - L - 34, rowH = (H - T - 8) / names.length;
+        names.forEach((n, i) => {
+          const y = T + i * rowH;
+          svg.appendChild(el('text', { x: L - 8, y: y + rowH * 0.72, class: 'fg-key', 'text-anchor': 'end' }))
+            .textContent = n;
+          svg.appendChild(el('rect', { x: L, y: y + rowH * 0.28, width: w, height: rowH * 0.42, class: 'fg-dim' }));
+          const bar = el('rect', { x: L, y: y + rowH * 0.28, width: w * (vals[i] / 10),
+            height: rowH * 0.42, fill: 'var(--color-accent)', class: 'fg-grow' });
+          bar.style.animationDelay = (i * 55) + 'ms';
+          svg.appendChild(bar);
+          svg.appendChild(el('text', { x: W - 30, y: y + rowH * 0.72, class: 'fg-val' }))
+            .textContent = vals[i].toFixed(1);
+        });
+        svg.appendChild(el('text', { x: 8, y: 11, class: 'fg-cap' })).textContent =
+          'Ten weighted factors · 0–10';
+      },
+
+      // Calm and stressed stretches of a volatility series.
+      regimes(svg, W, H) {
+        const L = 8, T = 18, w = W - 16, h = H - 32;
+        const N = 150, pts = [];
+        let v = 0.5;
+        const stressed = (i) => (i > 34 && i < 55) || (i > 96 && i < 118);
+        for (let i = 0; i < N; i++) {
+          const s = stressed(i) ? 0.135 : 0.032;
+          v += (rnd(i * 13.7) - 0.5) * s + (0.5 - v) * 0.035;
+          v = Math.max(0.06, Math.min(0.94, v));
+          pts.push(v);
+        }
+        // shade the stressed stretches
+        let run = -1;
+        for (let i = 0; i <= N; i++) {
+          const st = i < N && stressed(i);
+          if (st && run < 0) run = i;
+          if (!st && run >= 0) {
+            svg.appendChild(el('rect', { x: L + (run / N) * w, y: T, width: ((i - run) / N) * w,
+              height: h, fill: 'var(--color-accent)', opacity: 0.14 }));
+            run = -1;
+          }
+        }
+        const d = pts.map((p, i) => `${i ? 'L' : 'M'}${(L + (i / (N - 1)) * w).toFixed(1)} ${(T + h - p * h).toFixed(1)}`).join(' ');
+        svg.appendChild(el('path', { d, class: 'fg-accs' }));
+        svg.appendChild(el('line', { x1: L, y1: T + h, x2: L + w, y2: T + h, class: 'fg-rule' }));
+        svg.appendChild(el('text', { x: L, y: 11, class: 'fg-cap' })).textContent =
+          'Volatility regimes · calm vs stressed';
+        svg.appendChild(el('text', { x: W - 8, y: 11, class: 'fg-cap', 'text-anchor': 'end' })).textContent =
+          'GARCH · LSTM';
+      },
+
+      // Rack slots on supplier trucks, before and after the milk-run.
+      jit(svg, W, H) {
+        const rows = [['Before', 18, false], ['After', 20, true]];
+        const L = 54, T = 22, slotGap = 2.5;
+        const rowH = (H - T - 10) / 2;
+        rows.forEach(([label, filled, ok], r) => {
+          const y = T + r * rowH;
+          svg.appendChild(el('text', { x: L - 8, y: y + rowH * 0.55, class: 'fg-key', 'text-anchor': 'end' }))
+            .textContent = label;
+          const w = W - L - 46, sw = (w - slotGap * 19) / 20;
+          for (let i = 0; i < 20; i++) {
+            const x = L + i * (sw + slotGap);
+            const full = i < filled;
+            svg.appendChild(el('rect', { x, y: y + rowH * 0.18, width: sw, height: rowH * 0.5,
+              fill: full ? 'var(--color-accent)' : 'none',
+              opacity: full ? (ok ? 0.9 : 0.55) : 1,
+              stroke: full ? 'none' : 'color-mix(in srgb,var(--color-text) 40%,transparent)',
+              'stroke-dasharray': full ? '' : '2 2', 'stroke-width': 1 }));
+          }
+          svg.appendChild(el('text', { x: W - 8, y: y + rowH * 0.55, class: 'fg-val', 'text-anchor': 'end' }))
+            .textContent = filled + '/20';
+        });
+        svg.appendChild(el('text', { x: 8, y: 12, class: 'fg-cap' })).textContent =
+          'Rack slots per production truck · reorders on a dedicated milk-run';
+      },
+    };
+
+    document.querySelectorAll('.xp-fig[data-fig]').forEach((box) => {
+      const kind = box.dataset.fig;
+      if (!FIGS[kind]) return;
+      const W = 640, H = kind === 'factors' ? 150 : kind === 'jit' ? 96 : 104;
+      const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMidYMid meet' });
+      FIGS[kind](svg, W, H);
+      box.appendChild(svg);
+    });
+  })();
 
   // ---------- hero backdrop: the regime lab, live ----------
   // The case-study simulator, re-run as a background. A recording was the
