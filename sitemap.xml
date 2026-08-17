@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- /astraea/ is deliberately absent: it is a superseded build of the same app
-     as /atlas/ and carries a canonical pointing there. Listing both would submit
-     duplicate content for indexing. -->
+<!-- /astraea/ is deliberately absent: it redirects to /atlas/, which is the same
+     app. Listing both would submit duplicate content for indexing. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://bpachter.github.io/</loc><changefreq>monthly</changefreq></url>
   <url><loc>https://bpachter.github.io/case-studies.html</loc><changefreq>monthly</changefreq></url>

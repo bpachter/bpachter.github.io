@@ -10,7 +10,7 @@ portfolio, plus several of the interactive apps it links to.
 | `index.html` | The portfolio. One file: inline CSS, markup, and inline JS — no build step, no framework, no dependencies. |
 | `case-studies.html` | Longer write-ups of the consulting and utility work. |
 | `atlas/` | Current build output of [bpachter/astraea](https://github.com/bpachter/astraea) — governance layer for a knowledge graph. This is what the portfolio links. |
-| `astraea/` | Superseded build of the same app. Still served so existing links keep working, but carries a `canonical` pointing at `atlas/` and is deliberately absent from `sitemap.xml`. |
+| `astraea/` | Redirect to `atlas/`. It used to serve a second build of the same app, but that build was made from a Git Bash shell, which rewrote Vite's base path to `/Program%20Files/Git/astraea/` — every data request 404'd and the page rendered "No graph instance found". The two bundles differed by 44 bytes, all of it the base path, so it is a redirect rather than a rebuild. |
 | `attractor/` | The Great Attractor — interactive tour of the observable universe. |
 | `drawdown/` | US natural gas supply and demand model. |
 | `graph-ontology/` | Practical guide to knowledge-graph architecture, grounded in IEC CIM. |
