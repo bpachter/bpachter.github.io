@@ -32,6 +32,7 @@ on:
       - 'updraft/**'
       - 'graph-ontology/**'
       - 'atlas/**'
+      - 'agent-safety/**'
       - '.github/workflows/deploy-pages-site.yml'
   workflow_dispatch:
 
@@ -92,13 +93,16 @@ jobs:
           if [ -d updraft ]; then cp -r updraft _site/updraft; fi
           if [ -d graph-ontology ]; then cp -r graph-ontology _site/graph-ontology; fi
           if [ -d atlas ]; then cp -r atlas _site/atlas; fi
+          # Static research reports (self-contained HTML, figures inlined as
+          # data URIs — nothing to build, nothing external to fetch).
+          if [ -d agent-safety ]; then cp -r agent-safety _site/agent-safety; fi
           touch _site/.nojekyll
 
           # Fail the build rather than publish a site missing an app the
           # portfolio links to. This is the check that would have caught
           # astraea/ and updraft/ going 404 instead of shipping it.
           missing=0
-          for d in astraea atlas attractor drawdown graph-ontology fonts gradient kernel updraft media; do
+          for d in agent-safety astraea atlas attractor drawdown graph-ontology fonts gradient kernel updraft media; do
             if [ -d "$d" ] && [ ! -e "_site/$d" ]; then
               echo "::error::$d is tracked but was not copied into _site"
               missing=1
